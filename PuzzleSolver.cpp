@@ -48,7 +48,7 @@ PuzzleSolver::PuzzleSolver(ParsedPuzzle &puzzle) : pieceManager(puzzle) {
 }
 
 PuzzleSolver::~PuzzleSolver() {
-    delete puzzleSolution;
+    if (puzzleSolution != nullptr)delete puzzleSolution;
 }
 
 
@@ -62,7 +62,7 @@ PuzzleSolution::PuzzleSolution(int row, int col) : col(col), row(row) {
 }
 
 PuzzleSolution::~PuzzleSolution() {
-    delete[] puzzleSolution;
+    if (puzzleSolution != nullptr)delete[] puzzleSolution;
 }
 
 
@@ -163,7 +163,7 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
     int queueLength = row * col;
     auto *queue = new PuzzlePieceLocation[queueLength];
     int queueCurrentSize = 0;
-    delete[] puzzleSolution;
+    if (puzzleSolution != nullptr) delete puzzleSolution;
     puzzleSolution = new PuzzleSolution(row, col);
     bool shouldCheckNewLocation = true;
     PuzzlePieceLocation pieceLocation;
@@ -185,8 +185,8 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
             shouldCheckNewLocation = true;
             queue[queueCurrentSize++] = pieceLocation;
         }
-        std::flush(cout);
     } while (!(!shouldCheckNewLocation && queueCurrentSize == 0) && queueCurrentSize < queueLength);
-    delete[] queue;
+
+    if (queue != nullptr) delete[] queue;
     return queueCurrentSize == queueLength;
 }

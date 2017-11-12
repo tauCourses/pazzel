@@ -5,14 +5,27 @@
 #ifndef PAZZEL_PIECEMANAGER_H
 #define PAZZEL_PIECEMANAGER_H
 
-#include "parsedData.h"
+#include "ParsedPuzzle.h"
 #include "PuzzlePiece.h"
 
+#define NumberOfPossibleConstrains 1<<8
+
 class PieceManager {
-    public:
-        PieceManager(parsedData data);
-        Piece_t getPiece(Piece_t constrain, Piece_t last);
-        int countConstrainPiece(Piece_t constrain)
+    int count[NumberOfPossibleConstrains] = {0};
+    Piece_t maskOptions[1 << 4];
+
+    void addPiece(Piece_t piece);
+
+    void removePiece(Piece_t piece);
+
+public:
+    PieceManager();
+
+    explicit PieceManager(ParsedPuzzle &puzzle);
+
+    Piece_t getNextPiece(Piece_t constrain, Piece_t last);
+
+    int countConstrainPiece(Piece_t constrain);
 };
 
 

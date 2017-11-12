@@ -5,11 +5,19 @@
 #ifndef PAZZEL_EXPORTER_H
 #define PAZZEL_EXPORTER_H
 
-#include "parsedData.h"
+#include <iostream>
+#include "ParsedPuzzle.h"
+#include "PuzzleSolver.h"
 
-void exportDataErrors(char* outputFile, parsedData data);
-void exportSolution(char* outputFile, parsedData data, Sulotion s);
-void exportNoSulotion(char* outputFile);
+using namespace std;
+
+namespace exporter {
+    void exportPuzzleParsingErrors(const char *outputFile, ParsedPuzzle &puzzle);
+
+    void exportPuzzleSolvingErrors(const char *outputFile, SolverErrors &solverErrors);
+
+    void exportSolution(const char *outputFile, ParsedPuzzle &puzzle, PuzzleSolution *puzzleSolution);
+};
 
 
 #endif //PAZZEL_EXPORTER_H
