@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
         return -1;
     }
     char *inputFilePath = argv[1], *outputFilePath = argv[2];
+
     ParsedPuzzle puzzle = ParsedPuzzle(inputFilePath);
     if (puzzle.parsingErrors.hasError()) {
         //  export error to output file

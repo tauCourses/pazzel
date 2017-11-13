@@ -12,11 +12,17 @@
 
 class PieceManager {
     int count[NumberOfPossibleConstrains] = {0};
+    int countOptions[NumberOfPossibleConstrains] = {0};
+
     Piece_t maskOptions[1 << 4];
 
     void addPiece(Piece_t piece);
 
     void removePiece(Piece_t piece);
+
+    void addOption(Piece_t piece);
+
+    void removeOption(Piece_t piece);
 
 public:
     PieceManager();
@@ -26,6 +32,8 @@ public:
     Piece_t getNextPiece(Piece_t constrain, Piece_t last);
 
     int countConstrainPiece(Piece_t constrain);
+
+    int countConstrainOptions(Piece_t constrain);
 };
 
 

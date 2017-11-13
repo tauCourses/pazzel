@@ -9,7 +9,7 @@
 #include <cstdint>
 
 #define Piece_t uint8_t
-#define nullPiece 0
+#define nullPiece 0b11111111u
 
 class PuzzlePiece {
 

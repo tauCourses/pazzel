@@ -7,10 +7,9 @@
 
 #include <iostream>
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 #include "PuzzlePiece.h"
-#include "string.h"
-
+#include <cstring>
 #define BUFFER_SIZE 1024
 
 

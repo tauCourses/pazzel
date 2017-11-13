@@ -6,6 +6,7 @@
 #define PAZZEL_PUZZLESOLVER_H
 
 #include "PieceManager.h"
+#include "PuzzlePieceConstrain.h"
 #include <vector>
 
 class SolverErrors {
