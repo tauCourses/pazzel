@@ -1,5 +1,6 @@
 from random import randint
 from random import shuffle
+from subprocess import Popen, PIPE
 
 sides = ['right', 'left', 'up', 'down']
 side_direction = [(0,1),(0,-1),(-1,0),(1,0)]
@@ -58,9 +59,17 @@ def export_puzzle(puzzle):
 
 puzzle = set_puzzle()
 export_puzzle(puzzle)
+p = Popen(['./pazzel', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+output, err = p.communicate()
 
-for line in puzzle.pieces:
-    for t in line:
-        print("%d " % (t["index"]+1), end="")
-    print()
+new_puzzle = []
+with open("b") as f:
+    for line in f:
+        line = line.split()  # to deal with blank
+        if line:  # lines (ie skip them)
+            line = [int(i) for i in line]
+            new_puzzle.append(line)
+
+print(new_puzzle)
+
 
