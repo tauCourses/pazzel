@@ -78,13 +78,16 @@ def check_output_file():
                     side_piece = puzzle.get_piece_by_index(new_puzzle[new_x][new_y])
                     if -1 * piece[side] != side_piece[opposite_side[i]]:
                         print("failed!1")
+                        return
                 elif piece[side] != 0:
                     print("failed!2")
+                    return
+    print("pass")
 
-for x in range(10000):
+for x in range(1000):
     puzzle = set_puzzle()
     export_puzzle(puzzle)
-    p = Popen(['./pazzel', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./cmake-build-debug/puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     check_output_file()
 
