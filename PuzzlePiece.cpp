@@ -8,5 +8,5 @@ PuzzlePiece::PuzzlePiece(int index, int left, int up, int right, int down) :
         index(index), left(left), up(up), down(down), right(right) {}
 
 Piece_t PuzzlePiece::representor() {
-    return (Piece_t) ((((((left << 2) | up) << 2) | right) << 2) | down);
+    return (Piece_t) ( (left << 6) | (up << 4) | (right << 2) | down );
 }
