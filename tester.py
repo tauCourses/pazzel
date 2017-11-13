@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 
 sides = ['right', 'left', 'up', 'down']
 side_direction = [(0,1),(0,-1),(-1,0),(1,0)]
-opposite_size = ['left', 'right', 'down', 'up']
+opposite_side = ['left', 'right', 'down', 'up']
 
 
 class Puzzle:
@@ -19,6 +19,9 @@ class Puzzle:
         for x,y in combinations:
             yield (x,y)
 
+    def get_piece_by_index(self, index):
+        return [self.pieces[x][y] for x,y in self if self.pieces[x][y]["index"] == index-1][0]
+
 
 def get_piece_side(puzzle, x, y, side):
     if 0 <= x < puzzle.x and 0 <= y < puzzle.y:
@@ -29,9 +32,9 @@ def get_piece_side(puzzle, x, y, side):
 
 
 def set_piece(puzzle, x, y):
-    puzzle.pieces[x][y] = dict()
+    puzzle.pieces[x][y] = {"x":x,"y":y}
     for i, side in enumerate(sides):
-        type = get_piece_side(puzzle, x+side_direction[i][0], y+side_direction[i][1], opposite_size[i])
+        type = get_piece_side(puzzle, x + side_direction[i][0], y + side_direction[i][1], opposite_side[i])
         if type is None:
             puzzle.pieces[x][y][side] = randint(-1,1)
         else:
@@ -56,20 +59,38 @@ def export_puzzle(puzzle):
             piece = puzzle.pieces[x][y]
             f.write("%d %d %d %d %d\n" % (piece["index"]+1, piece["left"], piece["up"], piece["right"], piece["down"]))
 
+def check_output_file():
+    new_puzzle = []
+    with open("b") as f:
+        for line in f:
+            line = line.split()  # to deal with blank
+            if line:  # lines (ie skip them)
+                line = [int(i) for i in line]
+                new_puzzle.append(line)
 
-puzzle = set_puzzle()
-export_puzzle(puzzle)
-p = Popen(['./pazzel', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-output, err = p.communicate()
+    for x in range(len(new_puzzle)):
+        for y in range(len(new_puzzle[x])):
+            piece = puzzle.get_piece_by_index(new_puzzle[x][y])
+            for i, side in enumerate(sides):
+                new_x = x + side_direction[i][0]
+                new_y = y + side_direction[i][1]
+                if 0 <= new_x < len(new_puzzle) and 0 <= new_y < len(new_puzzle[x]):
+                    side_piece = puzzle.get_piece_by_index(new_puzzle[new_x][new_y])
+                    if -1 * piece[side] != side_piece[opposite_side[i]]:
+                        print("failed!1")
+                elif piece[side] != 0:
+                    print("failed!2")
 
-new_puzzle = []
-with open("b") as f:
-    for line in f:
-        line = line.split()  # to deal with blank
-        if line:  # lines (ie skip them)
-            line = [int(i) for i in line]
-            new_puzzle.append(line)
+for x in range(10000):
+    puzzle = set_puzzle()
+    export_puzzle(puzzle)
+    p = Popen(['./pazzel', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    output, err = p.communicate()
+    check_output_file()
 
-print(new_puzzle)
+
+
+
+
 
 
