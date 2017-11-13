@@ -2,7 +2,12 @@
 // Created by private on 11/11/17.
 //
 #include "ParsedPuzzle.h"
-
+namespace {
+    bool validInput(int x)
+    {
+        return x >= -1 && x <= 1;
+    }
+}
 
 ParsedPuzzle::ParsedPuzzle(const char *inputFile) {
 
@@ -30,7 +35,7 @@ ParsedPuzzle::ParsedPuzzle(const char *inputFile) {
         bool isUsable = true;
         if ((lengthRead = sscanf(line, " %d %d %d %d %d %d",
                                  &id, &left, &up, &right, &down, &checker)) != 0) { // 0 = no ID -> emptyLine
-            if (lengthRead != 5) { // wrong format
+            if (lengthRead != 5 || !validInput(left) || !validInput(up) || !validInput(right) || !validInput(down) ) { // wrong format
                 parsingErrors.wrongPieceFormat.push_back(id);
                 parsingErrors.wrongPieceFormatLine.emplace_back(line);
                 pieces[id - 1] = new PuzzlePiece(id, 0, 0, 0, 0);
@@ -59,6 +64,7 @@ ParsedPuzzle::ParsedPuzzle(const char *inputFile) {
     }
     fclose(file);
 }
+
 
 ParsedPuzzle::~ParsedPuzzle() {
     if (!pieces) {

@@ -21,15 +21,13 @@ PieceManager::PieceManager(ParsedPuzzle &puzzle) : PieceManager() {
 }
 
 void PieceManager::addPiece(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
+    for (Piece_t maskOption : maskOptions)
         ++count[piece & maskOption];
-    }
 }
 
 void PieceManager::removePiece(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
+    for (Piece_t maskOption : maskOptions)
         --count[piece & maskOption];
-    }
 }
 
 Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
@@ -40,7 +38,7 @@ Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
             currentLeft, currentUp, currentRight, currentDown,
             endLeft, endUp, endRight, endDown;
 
-    startLeft = (constrain >> 6) & 0b11;
+    startLeft = (constrain >> 6) & 0b11; //TODO replace with function
     startUp = (constrain >> 4) & 0b11;
     startRight = (constrain >> 2) & 0b11;
     startDown = (constrain >> 0) & 0b11;
