@@ -6,47 +6,99 @@
 namespace {
     int getNumberOfPieces(FILE *file) {
         char line[BUFFER_SIZE];
+        char buffer[BUFFER_SIZE];
         int i = -1;
         if (fgets(line, BUFFER_SIZE, file)) { // if fail -> empty file.
-            sscanf(line, "NumElements = %d", &i);
+            sscanf(line, "NumElements = %d%s", &i,buffer);
+            if(strlen(buffer)!=0)
+                i=-1;
         }
         return i;
     }
 
-    bool valid_piece_arguments(int left, int up, int right, int down) {
-        return  left >= -1 && left <= 1 &&
-                up >= -1 && up <=1 &&
-                right >= -1 && right <=1 &&
-                down >= -1 && down <=1;
+    bool isNumber(char* num)
+    {
+        if(*num == '-')
+            num++;
+        for(;*num;num++)
+            if(!isdigit(*num) && *num != '\n' && *num != '\r')
+                return false;
+        return true;
+    }
+    bool parseId(ParsedPuzzle *pp, char* num, int *id)
+    {
+
+        if(!isNumber(num)) {
+            pp->parsingErrors.notIntegerIds.emplace_back(num);
+            return false;
+        }
+
+        *id = std::stoi(num);
+        if(*id<1 || *id> pp->numberOfPieces)
+        {
+            pp->parsingErrors.wrongPiecesIds.push_back(*id);
+            return false;
+        }
+
+        return true;
+    }
+
+    bool parseSideValue(int *val)
+    {
+        char* num = strtok(nullptr," ");
+        if(num == nullptr)
+            return false;
+
+        if(!isNumber(num))
+            return false;
+
+        *val = std::stoi(num);
+        return !(*val < -1 || *val > 1);
+
+    }
+
+    int is_empty(const char *s) {
+        while (*s != '\0') {
+            if (!isspace((unsigned char)*s))
+                return 0;
+            s++;
+        }
+        return 1;
     }
 
     void parseAllThePiecesFromFile(ParsedPuzzle *pp, FILE *file) {
         char line[BUFFER_SIZE];
+        char copy[BUFFER_SIZE];
+        char toNumber[BUFFER_SIZE];
         while (fgets(line, BUFFER_SIZE, file)) {
-            /* Read puzzle pieces */
-            int id, up, down, left, right, checker, lengthRead;
-            bool isUsable = true;
-            if ((lengthRead = sscanf(line, " %d %d %d %d %d %d",
-                                     &id, &left, &up, &right, &down, &checker)) != 0) { // 0 = no ID -> emptyLine
-                if (lengthRead>0 && (id < 1 || id > pp->numberOfPieces)) { // wrong id
-                    pp->parsingErrors.wrongPiecesIds.push_back(id);
-                    isUsable = false;
-                }else  if (lengthRead != 5 || !valid_piece_arguments(left, up, right, down)) { // wrong format
-                    pp->parsingErrors.wrongPieceFormat.push_back(id);
-                    pp->parsingErrors.wrongPieceFormatLine.emplace_back(line);
-                    pp->pieces[id - 1] = new PuzzlePiece(id, 0, 0, 0, 0);
-                    isUsable = false;
-                }
-
-
-                if (isUsable) {
-                    if (pp->pieces[id - 1] != nullptr) {
-                        delete pp->pieces[id - 1];
-                    }
-                    // notice we convert -1,0,1 -> 1,2,3
-                    pp->pieces[id - 1] = new PuzzlePiece(id, left + 1, up + 1, right + 1, down + 1);
-                }
+            if (is_empty(line))
+                continue;
+            line[strcspn(line, "\r\n")] = 0;
+            strcpy(copy,line);
+            int id, up, down, left, right;
+            if(!parseId(pp,strtok(line," "),&id))
+                continue;
+            if(!parseSideValue(&left) ||
+               !parseSideValue(&up) ||
+               !parseSideValue(&right) ||
+               !parseSideValue(&down) ||
+               strtok(nullptr," ") != nullptr)
+            {
+                sprintf(toNumber,"%d",id);
+                pp->parsingErrors.wrongPieceFormatLine.emplace_back(toNumber);
+                pp->parsingErrors.wrongPieceFormatLine.emplace_back(copy);
+                pp->pieces[id - 1] = new PuzzlePiece(id, 0, 0, 0, 0);
             }
+            else
+            {
+                if (pp->pieces[id - 1] != nullptr) {
+                    delete pp->pieces[id - 1];
+                }
+                // notice we convert -1,0,1 -> 1,2,3
+                pp->pieces[id - 1] = new PuzzlePiece(id, left + 1, up + 1, right + 1, down + 1);
+            }
+
+
         }
 
         if (!feof(file)) {
@@ -64,7 +116,7 @@ namespace {
     void parseFile(ParsedPuzzle *pp, FILE *file) {
         pp->numberOfPieces = getNumberOfPieces(file);
         if (pp->numberOfPieces <= 0) {
-            pp->parsingErrors.failedToOpenFile = true;
+            pp->parsingErrors.numberOfPiecesNotValid = true;
             return;
         }
         pp->pieces = new PuzzlePiece *[pp->numberOfPieces]();
@@ -94,6 +146,7 @@ ParsedPuzzle::~ParsedPuzzle() {
 }
 
 bool ParsingErrors::hasError() {
-    return failedToOpenFile || !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
-           !wrongPieceFormat.empty();
+    return failedToOpenFile || numberOfPiecesNotValid ||
+            !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
+            !wrongPieceFormatLine.empty() || !notIntegerIds.empty();
 }

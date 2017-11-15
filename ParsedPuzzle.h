@@ -10,6 +10,8 @@
 #include <cstdio>
 #include "PuzzlePiece.h"
 #include <cstring>
+#include <string>
+#include <cstdlib>
 #define BUFFER_SIZE 1024
 
 
@@ -18,10 +20,11 @@ using namespace std;
 class ParsingErrors {
 public:
     bool failedToOpenFile = false;
+    bool numberOfPiecesNotValid = false;
     vector<int> missingPuzzleElements;
     vector<int> wrongPiecesIds;
-    vector<int> wrongPieceFormat;
     vector<string> wrongPieceFormatLine;
+    vector<string> notIntegerIds;
 
     bool hasError();
 };
