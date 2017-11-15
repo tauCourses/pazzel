@@ -5,8 +5,8 @@
 
 namespace {
     int getNumberOfPieces(FILE *file) {
-        char line[BUFFER_SIZE];
-        char buffer[BUFFER_SIZE];
+		char line[BUFFER_SIZE] = { 0 };
+		char buffer[BUFFER_SIZE] = { 0 };
         int i = -1;
         if (fgets(line, BUFFER_SIZE, file)) { // if fail -> empty file.
             sscanf(line, "NumElements = %d%s", &i,buffer);
@@ -67,9 +67,9 @@ namespace {
     }
 
     void parseAllThePiecesFromFile(ParsedPuzzle *pp, FILE *file) {
-        char line[BUFFER_SIZE];
-        char copy[BUFFER_SIZE];
-        char toNumber[BUFFER_SIZE];
+		char line[BUFFER_SIZE] = { 0 };
+        char copy[BUFFER_SIZE] = { 0 };
+        char toNumber[BUFFER_SIZE] = { 0 };
         while (fgets(line, BUFFER_SIZE, file)) {
             if (is_empty(line))
                 continue;
