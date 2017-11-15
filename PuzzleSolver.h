@@ -28,9 +28,9 @@ public:
 
     ~PuzzleSolution();
 
-    Piece_t inline get(int _row, int _col);
+    Piece_t get(int _row, int _col);
 
-    void inline set(int _row, int _col, Piece_t newVal);
+    void set(int _row, int _col, Piece_t newVal);
 };
 
 class PuzzleSolver {

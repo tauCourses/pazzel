@@ -13,6 +13,13 @@ namespace {
         return i;
     }
 
+    bool valid_piece_arguments(int left, int up, int right, int down) {
+        return  left >= -1 && left <= 1 &&
+                up >= -1 && up <=1 &&
+                right >= -1 && right <=1 &&
+                down >= -1 && down <=1;
+    }
+
     void parseAllThePiecesFromFile(ParsedPuzzle *pp, FILE *file) {
         char line[BUFFER_SIZE];
         while (fgets(line, BUFFER_SIZE, file)) {
@@ -21,16 +28,17 @@ namespace {
             bool isUsable = true;
             if ((lengthRead = sscanf(line, " %d %d %d %d %d %d",
                                      &id, &left, &up, &right, &down, &checker)) != 0) { // 0 = no ID -> emptyLine
-                if (lengthRead != 5) { // wrong format
+                if (lengthRead>0 && (id < 1 || id > pp->numberOfPieces)) { // wrong id
+                    pp->parsingErrors.wrongPiecesIds.push_back(id);
+                    isUsable = false;
+                }else  if (lengthRead != 5 || !valid_piece_arguments(left, up, right, down)) { // wrong format
                     pp->parsingErrors.wrongPieceFormat.push_back(id);
                     pp->parsingErrors.wrongPieceFormatLine.emplace_back(line);
                     pp->pieces[id - 1] = new PuzzlePiece(id, 0, 0, 0, 0);
                     isUsable = false;
                 }
-                if (id < 1 || id > pp->numberOfPieces) { // wrong id
-                    pp->parsingErrors.wrongPiecesIds.push_back(id);
-                    isUsable = false;
-                }
+
+
                 if (isUsable) {
                     if (pp->pieces[id - 1] != nullptr) {
                         delete pp->pieces[id - 1];
@@ -83,7 +91,7 @@ ParsedPuzzle::~ParsedPuzzle() {
         for (int i = 0; i < numberOfPieces; ++i) if (pieces[i] != nullptr) delete pieces[i];
         delete[] pieces;
     }
-};
+}
 
 bool ParsingErrors::hasError() {
     return failedToOpenFile || !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||

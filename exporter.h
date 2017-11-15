@@ -17,7 +17,7 @@ namespace exporter {
     void exportPuzzleSolvingErrors(const char *outputFile, SolverErrors &solverErrors);
 
     void exportSolution(const char *outputFile, ParsedPuzzle &puzzle, PuzzleSolution *puzzleSolution);
-};
+}
 
 
 #endif //PAZZEL_EXPORTER_H

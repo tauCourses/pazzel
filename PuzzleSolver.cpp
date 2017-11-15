@@ -78,9 +78,9 @@ bool SolverErrors::hasError() {
 		couldNotSolvePuzzle;
 }
 
-PuzzleSolution::PuzzleSolution(int row, int col) : col(col), row(row) {
-	puzzleSolution = new Piece_t[row * col];
-	std::fill_n(puzzleSolution, row * col, nullPiece);
+PuzzleSolution::PuzzleSolution(int row, int col) : row(row), col(col)  {
+    puzzleSolution = new Piece_t[row * col];
+    std::fill_n(puzzleSolution, row * col, nullPiece);
 }
 
 PuzzleSolution::~PuzzleSolution() {
