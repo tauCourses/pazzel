@@ -22,5 +22,7 @@ for test in tests:
 
 p = Popen(['./puzzle', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
+out, err = p.communicate()
 with open("b") as f1:
-    print("It's OK. when file doesn't exist the Error message is- " + f1.read())
+    print("It's OK. when file doesn't exist the Error message is- ")
+    print(err)
