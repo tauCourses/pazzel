@@ -62,25 +62,78 @@ namespace {
 }
 
 Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
-    if (last != nullPiece) {
-        addPiece(last);
-    }
+	if (last != nullPiece) {
+		addPiece(last);
+	}
+	if (count[constrain] == 0) return nullPiece;
+	int startLeft, startUp, startRight, startDown,
+		currentLeft, currentUp, currentRight, currentDown,
+		endLeft, endUp, endRight, endDown;
 
-    if (count[constrain] == 0) return nullPiece;
+	startLeft = (constrain >> 6) & 0b11;
+	startUp = (constrain >> 4) & 0b11;
+	startRight = (constrain >> 2) & 0b11;
+	startDown = (constrain >> 0) & 0b11;
 
-    if (last == nullPiece)
-        last = 0;
-    else
-        last++;
+	if (last != nullPiece) {
+		currentLeft = (last >> 6) & 0b11;
+		currentUp = (last >> 4) & 0b11;
+		currentRight = (last >> 2) & 0b11;
+		currentDown = (last >> 0) & 0b11;
+	}
+	else {
+		currentLeft = currentUp = currentRight = currentDown = 0b00;
+	}
 
-    for (; last < nullPiece; last++) {
-        if ((last & constrain) == last && valid(last) && count[last]) {
-            removePiece(last);
-            return last;
-        }
-    }
+	if (startLeft == 0b11) {
+		endLeft = 0b10;
+		startLeft = 0b00;
+	}
+	else {
+		endLeft = currentLeft = startLeft;
+	}
+	if (startRight == 0b11) {
+		endRight = 0b10;
+		startRight = 0b00;
+	}
+	else {
+		endRight = currentRight = startRight;
+	}
+	if (startUp == 0b11) {
+		endUp = 0b10;
+		startUp = 0b00;
+	}
+	else {
+		endUp = currentUp = startUp;
+	}
+	if (startDown == 0b11) {
+		endDown = 0b10;
+		startDown = 0b00;
+	}
+	else {
+		endDown = currentDown = startDown;
+	}
 
-    return nullPiece;
+	Piece_t currentPiece;
+	for (; currentLeft <= endLeft; ++currentLeft) {
+		for (; currentUp <= endUp; ++currentUp) {
+			for (; currentRight <= endRight; ++currentRight) {
+				for (; currentDown <= endDown; ++currentDown) {
+					currentPiece = static_cast<uint8_t>(
+						(currentLeft << 6) | (currentUp << 4) | (currentRight << 2) |
+						(currentDown << 0));
+					if (currentPiece != last && count[currentPiece] != 0) {
+						removePiece(currentPiece);
+						return currentPiece;
+					}
+				}
+				currentDown = startDown;
+			}
+			currentRight = startRight;
+		}
+		currentUp = startUp;
+	}
+	return nullPiece;
 }
 
 int PieceManager::countConstrainPiece(Piece_t constrain) {

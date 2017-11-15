@@ -5,11 +5,12 @@
 using namespace exporter;
 
 int main(int argc, char **argv) {
-    if (argc != 3) {
+   /* if (argc != 3) {
         std::cerr << "[USAGE] input_puzzle_file_path output_result_file_path" << std::endl;
         return -1;
-    }
-    char *inputFilePath = argv[1], *outputFilePath = argv[2];
+    }*/
+	char *inputFilePath = "C:\\Users\\t-idkess\\CLionProjects\\puzzle\\a",
+		*outputFilePath = "C:\\Users\\t-idkess\\CLionProjects\\puzzle\\b";
 
     ParsedPuzzle puzzle = ParsedPuzzle(inputFilePath);
     if (puzzle.parsingErrors.hasError()) {
