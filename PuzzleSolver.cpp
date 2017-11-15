@@ -78,7 +78,7 @@ bool SolverErrors::hasError() {
            couldNotSolvePuzzle;
 }
 
-PuzzleSolution::PuzzleSolution(int row, int col) : col(col), row(row) {
+PuzzleSolution::PuzzleSolution(int row, int col) : row(row), col(col)  {
     puzzleSolution = new Piece_t[row * col];
     std::fill_n(puzzleSolution, row * col, nullPiece);
 }
@@ -109,7 +109,7 @@ namespace {
 
     inline Piece_t getConstrainOpposite(Piece_t currentConstrain) {
         return static_cast<uint8_t>(
-                (((currentConstrain & 0b1u) == (currentConstrain >> 1)) << 1) |
+                (((currentConstrain & 0b1u) == (uint8_t)(currentConstrain >> 1)) << 1) |
                 (currentConstrain & 0b1u));
     }
 

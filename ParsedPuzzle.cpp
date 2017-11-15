@@ -91,7 +91,7 @@ ParsedPuzzle::~ParsedPuzzle() {
         for (int i = 0; i < numberOfPieces; ++i) if (pieces[i] != nullptr) delete pieces[i];
         delete[] pieces;
     }
-};
+}
 
 bool ParsingErrors::hasError() {
     return failedToOpenFile || !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
