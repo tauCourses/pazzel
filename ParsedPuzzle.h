@@ -20,10 +20,11 @@ using namespace std;
 class ParsingErrors {
 public:
     bool failedToOpenFile = false;
+    bool numberOfPiecesNotValid = false;
     vector<int> missingPuzzleElements;
     vector<int> wrongPiecesIds;
     vector<string> wrongPieceFormatLine;
-    vector<string> notInteregerIds;
+    vector<string> notIntegerIds;
 
     bool hasError();
 };

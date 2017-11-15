@@ -8,7 +8,7 @@ files = [f for f in listdir('error_tests') if isfile(join('error_tests', f))]
 tests = [f for f in files if f.startswith("test_")]
 
 for test in tests:
-    p = Popen(['./cmake-build-debug/puzzle', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./puzzle', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     time.sleep(0.1)
     output_file = join('error_tests',test.replace('test','output'))
     with open("b") as f1:
@@ -20,7 +20,7 @@ for test in tests:
                 print(str1 + "\n\n" + str2)
                 raise Exception("")
 
-p = Popen(['./cmake-build-debug/puzzle', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p = Popen(['./puzzle', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
 with open("b") as f1:
-    print("Error message - " + f1.read())
+    print("It's OK. when file doesn't exist the Error message is- " + f1.read())

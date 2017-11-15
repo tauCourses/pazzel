@@ -6,46 +6,64 @@
 namespace {
     int getNumberOfPieces(FILE *file) {
         char line[BUFFER_SIZE];
+        char buffer[BUFFER_SIZE];
         int i = -1;
         if (fgets(line, BUFFER_SIZE, file)) { // if fail -> empty file.
-            sscanf(line, "NumElements = %d", &i);
+            sscanf(line, "NumElements = %d%s", &i,buffer);
+            if(strlen(buffer)!=0)
+                i=-1;
         }
         return i;
     }
 
+    bool isNumber(char* num)
+    {
+        if(*num == '-')
+            num++;
+        for(;*num;num++)
+            if(!isdigit(*num) && *num != '\n' && *num != '\r')
+                return false;
+        return true;
+    }
     bool parseId(ParsedPuzzle *pp, char* num, int *id)
     {
-        try
-        {
-            *id = std::stoi(num);
-            if(*id<1 || *id> pp->numberOfPieces)
-            {
-                pp->parsingErrors.wrongPiecesIds.push_back(*id);
-                return false;
-            }
-        }
-        catch(...)
-        {
-            pp->parsingErrors.notInteregerIds.emplace_back(num);
+
+        if(!isNumber(num)) {
+            pp->parsingErrors.notIntegerIds.emplace_back(num);
             return false;
         }
+
+        *id = std::stoi(num);
+        if(*id<1 || *id> pp->numberOfPieces)
+        {
+            pp->parsingErrors.wrongPiecesIds.push_back(*id);
+            return false;
+        }
+
         return true;
     }
 
-    bool parseSideValue(ParsedPuzzle *pp, char* num, int *val)
+    bool parseSideValue(int *val)
     {
-        printf("num - %d\n", *num);
-        try
-        {
-            *val = std::stoi(num);
-            if(*val<-1 || *val>1)
-                return false;
-        }
-        catch(int e)
-        {
+        char* num = strtok(nullptr," ");
+        if(num == nullptr)
             return false;
+
+        if(!isNumber(num))
+            return false;
+
+        *val = std::stoi(num);
+        return !(*val < -1 || *val > 1);
+
+    }
+
+    int is_empty(const char *s) {
+        while (*s != '\0') {
+            if (!isspace((unsigned char)*s))
+                return 0;
+            s++;
         }
-        return true;
+        return 1;
     }
 
     void parseAllThePiecesFromFile(ParsedPuzzle *pp, FILE *file) {
@@ -53,15 +71,18 @@ namespace {
         char copy[BUFFER_SIZE];
         char toNumber[BUFFER_SIZE];
         while (fgets(line, BUFFER_SIZE, file)) {
-            /* Read puzzle pieces */
+            if (is_empty(line))
+                continue;
+            line[strcspn(line, "\r\n")] = 0;
             strcpy(copy,line);
             int id, up, down, left, right;
             if(!parseId(pp,strtok(line," "),&id))
                 continue;
-            if(!parseSideValue(pp,strtok(NULL," "),&left) ||
-               !parseSideValue(pp,strtok(NULL," "),&up) ||
-               !parseSideValue(pp,strtok(NULL," "),&right) ||
-                !parseSideValue(pp,strtok(NULL," "),&down))
+            if(!parseSideValue(&left) ||
+               !parseSideValue(&up) ||
+               !parseSideValue(&right) ||
+               !parseSideValue(&down) ||
+               strtok(nullptr," ") != nullptr)
             {
                 sprintf(toNumber,"%d",id);
                 pp->parsingErrors.wrongPieceFormatLine.emplace_back(toNumber);
@@ -95,7 +116,7 @@ namespace {
     void parseFile(ParsedPuzzle *pp, FILE *file) {
         pp->numberOfPieces = getNumberOfPieces(file);
         if (pp->numberOfPieces <= 0) {
-            pp->parsingErrors.failedToOpenFile = true;
+            pp->parsingErrors.numberOfPiecesNotValid = true;
             return;
         }
         pp->pieces = new PuzzlePiece *[pp->numberOfPieces]();
@@ -125,6 +146,7 @@ ParsedPuzzle::~ParsedPuzzle() {
 }
 
 bool ParsingErrors::hasError() {
-    return failedToOpenFile || !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
-           !notInteregerIds.empty();
+    return failedToOpenFile || numberOfPiecesNotValid ||
+            !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
+            !wrongPieceFormatLine.empty() || !notIntegerIds.empty();
 }

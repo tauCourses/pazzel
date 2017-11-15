@@ -42,7 +42,7 @@ def set_piece(puzzle, x, y):
 
 
 def set_puzzle():
-    puzzle = Puzzle(3,3)#randint(1, 5), randint(1, 5))
+    puzzle = Puzzle(1,20)#randint(1, 5), randint(1, 5))
     indexes = [x for x in range(puzzle.size)]
     shuffle(indexes)
     for i, (x, y) in enumerate(puzzle):
@@ -97,7 +97,8 @@ def check_output_file(puzzle):
 
 
 print("make:")
-Popen(["make", "clean"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p1 = Popen(["make", "clean"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p1.wait()
 p1 = Popen(["make"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 p1.wait()
 print("start:")
