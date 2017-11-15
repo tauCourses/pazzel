@@ -16,7 +16,7 @@ namespace {
             fprintf(file,
                     (firstElement) ? " %d" : ", %d",
                     missingElement);
-            firstElement = true;
+            firstElement = false;
         }
         fprintf(file, "\n");
     }
@@ -30,7 +30,7 @@ namespace {
             fprintf(file,
                     (firstElement) ? " %d" : ", %d",
                     outOfRangeElement);
-            firstElement = true;
+            firstElement = false;
         }
         fprintf(file, "\n");
     }
@@ -72,27 +72,27 @@ void exporter::exportPuzzleSolvingErrors(const char *outputFile, SolverErrors &s
     if (!file) {
         std::cerr << "could not open output file. :" << outputFile << std::endl;
     } else {
-        if (solverErrors.wrongNumberOfStraightLine) {
+        if (solverErrors.wrongNumberOfStraightLine)
             fprintf(file, "Cannot solve puzzle: wrong number of straight edges\n");
-        }
-        if (solverErrors.missingTL) {
+
+        if (solverErrors.missingTL)
             fprintf(file, "Cannot solve puzzle: missing corner element: TL\n");
-        }
-        if (solverErrors.missingTR) {
+
+        if (solverErrors.missingTR)
             fprintf(file, "Cannot solve puzzle: missing corner element: TR\n");
-        }
-        if (solverErrors.missingBL) {
+
+        if (solverErrors.missingBL)
             fprintf(file, "Cannot solve puzzle: missing corner element: BL\n");
-        }
-        if (solverErrors.missingBR) {
+
+        if (solverErrors.missingBR)
             fprintf(file, "Cannot solve puzzle: missing corner element: BR\n");
-        }
-        if (solverErrors.sumOfEdgesIsNotZero) {
+
+        if (solverErrors.sumOfEdgesIsNotZero)
             fprintf(file, "Cannot solve puzzle: sum of edges is not zero\n");
-        }
-        if (solverErrors.couldNotSolvePuzzle) {
+
+        if (solverErrors.couldNotSolvePuzzle)
             fprintf(file, "Cannot solve puzzle: it seems that there is no proper solution\n");
-        }
+
 
         fclose(file);
     }
@@ -101,9 +101,9 @@ void exporter::exportPuzzleSolvingErrors(const char *outputFile, SolverErrors &s
 
 void exporter::exportSolution(const char *outputFile, ParsedPuzzle &puzzle, PuzzleSolution *puzzleSolution) {
     FILE *file = fopen(outputFile, "w");
-    if (!file) {
+    if (!file)
         std::cerr << "could not open output file. :" << outputFile << std::endl;
-    } else {
+    else {
         vector<vector<int> > vec(1 << 8, vector<int>(0));
         for (int i = 0; i < puzzle.numberOfPieces; i++) {
             auto piece = puzzle.pieces[i];

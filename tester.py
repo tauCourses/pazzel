@@ -59,7 +59,7 @@ def export_puzzle(puzzle):
             piece = puzzle.pieces[x][y]
             f.write("%d %d %d %d %d\n" % (piece["index"]+1, piece["left"], piece["up"], piece["right"], piece["down"]))
 
-def check_output_file():
+def read_puzzle():
     new_puzzle = []
     with open("b") as f:
         for line in f:
@@ -67,6 +67,18 @@ def check_output_file():
             if line:  # lines (ie skip them)
                 line = [int(i) for i in line]
                 new_puzzle.append(line)
+    return new_puzzle
+
+def check_all_pieces_exists(puzzle, new_puzzle):
+    flattened = [val for sublist in new_puzzle for val in sublist]
+    flattened.sort()
+    for i in range(puzzle.size):
+        assert(flattened[i] == i+1)
+
+def check_output_file(puzzle):
+    new_puzzle = read_puzzle()
+
+    check_all_pieces_exists(puzzle,new_puzzle)
 
     for x in range(len(new_puzzle)):
         for y in range(len(new_puzzle[x])):
@@ -89,7 +101,7 @@ for x in range(1000):
     export_puzzle(puzzle)
     p = Popen(['./cmake-build-debug/puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
-    check_output_file()
+    check_output_file(puzzle)
 
 
 
