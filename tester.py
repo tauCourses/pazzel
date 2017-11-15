@@ -96,10 +96,15 @@ def check_output_file(puzzle):
                     return
     print("pass")
 
+print("make:")
+Popen(["make", "clean"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p1 = Popen(["make"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p1.wait()
+print("start:")
 for x in range(1000):
     puzzle = set_puzzle()
     export_puzzle(puzzle)
-    p = Popen(['./cmake-build-debug/puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     check_output_file(puzzle)
 
