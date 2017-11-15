@@ -109,7 +109,7 @@ namespace {
 
 	inline Piece_t getConstrainOpposite(Piece_t currentConstrain) {
 		return static_cast<uint8_t>(
-			(((currentConstrain & 0b1u) == (currentConstrain >> 1)) << 1) |
+			(((currentConstrain & 0b1u) == (uint8_t)(currentConstrain >> 1)) << 1) |
 			(currentConstrain & 0b1u));
 	}
 
