@@ -113,49 +113,7 @@ namespace {
 			(currentConstrain & 0b1u));
 	}
 
-	Piece_t getLocationConstraints(PuzzleSolution *puzzleSolution, const PuzzlePieceLocation &currentLocation) {
-		Piece_t constraints = 0;
-		Piece_t currentPiece;
-		if (currentLocation.colNumber > 0) {
-			currentPiece = puzzleSolution->get(currentLocation.rowNumber, currentLocation.colNumber - 1);
-			currentPiece >>= 2;
-			currentPiece &= 0b11u;
-			constraints |= getConstrainOpposite(currentPiece) << 6;
-		}
-		else {
-			constraints |= 0b01u << 6;
-		}
-		if (currentLocation.rowNumber > 0) {
-			currentPiece = puzzleSolution->get(currentLocation.rowNumber - 1, currentLocation.colNumber);
-			currentPiece >>= 0;
-			currentPiece &= 0b11u;
-			constraints |= getConstrainOpposite(currentPiece) << 4;
-		}
-		else {
-			constraints |= 0b01u << 4;
-		}
-		if (currentLocation.colNumber + 1 < puzzleSolution->col) {
-			currentPiece = puzzleSolution->get(currentLocation.rowNumber, currentLocation.colNumber + 1);
-			currentPiece >>= 6;
-			currentPiece &= 0b11u;
-			constraints |= getConstrainOpposite(currentPiece) << 2;
-		}
-		else {
-			constraints |= 0b01u << 2;
-		}
-		if (currentLocation.rowNumber + 1 < puzzleSolution->row) {
-			currentPiece = puzzleSolution->get(currentLocation.rowNumber + 1, currentLocation.colNumber);
-			currentPiece >>= 4;
-			currentPiece &= 0b11u;
-			constraints |= getConstrainOpposite(currentPiece) << 0;
-		}
-		else {
-			constraints |= 0b01u << 0;
-		}
-		return constraints;
-	}
-
-	PuzzlePieceLocation nextLocationToCheck(PieceManager &pm, PuzzleSolution *puzzleSolution) {
+	PuzzlePieceLocation nextLocationToCheck(PieceManager &pm, Piece_t *constrains, PuzzleSolution *puzzleSolution) {
 		int minOption = 1 << 30;
 		PuzzlePieceLocation bestLocation{}, currentLocation{};
 		int row = puzzleSolution->row, col = puzzleSolution->col;
@@ -163,7 +121,7 @@ namespace {
 			for (currentLocation.colNumber = 0; currentLocation.colNumber < col; ++currentLocation.colNumber) {
 				if (nullPiece == puzzleSolution->get(currentLocation.rowNumber, currentLocation.colNumber)) {
 					int currentConstrainCount = pm.countConstrainOptions(
-						getLocationConstraints(puzzleSolution, currentLocation));
+                            constrains[currentLocation.rowNumber * col + currentLocation.colNumber]);
 					if (currentConstrainCount < minOption) {
 						if (currentConstrainCount == 0) {
 							return nullLocation; // last move screwed up the solution.
@@ -193,19 +151,19 @@ namespace {
 	inline void addConstrain(Piece_t *constrains, Piece_t newVal, int row, int col, int currentRow, int currentCol) {
 		if (currentCol > 0) {
 			constrains[currentRow * col + currentCol - 1] &=
-				(getConstrainOpposite((newVal >> 6) & 0b11u) << 2) | ((0b11u << 2) ^ nullPiece);
+                    (getConstrainOpposite(static_cast<uint8_t>((newVal >> 6) & 0b11u)) << 2) | ((0b11u << 2) ^ nullPiece);
 		}
 		if (currentRow > 0) {
 			constrains[(currentRow - 1) * col + currentCol] &=
-				(getConstrainOpposite((newVal >> 4) & 0b11u) << 0) | ((0b11u << 0) ^ nullPiece);
+                    (getConstrainOpposite(static_cast<uint8_t>((newVal >> 4) & 0b11u)) << 0) | ((0b11u << 0) ^ nullPiece);
 		}
 		if (currentCol < col - 1) {
 			constrains[currentRow * col + currentCol + 1] &=
-				(getConstrainOpposite((newVal >> 2) & 0b11u) << 6) | ((0b11u << 6) ^ nullPiece);
+                    (getConstrainOpposite(static_cast<uint8_t>((newVal >> 2) & 0b11u)) << 6) | ((0b11u << 6) ^ nullPiece);
 		}
 		if (currentRow < row - 1) {
 			constrains[(currentRow + 1) * col + currentCol] &=
-				(getConstrainOpposite((newVal >> 0) & 0b11u) << 4) | ((0b11u << 4) ^ nullPiece);
+                    (getConstrainOpposite(static_cast<uint8_t>((newVal >> 0) & 0b11u)) << 4) | ((0b11u << 4) ^ nullPiece);
 		}
 	}
 
@@ -239,7 +197,7 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	do {
 		Piece_t lastValue = nullPiece;
 		if (shouldCheckNewLocation) {
-			pieceLocation = nextLocationToCheck(pieceManager, puzzleSolution);
+			pieceLocation = nextLocationToCheck(pieceManager, constrains, puzzleSolution);
 			if (pieceLocation == nullLocation) {
 				shouldCheckNewLocation = false;
 				continue; // last move screwed up the solution.
