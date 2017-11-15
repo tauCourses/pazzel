@@ -35,16 +35,17 @@ namespace {
         fprintf(file, "\n");
     }
 
-    void printWrongFormatPieces(FILE *file, vector<int> wrongFormatPieces, vector<string> wrongFormatLines) {
-        if (wrongFormatPieces.empty()) return;
-        auto wrongFormatPiece = wrongFormatPieces.begin();
+    void printWrongFormatPieces(FILE *file, vector<string> wrongFormatLines) {
+        if (wrongFormatLines.empty()) return;
+
         auto wrongFormatLine = wrongFormatLines.begin();
-        for (; wrongFormatPiece != wrongFormatPieces.end() && wrongFormatLine != wrongFormatLines.end();
-               ++wrongFormatPiece, ++wrongFormatLine) {
-            fprintf(file, "Puzzle ID %d has wrong data: %s", *wrongFormatPiece, (*wrongFormatLine).c_str());
+        while(wrongFormatLine != wrongFormatLines.end())
+        {
+            fprintf(file, "Puzzle ID %s has wrong data: %s", (*wrongFormatLine).c_str(), (*(wrongFormatLine+1)).c_str());
             if ((*wrongFormatLine)[wrongFormatLine->length() - 1] != '\n') {
                 fprintf(file, "\n");
             }
+            wrongFormatLine+=2;
         }
     }
 }
@@ -60,8 +61,7 @@ void exporter::exportPuzzleParsingErrors(const char *outputFile, ParsedPuzzle &p
         }
         printMissingElements(file, puzzle.parsingErrors.missingPuzzleElements);
         printOutOfRangeElements(file, puzzle.parsingErrors.wrongPiecesIds, puzzle.numberOfPieces);
-        printWrongFormatPieces(file, puzzle.parsingErrors.wrongPieceFormat,
-                               puzzle.parsingErrors.wrongPieceFormatLine);
+        printWrongFormatPieces(file, puzzle.parsingErrors.wrongPieceFormatLine);
 
         fclose(file);
     }

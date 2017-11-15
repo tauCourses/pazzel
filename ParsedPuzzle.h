@@ -10,6 +10,8 @@
 #include <cstdio>
 #include "PuzzlePiece.h"
 #include <cstring>
+#include <string>
+#include <cstdlib>
 #define BUFFER_SIZE 1024
 
 
@@ -20,8 +22,8 @@ public:
     bool failedToOpenFile = false;
     vector<int> missingPuzzleElements;
     vector<int> wrongPiecesIds;
-    vector<int> wrongPieceFormat;
     vector<string> wrongPieceFormatLine;
+    vector<string> notInteregerIds;
 
     bool hasError();
 };
