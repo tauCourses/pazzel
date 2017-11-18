@@ -7,7 +7,6 @@
 
 
 #include <cstdint>
-#include <stdint.h>
 
 #define Piece_t uint8_t
 #define nullPiece 0xFF
