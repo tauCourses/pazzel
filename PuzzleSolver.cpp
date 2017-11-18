@@ -115,7 +115,7 @@ namespace {
 
 	PuzzlePieceLocation nextLocationToCheck(PieceManager &pm, Piece_t *constrains, PuzzleSolution *puzzleSolution) {
 		int minOption = 1 << 30;
-		PuzzlePieceLocation bestLocation{}, currentLocation{};
+		PuzzlePieceLocation bestLocation, currentLocation;
 		int row = puzzleSolution->row, col = puzzleSolution->col;
 		for (currentLocation.rowNumber = 0; currentLocation.rowNumber < row; ++currentLocation.rowNumber) {
 			for (currentLocation.colNumber = 0; currentLocation.colNumber < col; ++currentLocation.colNumber) {
@@ -190,7 +190,7 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	delete puzzleSolution;
 	puzzleSolution = new PuzzleSolution(row, col);
 	bool shouldCheckNewLocation = true;
-	PuzzlePieceLocation pieceLocation{};
+	PuzzlePieceLocation pieceLocation;
 	Piece_t* constrains = new Piece_t[row*col];
 	for (int i = 0; i < row*col; ++i) constrains[i] = nullPiece;
 	setConstrainMatrix(constrains, row, col);

@@ -42,7 +42,7 @@ def set_piece(puzzle, x, y):
 
 
 def set_puzzle():
-    puzzle = Puzzle(randint(1, 5), randint(1, 5))
+    puzzle = Puzzle(7,7)#randint(1, 5), randint(1, 5))
     indexes = [x for x in range(puzzle.size)]
     shuffle(indexes)
     for i, (x, y) in enumerate(puzzle):
