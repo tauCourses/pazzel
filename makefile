@@ -1,7 +1,7 @@
-CPP = g++
+CPP = gcc
 
 EXEC = puzzle
-CPP_COMP_FLAG = -std=c++14 -Wall -Wextra \
+CPP_COMP_FLAG = -std=gnu++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
 OBJS =  PuzzlePiece.o \
