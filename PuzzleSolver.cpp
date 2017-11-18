@@ -109,8 +109,8 @@ namespace {
 
 	inline Piece_t getConstrainOpposite(Piece_t currentConstrain) {
 		return static_cast<uint8_t>(
-			(((currentConstrain & 0b1u) == (uint8_t)(currentConstrain >> 1)) << 1) |
-			(currentConstrain & 0b1u));
+			(((currentConstrain & 0x1) == (uint8_t)(currentConstrain >> 1)) << 1) |
+			(currentConstrain & 0x1));
 	}
 
 	PuzzlePieceLocation nextLocationToCheck(PieceManager &pm, Piece_t *constrains, PuzzleSolution *puzzleSolution) {
@@ -151,34 +151,34 @@ namespace {
 	inline void addConstrain(Piece_t *constrains, Piece_t newVal, int row, int col, int currentRow, int currentCol) {
 		if (currentCol > 0) {
 			constrains[currentRow * col + currentCol - 1] &=
-				(getConstrainOpposite((newVal >> 6) & 0b11u) << 2) | ((0b11u << 2) ^ nullPiece);
+					(getConstrainOpposite(static_cast<uint8_t>((newVal >> 6) & 0x3)) << 2) | ((0x3 << 2) ^ nullPiece);
 		}
 		if (currentRow > 0) {
 			constrains[(currentRow - 1) * col + currentCol] &=
-				(getConstrainOpposite((newVal >> 4) & 0b11u) << 0) | ((0b11u << 0) ^ nullPiece);
+					(getConstrainOpposite(static_cast<uint8_t>((newVal >> 4) & 0x3)) << 0) | ((0x3 << 0) ^ nullPiece);
 		}
 		if (currentCol < col - 1) {
 			constrains[currentRow * col + currentCol + 1] &=
-				(getConstrainOpposite((newVal >> 2) & 0b11u) << 6) | ((0b11u << 6) ^ nullPiece);
+					(getConstrainOpposite(static_cast<uint8_t>((newVal >> 2) & 0x3)) << 6) | ((0x3 << 6) ^ nullPiece);
 		}
 		if (currentRow < row - 1) {
 			constrains[(currentRow + 1) * col + currentCol] &=
-				(getConstrainOpposite((newVal >> 0) & 0b11u) << 4) | ((0b11u << 4) ^ nullPiece);
+					(getConstrainOpposite(static_cast<uint8_t>((newVal >> 0) & 0x3)) << 4) | ((0x3 << 4) ^ nullPiece);
 		}
 	}
 
 	inline void removeConstrain(Piece_t *constrains, int row, int col, int currentRow, int currentCol) {
 		if (currentCol > 0) {
-			constrains[currentRow * col + currentCol - 1] |= 0b11u << 2;
+			constrains[currentRow * col + currentCol - 1] |= 0x3 << 2;
 		}
 		if (currentRow > 0) {
-			constrains[(currentRow - 1) * col + currentCol] |= 0b11u << 0;
+			constrains[(currentRow - 1) * col + currentCol] |= 0x3 << 0;
 		}
 		if (currentCol < col - 1) {
-			constrains[currentRow * col + currentCol + 1] |= 0b11u << 6;
+			constrains[currentRow * col + currentCol + 1] |= 0x3 << 6;
 		}
 		if (currentRow < row - 1) {
-			constrains[(currentRow + 1) * col + currentCol] |= 0b11u << 4;
+			constrains[(currentRow + 1) * col + currentCol] |= 0x3 << 4;
 		}
 	}
 }

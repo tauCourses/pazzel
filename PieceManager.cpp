@@ -8,10 +8,10 @@ PieceManager::PieceManager() {
     Piece_t maskPiece;
     for (int mask = 0; mask < (1 << 4); ++mask) {
         maskPiece = 0;
-        if ((mask & (1 << 3)) == 0) maskPiece |= (0b11u << 6);
-        if ((mask & (1 << 2)) == 0) maskPiece |= (0b11u << 4);
-        if ((mask & (1 << 1)) == 0) maskPiece |= (0b11u << 2);
-        if ((mask & (1 << 0)) == 0) maskPiece |= (0b11u << 0);
+        if ((mask & (1 << 3)) == 0) maskPiece |= (0x3 << 6);
+        if ((mask & (1 << 2)) == 0) maskPiece |= (0x3 << 4);
+        if ((mask & (1 << 1)) == 0) maskPiece |= (0x3 << 2);
+        if ((mask & (1 << 0)) == 0) maskPiece |= (0x3 << 0);
         maskOptions[mask] = maskPiece;
     }
 }
@@ -54,10 +54,10 @@ void PieceManager::removePiece(Piece_t piece) {
 
 namespace {
     inline bool valid(Piece_t piece) {
-        return (0b11 << 6 & piece) != (0b11 << 6) &&
-               (0b11 << 4 & piece) != (0b11 << 4) &&
-               (0b11 << 2 & piece) != (0b11 << 2) &&
-               (0b11 << 0 & piece) != (0b11 << 0);
+        return (0x3 << 6 & piece) != (0x3 << 6) &&
+               (0x3 << 4 & piece) != (0x3 << 4) &&
+               (0x3 << 2 & piece) != (0x3 << 2) &&
+               (0x3 << 0 & piece) != (0x3 << 0);
     }
 }
 
@@ -70,45 +70,45 @@ Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
 		currentLeft, currentUp, currentRight, currentDown,
 		endLeft, endUp, endRight, endDown;
 
-	startLeft = (constrain >> 6) & 0b11;
-	startUp = (constrain >> 4) & 0b11;
-	startRight = (constrain >> 2) & 0b11;
-	startDown = (constrain >> 0) & 0b11;
+	startLeft = (constrain >> 6) & 0x3;
+	startUp = (constrain >> 4) & 0x3;
+	startRight = (constrain >> 2) & 0x3;
+	startDown = (constrain >> 0) & 0x3;
 
 	if (last != nullPiece) {
-		currentLeft = (last >> 6) & 0b11;
-		currentUp = (last >> 4) & 0b11;
-		currentRight = (last >> 2) & 0b11;
-		currentDown = (last >> 0) & 0b11;
+		currentLeft = (last >> 6) & 0x3;
+		currentUp = (last >> 4) & 0x3;
+		currentRight = (last >> 2) & 0x3;
+		currentDown = (last >> 0) & 0x3;
 	}
 	else {
-		currentLeft = currentUp = currentRight = currentDown = 0b00;
+		currentLeft = currentUp = currentRight = currentDown = 0x0;
 	}
 
-	if (startLeft == 0b11) {
-		endLeft = 0b10;
-		startLeft = 0b00;
+	if (startLeft == 0x3) {
+		endLeft = 0x2;
+		startLeft = 0x0;
 	}
 	else {
 		endLeft = currentLeft = startLeft;
 	}
-	if (startRight == 0b11) {
-		endRight = 0b10;
-		startRight = 0b00;
+	if (startRight == 0x3) {
+		endRight = 0x2;
+		startRight = 0x0;
 	}
 	else {
 		endRight = currentRight = startRight;
 	}
-	if (startUp == 0b11) {
-		endUp = 0b10;
-		startUp = 0b00;
+	if (startUp == 0x3) {
+		endUp = 0x2;
+		startUp = 0x0;
 	}
 	else {
 		endUp = currentUp = startUp;
 	}
-	if (startDown == 0b11) {
-		endDown = 0b10;
-		startDown = 0b00;
+	if (startDown == 0x3) {
+		endDown = 0x2;
+		startDown = 0x0;
 	}
 	else {
 		endDown = currentDown = startDown;

@@ -1,4 +1,4 @@
-CPP = g++-5.3.0
+CPP = g++
 
 EXEC = puzzle
 CPP_COMP_FLAG = -std=c++14 -Wall -Wextra \
