@@ -80,14 +80,14 @@ void exporter::exportPuzzleParsingErrors(const char *outputFile, ParsedPuzzle &p
         std::cerr << "could not open output file: " << outputFile << std::endl;
     } else {
         if (puzzle.parsingErrors.numberOfPiecesNotValid) {
-            fprintf(file, "invalid number of elements");
+            fprintf(file, "invalid number of elements\n");
             return;
         }
         printMissingElements(file, puzzle.parsingErrors.missingPuzzleElements);
         printOutOfRangeElements(file, puzzle.parsingErrors.wrongPiecesIds, puzzle.numberOfPieces);
         printWrongFormatPieces(file, puzzle.parsingErrors.wrongPieceFormatLine);
         notValidIdsElements(file, puzzle.parsingErrors.notIntegerIds);
-
+        fprintf(file,"\n");
         fclose(file);
     }
 }
@@ -117,7 +117,7 @@ void exporter::exportPuzzleSolvingErrors(const char *outputFile, SolverErrors &s
         if (solverErrors.couldNotSolvePuzzle)
             printToFile(file, "Cannot solve puzzle: it seems that there is no proper solution");
 
-
+        fprintf(file,"\n");
         fclose(file);
     }
 }
