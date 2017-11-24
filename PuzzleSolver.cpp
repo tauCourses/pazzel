@@ -223,5 +223,6 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	} while (queueCurrentSize != 0 && queueCurrentSize < queueLength);
 
 	delete[] queue;
+	delete[] constrains;
 	return queueCurrentSize == queueLength;
 }

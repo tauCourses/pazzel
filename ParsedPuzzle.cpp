@@ -139,8 +139,10 @@ ParsedPuzzle::ParsedPuzzle(const char *inputFile) {
 }
 
 ParsedPuzzle::~ParsedPuzzle() {
-    if (!pieces) {
-        for (int i = 0; i < numberOfPieces; ++i) if (pieces[i] != nullptr) delete pieces[i];
+    if (pieces) {
+        for (int i = 0; i < numberOfPieces; ++i)
+            if (pieces[i] != nullptr)
+                delete pieces[i];
         delete[] pieces;
     }
 }
