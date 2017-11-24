@@ -356,3 +356,6 @@ OpenCover/
 
 a
 b
+*.o
+puzzle
+*.zip
