@@ -188,7 +188,7 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	auto *queue = new PuzzlePieceLocation[queueLength];
 	int queueCurrentSize = 0;
 	delete puzzleSolution;
-	puzzleSolution = new PuzzleSolution(row, col);
+	this->puzzleSolution = new PuzzleSolution(row, col);
 	bool shouldCheckNewLocation = true;
 	PuzzlePieceLocation pieceLocation;
 	Piece_t* constrains = new Piece_t[row*col];
@@ -197,7 +197,7 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	do {
 		Piece_t lastValue = nullPiece;
 		if (shouldCheckNewLocation) {
-			pieceLocation = nextLocationToCheck(pieceManager, constrains, puzzleSolution);
+			pieceLocation = nextLocationToCheck(pieceManager, constrains, this->puzzleSolution);
 			if (pieceLocation == nullLocation) {
 				shouldCheckNewLocation = false;
 				continue; // last move screwed up the solution.
@@ -206,11 +206,11 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 		else {
 			pieceLocation = queue[--queueCurrentSize];
 			removeConstrain(constrains, row, col, pieceLocation.rowNumber, pieceLocation.colNumber);
-			lastValue = puzzleSolution->get(pieceLocation.rowNumber, pieceLocation.colNumber);
+			lastValue = this->puzzleSolution->get(pieceLocation.rowNumber, pieceLocation.colNumber);
 		}
 		Piece_t constraints = constrains[pieceLocation.rowNumber * col + pieceLocation.colNumber];
 		Piece_t newValue = pieceManager.getNextPiece(constraints, lastValue);
-		puzzleSolution->set(pieceLocation.rowNumber, pieceLocation.colNumber, newValue);
+		this->puzzleSolution->set(pieceLocation.rowNumber, pieceLocation.colNumber, newValue);
 		addConstrain(constrains, newValue, row, col, pieceLocation.rowNumber, pieceLocation.colNumber);
 
 		if (newValue == nullPiece) {
