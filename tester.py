@@ -1,6 +1,8 @@
 from random import randint
 from random import shuffle
 from subprocess import Popen, PIPE
+import timeit
+import statistics
 
 sides = ['right', 'left', 'up', 'down']
 side_direction = [(0,1),(0,-1),(-1,0),(1,0)]
@@ -42,7 +44,7 @@ def set_piece(puzzle, x, y):
 
 
 def set_puzzle():
-    puzzle = Puzzle(randint(1, 5), randint(1, 5))
+    puzzle = Puzzle(5,5) #randint(4, 5), randint(4, 5))
     indexes = [x for x in range(puzzle.size)]
     shuffle(indexes)
     for i, (x, y) in enumerate(puzzle):
@@ -96,20 +98,28 @@ def check_output_file(puzzle):
                     return
 
 
-print("make:")
-p1 = Popen(["make", "clean"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-p1.wait()
 p1 = Popen(["make"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 p1.wait()
 print("start:")
-for x in range(1000):
+
+def _run_single():
     puzzle = set_puzzle()
     export_puzzle(puzzle)
     p = Popen(['./puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    output, err = p.communicate()
+    a = timeit.timeit(p.communicate, number=1)
     check_output_file(puzzle)
+    return a
+
+
+times = []
+total = 1000
+for x in range(10):
+    for y in range(int(total/10)):
+        times.append(_run_single())
     print(x)
 
+print("max %f" % max(times))
+print("avg %f" % statistics.mean(times))
 
 
 
