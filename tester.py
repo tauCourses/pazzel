@@ -105,7 +105,7 @@ print("start:")
 def _run_single():
     puzzle = set_puzzle()
     export_puzzle(puzzle)
-    p = Popen(['./puzzle', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./ex1', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     a = timeit.timeit(p.communicate, number=1)
     check_output_file(puzzle)
     return a

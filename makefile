@@ -1,6 +1,6 @@
 CPP = g++
 
-EXEC = puzzle
+EXEC = ex1
 CPP_COMP_FLAG = -std=gnu++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 

@@ -11,7 +11,7 @@ tests = [f for f in listdir('Tests') if isfile(join('Tests', f))]
 tests = [f for f in tests if f.endswith(".in")]
 
 for test in errot_tests:
-    p = Popen(['./puzzle', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./ex1', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     time.sleep(0.1)
     output_file = join('error_tests',test.replace('test','output'))
     with open("b") as f1:
@@ -24,7 +24,7 @@ for test in errot_tests:
                 raise Exception("")
 
 for test in tests:
-    p = Popen(['./puzzle', join('Tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./ex1', join('Tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     time.sleep(0.1)
     output_file = join('Tests',test.replace('.in','.out'))
     with open("b") as f1:
