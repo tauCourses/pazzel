@@ -36,7 +36,7 @@ for test in tests:
                 print(str1 + "\n\n" + str2)
                 raise Exception("")
 
-p = Popen(['./puzzle', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p = Popen(['./ex1', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
 out, err = p.communicate()
 with open("b") as f1:
