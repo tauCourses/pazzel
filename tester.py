@@ -107,9 +107,9 @@ def _run_single(puzzle_size):
     puzzle = set_puzzle(puzzle_size)
     export_puzzle(puzzle)
     p = Popen(['./ex1', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    a = timeit.timeit(p.communicate, number=1)
+    run_time = timeit.timeit(p.communicate, number=1)
     check_output_file(puzzle)
-    return a
+    return puzzle, run_time
 
 total = 100
 puzzle_size = (4,5)
@@ -119,17 +119,21 @@ for arg in sys.argv:
     if 'size=' in arg:
         sizes = arg.split('=')[1].split(',')
         puzzle_size = (int(sizes[0]), int(sizes[1]))
-times = []
-print(puzzle_size)
+
+run_times = []
+puzzles = []
+
 for x in range(10):
     for y in range(int(total/10)):
-        times.append(_run_single(puzzle_size))
+        puzzle, run_time = _run_single(puzzle_size)
+        run_times.append(run_time)
+        puzzles.append(puzzle)
     print(x)
 
-print("max %f" % max(times))
-print("avg %f" % statistics.mean(times))
+print("max %f" % max(run_times))
+print("avg %f" % statistics.mean(run_times))
 
-
+export_puzzle(puzzles[run_times.index(max(run_times))])
 
 
 
