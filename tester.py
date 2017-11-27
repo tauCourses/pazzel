@@ -1,3 +1,6 @@
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 from random import randint
 from random import shuffle
 from subprocess import Popen, PIPE
@@ -55,8 +58,8 @@ def set_puzzle(puzzle_size):
     return puzzle
 
 
-def export_puzzle(puzzle):
-    with open("a", "w") as f:
+def export_puzzle(puzzle, file_name):
+    with open(file_name, "w") as f:
         f.write("NumElements=%d\n" % puzzle.size)
         for x,y in puzzle:
             piece = puzzle.pieces[x][y]
@@ -105,7 +108,7 @@ print("start:")
 
 def _run_single(puzzle_size):
     puzzle = set_puzzle(puzzle_size)
-    export_puzzle(puzzle)
+    export_puzzle(puzzle, 'a')
     p = Popen(['./ex1', 'a', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     run_time = timeit.timeit(p.communicate, number=1)
     check_output_file(puzzle)
@@ -133,8 +136,13 @@ for x in range(10):
 print("max %f" % max(run_times))
 print("avg %f" % statistics.mean(run_times))
 
-export_puzzle(puzzles[run_times.index(max(run_times))])
+export_puzzle(puzzles[run_times.index(max(run_times))], 'longest')
 
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.hist(run_times, normed=True, bins=30)
+plt.ylabel('Probability');
+fig.savefig('histogram')
 
 
 
