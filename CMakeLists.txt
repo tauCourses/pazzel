@@ -3,5 +3,18 @@ project(puzzle)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp ParsedPuzzle.h ParsedPuzzle.cpp PuzzlePiece.cpp PuzzlePiece.h PuzzleSolver.cpp PuzzleSolver.h AbstractPieceManager.cpp AbstractPieceManager.h exporter.cpp exporter.h PuzzlePieceConstrain.h)
-add_executable(puzzle ${SOURCE_FILES})
+set(SOURCE_FILES main.cpp
+        PuzzlePiece.cpp
+        PuzzlePiece.h
+        PuzzleSolver.cpp
+        PuzzleSolver.h
+        AbstractPieceManager.cpp
+        AbstractPieceManager.h
+        PuzzlePieceConstrain.h
+        CommandLineManager.h
+        CommandLineManager.cpp
+        PieceManagerFactory.cpp
+        PieceManagerFactory.h
+        PuzzleParser.cpp PuzzleParser.h)
+
+add_executable(puzzle ${SOURCE_FILES} PuzzleParser.cpp PuzzleParser.h)

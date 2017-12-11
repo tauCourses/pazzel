@@ -1,30 +1,29 @@
 #include "CommandLineManager.h"
 #include "PieceManagerFactory.h"
 #include "PuzzleSolver.h"
+#include "PuzzleParser.h"
 
 int main(int argc, char **argv)
 {
     auto cmd = CommandLineManager(argc, argv); //parse the command line arguments
-    if(cmd.hasErrors())
-    {
-        cmd.exportError();
+    if(cmd.hasErrors()) {
+        cmd.exportErrors();
         return -1;
     }
-    auto pieceManager = PieceManagerFactory(parser, cmd.rotateEnabled); //factory to get the right piece manager
-    auto parser = Parser(cmd.inputFile, pieceManager);
-    if(parser.hasErrors())
-    {
-        parser.exportErrors(cmd.outputFile);
+    auto pieceManager = PieceManagerFactory::getPieceManager(cmd.isRotateEnable()); //factory to get the right piece manager
+    auto parser = PuzzleParser(cmd.inputStream, pieceManager); //parse input file and inject pieces into piece Manager
+    if(parser.hasErrors()) {//handle parser errors
+        parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    if(pieceManager.hasErrors()) {
-        pieceManager.exportErrors(cmd.outputFile);
+    if(pieceManager.hasErrors()) { //handle piece manager errors:
+        pieceManager.exportErrors(cmd.outputStream);
         return -1;
     }
     auto puzzleSolver = PuzzleSolver(pieceManager);
     if(puzzleSolver.trySolve()) //return true if succeeded
-        puzzleSolver.exportSulotion(cmd.outputFile);
+        puzzleSolver.exportSulotion(cmd.outputStream);
     else
-        puzzleSolver.exportError(cmd.outputFile);
+        puzzleSolver.exportError(cmd.outputStream);
     return 0;
 }

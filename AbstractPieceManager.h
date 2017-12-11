@@ -7,6 +7,10 @@
 #define NumberOfPossibleConstrains 1<<8
 
 #include <stdint.h>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 #define Piece_t uint8_t
 #define nullPiece (Piece_t) 0xFF //0b11111111
@@ -45,6 +49,9 @@ public:
     virtual void addPiece(PuzzlePiece);
     int countConstrainPiece(Piece_t constrain);
     int countConstrainOptions(Piece_t constrain);
+    bool hasErrors();
+
+    void exportErrors(ofstream fout);
 };
 
 
