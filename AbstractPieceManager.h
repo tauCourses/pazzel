@@ -39,15 +39,28 @@ private:
 
     virtual void hasAllCorners();
 
-    void parsePiecesFromFile(char* fileName);
+    void parsePiecesFromFile(char *fileName);
+
+    virtual bool isPuzzleShapePossible(Shape shape);
 
 public:
+    struct Shape {
+        int width, height;
+    };
+
+    virtual vector<shape> getAllPossiblePuzzleShapes();
+
     AbstractPieceManager();
 
     virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
-    virtual bool isPuzzleShapePossible(int numberOfRows, int numberOfCols);
+
+    virtual int getNuberOfPieces();
+
+
     virtual void addPiece(PuzzlePiece);
+
     int countConstrainPiece(Piece_t constrain);
+
     int countConstrainOptions(Piece_t constrain);
     bool hasErrors();
 

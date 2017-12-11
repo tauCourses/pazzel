@@ -4,6 +4,12 @@
 #include "AbstractPieceManager.h"
 #include "PuzzlePieceConstrain.h"
 #include <vector>
+#include <memory>
+#include <fstream>
+#include <deque>
+#include "limits.h"
+
+using namespace std;
 
 class SolverErrors {
 public:
@@ -15,35 +21,40 @@ public:
     bool hasError();
 };
 
-class PuzzleSolution {
-    Piece_t *puzzleSolution;
-public:
-    int row, col;
-
-    PuzzleSolution(int row, int col);
-
-    ~PuzzleSolution();
-
-    Piece_t get(int _row, int _col);
-
-    void set(int _row, int _col, Piece_t newVal);
-};
 
 class PuzzleSolver {
-    AbstractPieceManager pieceManager;
-    SolverErrors solverErrors;
-    PuzzleSolution *puzzleSolution = nullptr;
+private:
 
-    bool solvePuzzle(int row, int col);
-    vector<int,int> getAllPuzzleShapes();
+    struct PuzzleLocation {
+        int row, col;
+    };
+
+    vector<vector<Piece_t>> puzzleSolution;
+    vector<vector<Piece_t>> puzzleConstrain;
+
+    void createNewPuzzleSolution(AbstractPieceManager::Shape shape);
+
+    shared_ptr<AbstractPieceManager> pieceManager;
+
+    bool trySolveForShape(AbstractPieceManager::Shape shape);
+
+    PuzzleLocation getNextPuzzleLocationToFill();
+
+    void updatePieceInSolution(PuzzleLocation puzzleLocation, Piece_t currentPiece);
+
+    void removePieceFromSolution(PuzzleLocation puzzleLocation);
+
+    inline Piece_t getConstrainOpposite(Piece_t currentConstrain);
 
 public:
 
-    explicit PuzzleSolver(AbstractPieceManager &pieceManager);
+    explicit PuzzleSolver(shared_ptr<AbstractPieceManager> &pieceManager);
 
-    ~PuzzleSolver();
     bool trySolve();
-    void exportErrors(char* outputFile);
+
+    void exportSolution(ofstream &out);
+
+    void exportErrors(ofstream &out);
 };
 
 
