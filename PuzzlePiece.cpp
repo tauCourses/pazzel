@@ -1,7 +1,3 @@
-//
-// Created by private on 11/11/17.
-//
-
 #include "PuzzlePiece.h"
 
 PuzzlePiece::PuzzlePiece(int index, int left, int up, int right, int down) :

@@ -1,9 +1,5 @@
-//
-// Created by private on 11/11/17.
-//
-
-#ifndef PAZZEL_EXPORTER_H
-#define PAZZEL_EXPORTER_H
+#ifndef PUZZLE_EXPORTER_H
+#define PUZZLE_EXPORTER_H
 
 #include <iostream>
 #include "ParsedPuzzle.h"
@@ -20,4 +16,4 @@ namespace exporter {
 }
 
 
-#endif //PAZZEL_EXPORTER_H
+#endif //PUZZLE_EXPORTER_H

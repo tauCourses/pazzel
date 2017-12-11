@@ -1,6 +1,3 @@
-//
-// Created by private on 11/11/17.
-//
 #include "ParsedPuzzle.h"
 
 namespace {
@@ -148,7 +145,7 @@ ParsedPuzzle::~ParsedPuzzle() {
 }
 
 bool ParsingErrors::hasError() {
-    return failedToOpenFile || numberOfPiecesNotValid ||
-            !missingPuzzleElements.empty() || !wrongPiecesIds.empty() ||
-            !wrongPieceFormatLine.empty() || !notIntegerIds.empty();
+    return this->failedToOpenFile || this->numberOfPiecesNotValid ||
+            !this->missingPuzzleElements.empty() || !this->wrongPiecesIds.empty() ||
+            !this->wrongPieceFormatLine.empty() || !this->notIntegerIds.empty();
 }

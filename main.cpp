@@ -1,30 +1,30 @@
-#include "ParsedPuzzle.h"
+#include "CommandLineManager.h"
+#include "PieceManagerFactory.h"
 #include "PuzzleSolver.h"
-#include "exporter.h"
 
-using namespace exporter;
-
-int main(int argc, char **argv) {
-    if (argc != 3) {
-        std::cerr << "[USAGE] input_puzzle_file_path output_result_file_path" << std::endl;
+int main(int argc, char **argv)
+{
+    auto cmd = CommandLineManager(argc, argv); //parse the command line arguments
+    if(cmd.hasErrors())
+    {
+        cmd.exportError();
         return -1;
     }
-	char *inputFilePath = argv[1];
-    char *outputFilePath = argv[2];
-
-    ParsedPuzzle puzzle = ParsedPuzzle(inputFilePath);
-    if (puzzle.parsingErrors.hasError()) {
-        //  export error to output file
-        exportPuzzleParsingErrors(outputFilePath, puzzle);
+    auto pieceManager = PieceManagerFactory(parser, cmd.rotateEnabled); //factory to get the right piece manager
+    auto parser = Parser(cmd.inputFile, pieceManager);
+    if(parser.hasErrors())
+    {
+        parser.exportErrors(cmd.outputFile);
         return -1;
     }
-
-    PuzzleSolver puzzleSolver = PuzzleSolver(puzzle);
-    if (puzzleSolver.solverErrors.hasError()) {
-        exportPuzzleSolvingErrors(outputFilePath, puzzleSolver.solverErrors);
+    if(pieceManager.hasErrors()) {
+        pieceManager.exportErrors(cmd.outputFile);
         return -1;
-    } else {
-        exportSolution(outputFilePath, puzzle, puzzleSolver.puzzleSolution);
     }
+    auto puzzleSolver = PuzzleSolver(pieceManager);
+    if(puzzleSolver.trySolve()) //return true if succeeded
+        puzzleSolver.exportSulotion(cmd.outputFile);
+    else
+        puzzleSolver.exportError(cmd.outputFile);
     return 0;
 }

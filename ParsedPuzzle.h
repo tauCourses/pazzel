@@ -1,7 +1,3 @@
-//
-// Created by private on 11/11/17.
-//
-
 #ifndef PUZZLE_PARSER_H
 #define PUZZLE_PARSER_H
 

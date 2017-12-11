@@ -1,15 +1,12 @@
-//
-// Created by private on 11/11/17.
-//
-
 #ifndef PUZZLE_PUZZLE_PIECE_H
 #define PUZZLE_PUZZLE_PIECE_H
 
 
-#include <cstdint>
+//#include <cstdint>
+#include <stdint.h>
 
 #define Piece_t uint8_t
-#define nullPiece 0xFF
+#define nullPiece (Piece_t) 0xFF //0b11111111
 
 class PuzzlePiece {
 

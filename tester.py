@@ -134,7 +134,7 @@ for x in range(10):
     print(x)
 
 print("max %f" % max(run_times))
-print("there are %d puzzles that run for more than 60 seconds" % len([t for t in run_times if t>=60]))
+print("there are %d puzzles that run for more than 60 seconds" % len([t for t in run_times if t >= 60]))
 print("avg %f" % statistics.mean(run_times))
 
 export_puzzle(puzzles[run_times.index(max(run_times))], 'longest')
@@ -143,7 +143,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.hist(run_times, normed=True, bins=30)
 plt.ylabel('Probability')
-fig.savefig('histogram')
+fig.savefig('histogram.png')
 
 
 

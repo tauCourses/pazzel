@@ -1,11 +1,7 @@
-//
-// Created by t-idkess on 11/11/2017.
-//
+#ifndef PUZZLE_PUZZLESOLVER_H
+#define PUZZLE_PUZZLESOLVER_H
 
-#ifndef PAZZEL_PUZZLESOLVER_H
-#define PAZZEL_PUZZLESOLVER_H
-
-#include "PieceManager.h"
+#include "AbstractPieceManager.h"
 #include "PuzzlePieceConstrain.h"
 #include <vector>
 
@@ -34,18 +30,21 @@ public:
 };
 
 class PuzzleSolver {
-    PieceManager pieceManager;
-
-    bool solvePuzzle(int row, int col);
-
-public:
+    AbstractPieceManager pieceManager;
     SolverErrors solverErrors;
     PuzzleSolution *puzzleSolution = nullptr;
 
-    explicit PuzzleSolver(ParsedPuzzle &puzzle);
+    bool solvePuzzle(int row, int col);
+    vector<int,int> getAllPuzzleShapes();
+
+public:
+
+    explicit PuzzleSolver(AbstractPieceManager &pieceManager);
 
     ~PuzzleSolver();
+    bool trySolve();
+    void exportErrors(char* outputFile);
 };
 
 
-#endif //PAZZEL_PUZZLESOLVER_H
+#endif //PUZZLE_PUZZLESOLVER_H

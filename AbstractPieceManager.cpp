@@ -1,10 +1,6 @@
-//
-// Created by private on 11/11/17.
-//
+#include "AbstractPieceManager.h"
 
-#include "PieceManager.h"
-
-PieceManager::PieceManager() {
+AbstractPieceManager::AbstractPieceManager() {
     Piece_t maskPiece;
     for (int mask = 0; mask < (1 << 4); ++mask) {
         maskPiece = 0;
@@ -16,56 +12,47 @@ PieceManager::PieceManager() {
     }
 }
 
-PieceManager::PieceManager(ParsedPuzzle &puzzle) : PieceManager() {
-    for (int i = 0; i < puzzle.numberOfPieces; ++i) {
-        addPiece(puzzle.pieces[i]->representor());
-    }
+AbstractPieceManager::AbstractPieceManager(ParsedPuzzle &puzzle) : AbstractPieceManager() {
+    for (int i = 0; i < puzzle.numberOfPieces; ++i)
+        this->addPiece(puzzle.pieces[i]->representor());
 }
 
-void PieceManager::addPiece(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
-        ++count[piece | maskOption];
-    }
-    if (count[piece] == 1) {
-        addOption(piece);
-    }
+void AbstractPieceManager::addPiece(Piece_t piece) {
+    for (Piece_t maskOption : maskOptions)
+        ++this->piecesCounter[piece | maskOption];
+
+    if (this->piecesCounter[piece] == 1)
+        this->addOption(piece);
+
 }
 
-void PieceManager::removeOption(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
+void AbstractPieceManager::removeOption(Piece_t piece) {
+    for (Piece_t maskOption : maskOptions)
         --countOptions[piece | maskOption];
-    }
+
 }
 
-void PieceManager::addOption(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
+void AbstractPieceManager::addOption(Piece_t piece) {
+    for (Piece_t maskOption : maskOptions)
         ++countOptions[piece | maskOption];
-    }
+
 }
 
-void PieceManager::removePiece(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
-        --count[piece | maskOption];
-    }
-    if (count[piece] == 0) {
-        removeOption(piece);
-    }
+void AbstractPieceManager::removePiece(Piece_t piece) {
+    for (Piece_t maskOption : maskOptions)
+        --this->piecesCounter[piece | maskOption];
+
+    if (this->piecesCounter[piece] == 0)
+        this->removeOption(piece);
 }
 
-namespace {
-    inline bool valid(Piece_t piece) {
-        return (0x3 << 6 & piece) != (0x3 << 6) &&
-               (0x3 << 4 & piece) != (0x3 << 4) &&
-               (0x3 << 2 & piece) != (0x3 << 2) &&
-               (0x3 << 0 & piece) != (0x3 << 0);
-    }
-}
 
-Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
+Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
 	if (last != nullPiece) {
-		addPiece(last);
+		this->addPiece(last);
 	}
-	if (count[constrain] == 0) return nullPiece;
+	if (this->piecesCounter[constrain] == 0)
+		return nullPiece;
 	int startLeft, startUp, startRight, startDown,
 		currentLeft, currentUp, currentRight, currentDown,
 		endLeft, endUp, endRight, endDown;
@@ -122,7 +109,7 @@ Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
 					currentPiece = static_cast<uint8_t>(
 						(currentLeft << 6) | (currentUp << 4) | (currentRight << 2) |
 						(currentDown << 0));
-					if (currentPiece != last && count[currentPiece] != 0) {
+					if (currentPiece != last && this->piecesCounter[currentPiece] != 0) {
 						removePiece(currentPiece);
 						return currentPiece;
 					}
@@ -136,10 +123,10 @@ Piece_t PieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
 	return nullPiece;
 }
 
-int PieceManager::countConstrainPiece(Piece_t constrain) {
-    return count[constrain];
+int AbstractPieceManager::countConstrainPiece(Piece_t constrain) {
+    return this->piecesCounter[constrain];
 }
 
-int PieceManager::countConstrainOptions(Piece_t constrain) {
+int AbstractPieceManager::countConstrainOptions(Piece_t constrain) {
     return countOptions[constrain];
 }

@@ -1,11 +1,7 @@
-//
-// Created by t-idkess on 11/11/2017.
-//
-
 #include "PuzzleSolver.h"
 
 namespace {
-	bool hasWrongNumberOfStraightLines(PieceManager &pm, int numberOfRows, int numberOfCols) {
+	bool hasWrongNumberOfStraightLines(AbstractPieceManager &pm, int numberOfRows, int numberOfCols) {
 		bool ret = false;
 		ret |= pm.countConstrainPiece(hasLeftStraight) < numberOfRows;
 		ret |= pm.countConstrainPiece(hasUpperStraight) < numberOfCols;
@@ -14,7 +10,7 @@ namespace {
 		return ret;
 	}
 
-	void hasWrongNumberOfStraightLines(SolverErrors &se, PieceManager &pm, int numberOfPieces) {
+	void hasWrongNumberOfStraightLines(SolverErrors &se, AbstractPieceManager &pm, int numberOfPieces) {
 		bool wrongNumberOfStraightLines = true; // to be checked
 		for (int i = 1; i * i <= numberOfPieces; ++i) {
 			if (numberOfPieces % i == 0) {
@@ -30,7 +26,7 @@ namespace {
 		se.wrongNumberOfStraightLine = wrongNumberOfStraightLines;
 	}
 
-	void hasASumOfZero(SolverErrors &se, PieceManager &pm) {
+	void hasASumOfZero(SolverErrors &se, AbstractPieceManager &pm) {
 		se.sumOfEdgesIsNotZero =
 			((pm.countConstrainPiece(hasLeftMale) - pm.countConstrainPiece(hasRightFemale)) != 0) ||
 			((pm.countConstrainPiece(hasLeftFemale) - pm.countConstrainPiece(hasRightMale)) != 0) ||
@@ -38,7 +34,7 @@ namespace {
 			((pm.countConstrainPiece(hasUpperFemale) - pm.countConstrainPiece(hasDownMale)) != 0);
 	}
 
-	void hasAllCorners(SolverErrors &se, PieceManager &pm) {
+	void hasAllCorners(SolverErrors &se, AbstractPieceManager &pm) {
 		se.missingTL = pm.countConstrainPiece(hasUpperStraight & hasLeftStraight) == 0;
 		se.missingTR = pm.countConstrainPiece(hasUpperStraight & hasRightStraight) == 0;
 		se.missingBL = pm.countConstrainPiece(hasDownStraight & hasLeftStraight) == 0;
@@ -47,26 +43,14 @@ namespace {
 
 }
 
-PuzzleSolver::PuzzleSolver(ParsedPuzzle &puzzle) : pieceManager(puzzle) {
-	hasAllCorners(solverErrors, pieceManager);
-	hasASumOfZero(solverErrors, pieceManager);
-	hasWrongNumberOfStraightLines(solverErrors, pieceManager, puzzle.numberOfPieces);
+PuzzleSolver::PuzzleSolver(AbstractPieceManager &pieceManager) : pieceManager(pieceManager){}
 
-	if (solverErrors.hasError())return;
-
-	for (int i = 1; i * i <= puzzle.numberOfPieces; ++i) {
-		if (puzzle.numberOfPieces % i == 0) {
-			int row = i, col = puzzle.numberOfPieces / i;
-			// do one time if row == col else do 2 times row X col, col X row
-			for (int j = 0; j < ((row == col) ? 1 : 2); ++j) {
-				if (!hasWrongNumberOfStraightLines(pieceManager, row, col)) {
-					if (solvePuzzle(row, col)) return; // success!
-				}
-				row = col, col = i;
-			}
-		}
-	}
-	solverErrors.couldNotSolvePuzzle = true; // failure
+bool PuzzleSolver::trySolve() {
+    auto allPossibleSize = getAllPosibleSizes();
+    for(auto size:allPossibleSize)
+        if(trySolveForShape(shape))
+            return true;
+    return false;
 }
 
 PuzzleSolver::~PuzzleSolver() {
@@ -113,7 +97,7 @@ namespace {
 			(currentConstrain & 0x1));
 	}
 
-	PuzzlePieceLocation nextLocationToCheck(PieceManager &pm, Piece_t *constrains, PuzzleSolution *puzzleSolution) {
+	PuzzlePieceLocation nextLocationToCheck(AbstractPieceManager &pm, Piece_t *constrains, PuzzleSolution *puzzleSolution) {
 		int minOption = 1 << 30;
 		PuzzlePieceLocation bestLocation, currentLocation;
 		int row = puzzleSolution->row, col = puzzleSolution->col;
@@ -124,7 +108,7 @@ namespace {
 						constrains[currentLocation.rowNumber * col + currentLocation.colNumber]);
 					if (currentConstrainCount < minOption) {
 						if (currentConstrainCount == 0) {
-							return nullLocation; // last move screwed up the solution.
+							return nullLocation; // no available piece for a location, should go back.
 						}
 						else {
 							minOption = currentConstrainCount;
@@ -187,11 +171,11 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	int queueLength = row * col;
 	auto *queue = new PuzzlePieceLocation[queueLength];
 	int queueCurrentSize = 0;
-	delete puzzleSolution;
+	delete this->puzzleSolution;
 	this->puzzleSolution = new PuzzleSolution(row, col);
 	bool shouldCheckNewLocation = true;
-	PuzzlePieceLocation pieceLocation;
-	Piece_t* constrains = new Piece_t[row*col];
+	PuzzlePieceLocation pieceLocation{};
+	auto * constrains = new Piece_t[row*col];
 	for (int i = 0; i < row*col; ++i) constrains[i] = nullPiece;
 	setConstrainMatrix(constrains, row, col);
 	do {
@@ -226,3 +210,5 @@ bool PuzzleSolver::solvePuzzle(int row, int col) {
 	delete[] constrains;
 	return queueCurrentSize == queueLength;
 }
+
+
