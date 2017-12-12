@@ -48,7 +48,7 @@ namespace {
 
 }
 
-PuzzleSolver::PuzzleSolver(shared_ptr<AbstractPieceManager> &pieceManager) : pieceManager(pieceManager) {}
+PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager>& pieceManager) : pieceManager(pieceManager) {}
 
 bool PuzzleSolver::trySolve() {
     auto allPossiblePuzzleShapes = pieceManager->getAllPossiblePuzzleShapes();

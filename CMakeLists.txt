@@ -15,6 +15,6 @@ set(SOURCE_FILES main.cpp
         CommandLineManager.cpp
         PieceManagerFactory.cpp
         PieceManagerFactory.h
-        PuzzleParser.cpp PuzzleParser.h)
+        PuzzleParser.cpp PuzzleParser.h BasicPieceManager.cpp BasicPieceManager.h RotatablePieceManager.cpp RotatablePieceManager.h)
 
 add_executable(puzzle ${SOURCE_FILES} PuzzleParser.cpp PuzzleParser.h)

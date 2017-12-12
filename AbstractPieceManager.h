@@ -9,25 +9,35 @@
 #include <stdint.h>
 #include <iostream>
 #include <fstream>
+#include <bits/unique_ptr.h>
 
 using namespace std;
 
-#define Piece_t uint8_t
-#define nullPiece (Piece_t) 0xFF //0b11111111
+#include "PuzzlePiece.h"
 
 class AbstractPieceManager {
 
-
-    class PuzzlePiece {
-
-    public:
-        PuzzlePiece(int index, int left, int up, int right, int down);
-
-        const int index;
-        const int left, up, down, right;
-
-        Piece_t representor();
+public:
+    struct Shape {
+        int width, height;
     };
+
+    virtual vector<Shape> getAllPossiblePuzzleShapes();
+
+    AbstractPieceManager();
+
+    virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
+    int countConstrainPiece(Piece_t constrain);
+    int countConstrainOptions(Piece_t constrain);
+
+    virtual void addPiece(unique_ptr<PuzzlePiece>&& piece);
+    virtual const vector<PuzzlePiece>& getAllPuzzlePieces();
+    void setSize(int numberOfPieses);
+
+
+    bool hasErrors();
+
+    void exportErrors(ofstream& fout);
 
 private:
     ParsingErrors errors;
@@ -42,29 +52,6 @@ private:
     void parsePiecesFromFile(char *fileName);
 
     virtual bool isPuzzleShapePossible(Shape shape);
-
-public:
-    struct Shape {
-        int width, height;
-    };
-
-    virtual vector<shape> getAllPossiblePuzzleShapes();
-
-    AbstractPieceManager();
-
-    virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
-
-    virtual int getNuberOfPieces();
-
-
-    virtual void addPiece(PuzzlePiece);
-
-    int countConstrainPiece(Piece_t constrain);
-
-    int countConstrainOptions(Piece_t constrain);
-    bool hasErrors();
-
-    void exportErrors(ofstream fout);
 };
 
 

@@ -16,14 +16,14 @@ int main(int argc, char **argv)
         parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    if(pieceManager.hasErrors()) { //handle piece manager errors:
-        pieceManager.exportErrors(cmd.outputStream);
+    if(pieceManager->hasErrors()) { //handle piece manager errors:
+        pieceManager->exportErrors(cmd.outputStream);
         return -1;
     }
     auto puzzleSolver = PuzzleSolver(pieceManager);
     if(puzzleSolver.trySolve()) //return true if succeeded
-        puzzleSolver.exportSulotion(cmd.outputStream);
+        puzzleSolver.exportSolution(cmd.outputStream);
     else
-        puzzleSolver.exportError(cmd.outputStream);
+        puzzleSolver.exportErrors(cmd.outputStream);
     return 0;
 }

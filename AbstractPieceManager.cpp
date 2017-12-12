@@ -131,6 +131,6 @@ int AbstractPieceManager::countConstrainOptions(Piece_t constrain) {
     return countOptions[constrain];
 }
 
-void AbstractPieceManager::exportErrors(ofstream fout) {
+void AbstractPieceManager::exportErrors(ofstream& fout) {
 
 }

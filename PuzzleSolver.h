@@ -34,7 +34,7 @@ private:
 
     void createNewPuzzleSolution(AbstractPieceManager::Shape shape);
 
-    shared_ptr<AbstractPieceManager> pieceManager;
+    const unique_ptr<AbstractPieceManager>& pieceManager;
 
     bool trySolveForShape(AbstractPieceManager::Shape shape);
 
@@ -48,7 +48,7 @@ private:
 
 public:
 
-    explicit PuzzleSolver(shared_ptr<AbstractPieceManager> &pieceManager);
+    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager>& pieceManager);
 
     bool trySolve();
 

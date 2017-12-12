@@ -1,9 +1,7 @@
-//
-// Created by private on 12/11/17.
-//
-
 #include "PieceManagerFactory.h"
 
-AbstractPieceManager PieceManagerFactory::getPieceManager(bool enableRotate) {
-    return AbstractPieceManager();
+unique_ptr<AbstractPieceManager> PieceManagerFactory::getPieceManager(bool enableRotate) {
+    if(enableRotate)
+        return unique_ptr<AbstractPieceManager>(new RotatablePieceManager);
+    return unique_ptr<AbstractPieceManager>(new BasicPieceManager);
 }
