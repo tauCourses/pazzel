@@ -34,7 +34,6 @@ public:
     virtual const vector<PuzzlePiece>& getAllPuzzlePieces();
     void setSize(int numberOfPieses);
 
-
     bool hasErrors();
 
     void exportErrors(ofstream& fout);
@@ -48,8 +47,6 @@ private:
     virtual void hasASumOfZero();
 
     virtual void hasAllCorners();
-
-    void parsePiecesFromFile(char *fileName);
 
     virtual bool isPuzzleShapePossible(Shape shape);
 };
