@@ -34,6 +34,12 @@ public:
 
     void exportErrors(ofstream &fout);
 
+    virtual void addPieceToCount(Piece_t piece) = 0;
+
+    virtual void removePieceFromCount(Piece_t piece) = 0;
+
+    virtual unique_ptr<PuzzlePiece> getPieceOfType(Piece_t piece) = 0;
+
 protected:
     vector<PuzzlePiece> pieces;
 

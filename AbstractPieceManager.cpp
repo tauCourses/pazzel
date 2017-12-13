@@ -26,9 +26,11 @@ void AbstractPieceManager::exportErrors(ofstream &fout) {
 }
 
 void AbstractPieceManager::printNoPossibleShape(ofstream &fout) {
-    fout << "Cannot solve puzzle: wrong number of straight edges" << endl;
+    if (this->noPossibleShape)
+        fout << "Cannot solve puzzle: wrong number of straight edges" << endl;
 }
 
 void AbstractPieceManager::printSumNotZero(ofstream &fout) {
-    fout << "Cannot solve puzzle: sum of edges is not zero" << endl;
+    if (this->pieceSumNotZero)
+        fout << "Cannot solve puzzle: sum of edges is not zero" << endl;
 }

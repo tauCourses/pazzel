@@ -2,8 +2,7 @@
 #define PUZZLE_PUZZLE_PIECE_H
 
 
-//#include <cstdint>
-#include <stdint.h>
+#include <cstdint>
 
 #define Piece_t uint8_t
 #define nullPiece (Piece_t) 0xFF //0b11111111
@@ -12,7 +11,8 @@ class PuzzlePiece {
 
 public:
     PuzzlePiece(int index, int left, int up, int right, int down);
-    PuzzlePiece(const PuzzlePiece* copy);
+
+    explicit PuzzlePiece(const PuzzlePiece *copy);
 
     const int index;
     const int left, up, down, right;

@@ -17,4 +17,6 @@
 #define hasDownStraight  0xFD //0b11111101u
 #define hasDownFemale    0xFC //0b11111100u
 
+#define numberOfConstrains 1<<8
+
 #endif //PUZZLE_PUZZLEPIECECONSTRAIN_H
