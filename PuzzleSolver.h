@@ -6,7 +6,7 @@
 #include <memory>
 #include <fstream>
 #include <deque>
-#include <climit>
+#include <climits>
 #include "AbstractPieceManager.h"
 #include "PuzzlePieceConstrain.h"
 
