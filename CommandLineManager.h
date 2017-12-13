@@ -20,10 +20,12 @@ private:
     void updateIOStreams(char **argv); //return false if failed
     int getNextIndex(int current); //return the next available cmd argument
 public:
-    ifstream &inputStream;
-    ofstream &outputStream;
+    ifstream inputStream;
+    ofstream outputStream;
 
     explicit CommandLineManager(int argc, char **argv);
+
+    ~CommandLineManager();
 
     bool hasErrors() const;
 
