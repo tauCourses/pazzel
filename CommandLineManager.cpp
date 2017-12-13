@@ -61,4 +61,3 @@ int CommandLineManager::getNextIndex(int current) {
     return current+1;
 }
 
-

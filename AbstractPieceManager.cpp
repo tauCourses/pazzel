@@ -1,6 +1,5 @@
 #include "AbstractPieceManager.h"
 
-
 int AbstractPieceManager::checkPieceIdExistOnce(int id) const {
     int occurrences = 0;
     for (auto piece : this->pieces)

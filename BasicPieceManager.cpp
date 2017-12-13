@@ -9,20 +9,17 @@ BasicPieceManager::BasicPieceManager() {
 
 void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
-    addPieceToCount(piece.get().representor());
+    addPieceToCount(piece->representor());
 }
 
-inline int BasicPieceManager::countConstrainOptions(Piece_t constrain) {
+inline int BasicPieceManager::numOfOptionsForConstrain(Piece_t constrain) {
     return constrainOption[constrain] * constrainOption[nullPiece] +
            constrainCount[constrain]; // todo delete this if it's slower this way. it's a change in the algorithm
 }
 
-inline int BasicPieceManager::countConstrainPiece(Piece_t constrain) {
-    return constrainCount[constrain];
-}
 
 Piece_t BasicPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
-    return 0;
+    return constrain + last;
 }
 
 vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShapes() {
@@ -40,32 +37,32 @@ vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShape
 }
 
 bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) {
-    return countConstrainPiece(hasLeftStraight) >= shape.height &&
-           countConstrainPiece(hasUpperStraight) >= shape.width &&
-           countConstrainPiece(hasRightStraight) >= shape.height &&
-           countConstrainPiece(hasDownStraight) >= shape.width;
+    return constrainCount[hasLeftStraight] >= shape.height &&
+           constrainCount[hasUpperStraight] >= shape.width &&
+           constrainCount[hasRightStraight] >= shape.height &&
+           constrainCount[hasDownStraight] >= shape.width;
 }
 
 bool BasicPieceManager::hasASumOfZero() {
-    return countConstrainPiece(hasLeftMale) - countConstrainPiece(hasRightFemale) == 0 &&
-           countConstrainPiece(hasLeftFemale) - countConstrainPiece(hasRightMale) == 0 &&
-           countConstrainPiece(hasUpperMale) - countConstrainPiece(hasDownFemale) == 0 &&
-           countConstrainPiece(hasUpperFemale) - countConstrainPiece(hasDownMale) == 0;
+    return constrainCount[hasLeftMale] - constrainCount[hasRightFemale] == 0 &&
+           constrainCount[hasLeftFemale] - constrainCount[hasRightMale] == 0 &&
+           constrainCount[hasUpperMale] - constrainCount[hasDownFemale] == 0 &&
+           constrainCount[hasUpperFemale] - constrainCount[hasDownMale] == 0;
 }
 
 bool BasicPieceManager::hasAllCorners() {
-    return countConstrainPiece(hasUpperStraight & hasLeftStraight) != 0 &&
-           countConstrainPiece(hasUpperStraight & hasRightStraight) != 0 &&
-           countConstrainPiece(hasDownStraight & hasLeftStraight) != 0 &&
-           countConstrainPiece(hasDownStraight & hasRightStraight) != 0;
+    return constrainCount[hasUpperStraight & hasLeftStraight] != 0 &&
+           constrainCount[hasUpperStraight & hasRightStraight] != 0 &&
+           constrainCount[hasDownStraight & hasLeftStraight] != 0 &&
+           constrainCount[hasDownStraight & hasRightStraight] != 0;
 }
 
 void BasicPieceManager::printMissingCorners(ofstream &fout) {
     const char *message = "Cannot solve puzzle: missing corner element: ";
-    if (countConstrainPiece(hasUpperStraight & hasLeftStraight) == 0) { fout << message << "TL" << endl; }
-    if (countConstrainPiece(hasUpperStraight & hasRightStraight) == 0) { fout << message << "TR" << endl; }
-    if (countConstrainPiece(hasDownStraight & hasLeftStraight) == 0) { fout << message << "BL" << endl; }
-    if (countConstrainPiece(hasDownStraight & hasRightStraight) == 0) { fout << message << "BR" << endl; }
+    if (constrainCount[hasUpperStraight & hasLeftStraight] == 0) { fout << message << "TL" << endl; }
+    if (constrainCount[hasUpperStraight & hasRightStraight] == 0) { fout << message << "TR" << endl; }
+    if (constrainCount[hasDownStraight & hasLeftStraight] == 0) { fout << message << "BL" << endl; }
+    if (constrainCount[hasDownStraight & hasRightStraight] == 0) { fout << message << "BR" << endl; }
 }
 
 

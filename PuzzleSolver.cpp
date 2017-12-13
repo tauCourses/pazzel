@@ -39,7 +39,7 @@ bool PuzzleSolver::trySolveForShape(AbstractPieceManager::Shape shape) {
 }
 
 void PuzzleSolver::exportErrors(ofstream &out) {
-    out << "Cannot solve puzzle: it seems that there is no proper solution" << "\n";
+    out << "Cannot solve puzzle: it seems that there is no proper solution" << endl;
 }
 
 void PuzzleSolver::exportSolution(ofstream &out) {

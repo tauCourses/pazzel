@@ -18,13 +18,11 @@ public:
         int width, height;
     };
 
-    virtual vector<Shape> getAllPossiblePuzzleShapes() = 0;
+    virtual vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() = 0;
 
     virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
 
-    virtual int countConstrainPiece(Piece_t constrain) = 0;
-
-    virtual int countConstrainOptions(Piece_t constrain) = 0;
+    virtual int numOfOptionsForConstrain(Piece_t constrain) = 0;
 
     virtual void addPiece(unique_ptr<PuzzlePiece> piece) = 0;
 

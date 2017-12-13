@@ -16,11 +16,11 @@ int main(int argc, char **argv)
         parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    /*if(pieceManager->hasErrors()) { //handle piece manager errors:
+    if(pieceManager->hasErrors()) { //handle piece manager errors:
         pieceManager->exportErrors(cmd.outputStream);
         return -1;
     }
-    auto puzzleSolver = PuzzleSolver(pieceManager);
+    /*auto puzzleSolver = PuzzleSolver(pieceManager);
     if(puzzleSolver.trySolve()) //return true if succeeded
         puzzleSolver.exportSolution(cmd.outputStream);
     else
