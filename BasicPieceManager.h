@@ -5,23 +5,23 @@
 
 class BasicPieceManager : public AbstractPieceManager {
 public:
-    vector<Shape> getAllPossiblePuzzleShapes();
+    vector<Shape> getAllPossiblePuzzleShapes() override;
 
-    Piece_t getNextPiece(Piece_t constrain, Piece_t last);
-    int countConstrainPiece(Piece_t constrain);
-    int countConstrainOptions(Piece_t constrain);
+    Piece_t getNextPiece(Piece_t constrain, Piece_t last) override;
+    int countConstrainPiece(Piece_t constrain) override;
+    int countConstrainOptions(Piece_t constrain) override;
 
-    void addPiece(unique_ptr<PuzzlePiece> piece);
+    void addPiece(unique_ptr<PuzzlePiece> piece) override ;
 
 private:
-    bool isPuzzleShapePossible(Shape shape);
+    bool isPuzzleShapePossible(Shape shape) override;
 
     //error hundeling:
-    bool hasASumOfZero();
+    bool hasASumOfZero() override;
 
-    bool hasAllCorners();
+    bool hasAllCorners() override;
 
-    virtual void printMissingCorners(ofstream& fout);
+    void printMissingCorners(ofstream& fout) override;
 };
 
 

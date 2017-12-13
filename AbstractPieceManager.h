@@ -1,19 +1,15 @@
 #ifndef PUZZLE_PIECEMANAGER_H
 #define PUZZLE_PIECEMANAGER_H
 
-#include "ParsedPuzzle.h"
-#include "PuzzlePiece.h"
-
-#define NumberOfPossibleConstrains 1<<8
-
-#include <stdint.h>
 #include <iostream>
 #include <fstream>
-#include <bits/unique_ptr.h>
+#include <vector>
+#include <memory>
+
+#include "PuzzlePiece.h"
 
 using namespace std;
 
-#include "PuzzlePiece.h"
 
 class AbstractPieceManager {
 
@@ -35,7 +31,7 @@ public:
 
     void exportErrors(ofstream& fout);
 
-private:
+protected:
     vector<PuzzlePiece> pieces;
 
     virtual bool isPuzzleShapePossible(Shape shape) = 0;
