@@ -127,7 +127,7 @@ void BasicPieceManager::removePieceFromOptions(Piece_t piece) {
 unique_ptr<PuzzlePiece> BasicPieceManager::getPieceOfType(Piece_t piece) {
     for (auto it = pieces.begin(); it != pieces.end(); ++it) {
         if (it->representor() == piece) {
-            unique_ptr<PuzzlePiece> puzzlePiece = std::make_unique<PuzzlePiece>(*it);
+            unique_ptr<PuzzlePiece> puzzlePiece = unique_ptr<PuzzlePiece>(it);
             pieces.erase(it);
             return puzzlePiece;
         }
