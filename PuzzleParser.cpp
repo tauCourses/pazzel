@@ -9,7 +9,8 @@ PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager>
 
     while(!fin.eof()) {
         getline(fin, line);
-        if(std::all_of(line.begin(), line.end(), std::isspace))
+        auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
+        if(std::all_of(line.begin(), line.end(), isspaceLambda))
             continue;
         int id = getPieceId(line); //check if it's a valid id, return -1 if not
         if(id < 0)
@@ -60,11 +61,12 @@ unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
     int left, up, right, down;
     line = line.substr(line.find(" \t\r") + 1); //after id
     string rest = string(line);
+    auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
     if(!tryReadSide(rest, &left) ||
         !tryReadSide(rest, &up) ||
         !tryReadSide(rest, &right) ||
         !tryReadSide(rest, &down) ||
-        !std::all_of(rest.begin(), rest.end(), std::isspace))
+        !std::all_of(rest.begin(), rest.end(), isspaceLambda))
     {
         this->wrongPieceFormatLine.emplace_back(make_tuple(id, line));
         return unique_ptr<PuzzlePiece>(new PuzzlePiece(id,0,0,0,0));

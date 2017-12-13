@@ -1,7 +1,7 @@
 CPP = g++
 
 EXEC = ex2
-CPP_COMP_FLAG = -std=gnu++11 -Wall -Wextra \
+CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
 OBJS =  PuzzlePiece.o \
