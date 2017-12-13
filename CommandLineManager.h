@@ -13,7 +13,7 @@ private:
     int rotateParamInx;
     bool wrongNumberOfArguments = false;
     bool rotateParamDoesntExist = false;
-    bool unableToReadInputFile;
+    bool unableToReadInputFile = false;
     bool _rotateEnabled = false;
 
     bool updateRotateParamInx(int argc, char** argv); //return false if no rotate param found

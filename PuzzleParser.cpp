@@ -4,8 +4,6 @@ PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager>
     string line;
     if(!this->tryReadFirstLine())
         return ;
-    if(this->inValidNumberOfPieces)
-        return;
 
     while(!fin.eof()) {
         getline(fin, line);
@@ -24,13 +22,13 @@ PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager>
 bool PuzzleParser::tryReadFirstLine() {
     string line;
     getline(fin, line);
-    std::regex firstLinePattern("^NumElement([ \r\\t])*=([ \t])*(0|[1-9][0-9]*)([ \t])*\n$");
+    std::regex firstLinePattern("^NumElements([ \r\t])*=([ \t])*(-)?(0|[1-9][0-9]*)([ \t])*$");
     if(!std::regex_match(line, firstLinePattern))
     {
         this->firstLineMalformed = true;
         return false;
     }
-    string number = line.substr(line.find("0123456789"));
+    string number = line.substr(line.find_first_of("-0123456789"));
     this->numberOfPieces = std::stoi(number);
     if(this->numberOfPieces<0)
     {
@@ -42,7 +40,7 @@ bool PuzzleParser::tryReadFirstLine() {
 
 
 int PuzzleParser::getPieceId(string &line) {
-    auto first_token = line.substr(0, line.find(" \t"));
+    auto first_token = line.substr(0, line.find_first_of(" \t"));
     if(!this->isInteger(first_token))
     {
         this->notIntegerIds.emplace_back(first_token);
@@ -52,14 +50,15 @@ int PuzzleParser::getPieceId(string &line) {
     if(id<1 || id > this->numberOfPieces)
     {
         this->wrongPiecesIds.emplace_back(id);
+        return -1;
     }
-    return -1;
+    return id;
 
 }
 
 unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
     int left, up, right, down;
-    line = line.substr(line.find(" \t\r") + 1); //after id
+    line = line.substr(line.find_first_of(" \t\r") + 1); //after id
     string rest = string(line);
     auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
     if(!tryReadSide(rest, &left) ||
@@ -76,11 +75,14 @@ unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
 
 
 bool PuzzleParser::tryReadSide(string &rest, int *side) {
-    auto first_token = rest.substr(0, rest.find(" \t"));
+    auto first_token = rest.substr(0, rest.find_first_of(" \t"));
     if(!this->isInteger(first_token))
         return false;
     *side =  std::stoi(first_token);
-    rest = rest.substr(rest.find(" \t\r") + 1);
+    if(first_token.size() == rest.size())
+        rest = string("");
+    else
+        rest = rest.substr(first_token.size() + 1);
 
     return *side >= -1 && *side <= 1;
 }
