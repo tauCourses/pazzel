@@ -1,14 +1,17 @@
 CPP = g++
 
-EXEC = ex1
-CPP_COMP_FLAG = -std=gnu++11 -Wall -Wextra \
+EXEC = ex2
+CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
 OBJS =  PuzzlePiece.o \
-		ParsedPuzzle.o \
-		PieceManager.o \
+		CommandLineManager.o \
+		AbstractPieceManager.o \
+		BasicPieceManager.o \
+		RotatablePieceManager.o \
+		PieceManagerFactory.o \
+		PuzzleParser.o \
 		PuzzleSolver.o \
-		exporter.o \
 		main.o
 
 $(EXEC): $(OBJS)
@@ -16,15 +19,21 @@ $(EXEC): $(OBJS)
 
 PuzzlePiece.o: PuzzlePiece.cpp 
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-ParsedPuzzle.o: ParsedPuzzle.cpp PuzzlePiece.h
+CommandLineManager.o: CommandLineManager.cpp 
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-PieceManager.o: PieceManager.cpp ParsedPuzzle.h PuzzlePiece.h
+AbstractPieceManager.o: AbstractPieceManager.cpp PuzzlePiece.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-PuzzleSolver.o: PuzzleSolver.cpp PieceManager.h PuzzlePieceConstrain.h
+BasicPieceManager.o: BasicPieceManager.cpp AbstractPieceManager.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-exporter.o: exporter.cpp ParsedPuzzle.h PuzzleSolver.h
+RotatablePieceManager.o: RotatablePieceManager.cpp AbstractPieceManager.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-main.o: main.cpp ParsedPuzzle.h PuzzleSolver.h exporter.h 
+PieceManagerFactory.o: PieceManagerFactory.cpp AbstractPieceManager.h RotatablePieceManager.h BasicPieceManager.h
+	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
+PuzzleParser.o: PuzzleParser.cpp AbstractPieceManager.h PuzzlePiece.h
+	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
+PuzzleSolver.o: PuzzleSolver.cpp AbstractPieceManager.h PuzzlePieceConstrain.h
+	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
+main.o: main.cpp ParsedPuzzle.h CommandLineManager.h PieceManagerFactory.h PuzzleParser.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 clean:
 	rm -f $(OBJS) $(EXEC)

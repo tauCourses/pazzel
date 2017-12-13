@@ -48,7 +48,7 @@ namespace {
 
 }
 
-PuzzleSolver::PuzzleSolver(shared_ptr<AbstractPieceManager> &pieceManager) : pieceManager(pieceManager) {}
+PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager) : pieceManager(pieceManager) {}
 
 bool PuzzleSolver::trySolve() {
     auto allPossiblePuzzleShapes = pieceManager->getAllPossiblePuzzleShapes();
@@ -150,8 +150,8 @@ void PuzzleSolver::updatePieceInSolution(PuzzleSolver::PuzzleLocation puzzleLoca
 
 PuzzleSolver::PuzzleLocation PuzzleSolver::getNextPuzzleLocationToFill() {
     int minOption = INT_MAX;
-    PuzzleLocation bestLocation = {.col = -1, .row = -1}, currentLocation = {.row = 0, .col = 0};
-    int row = puzzleSolution.size(), col = puzzleSolution[0].size();
+    PuzzleLocation bestLocation = {-1,-1}, currentLocation= {-1,-1};
+    unsigned long row = puzzleSolution.size(), col = puzzleSolution[0].size();
     for (currentLocation.row = 0; currentLocation.row < row; ++currentLocation.row) {
         for (currentLocation.col = 0; currentLocation.col < col; ++currentLocation.col) {
             if (nullPiece == puzzleSolution[currentLocation.row][currentLocation.col]) {

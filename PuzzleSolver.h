@@ -1,13 +1,14 @@
 #ifndef PUZZLE_PUZZLESOLVER_H
 #define PUZZLE_PUZZLESOLVER_H
 
-#include "AbstractPieceManager.h"
-#include "PuzzlePieceConstrain.h"
+
 #include <vector>
 #include <memory>
 #include <fstream>
 #include <deque>
-#include "limits.h"
+#include <climit>
+#include "AbstractPieceManager.h"
+#include "PuzzlePieceConstrain.h"
 
 using namespace std;
 
@@ -24,7 +25,6 @@ public:
 
 class PuzzleSolver {
 private:
-
     struct PuzzleLocation {
         int row, col;
     };
@@ -34,7 +34,7 @@ private:
 
     void createNewPuzzleSolution(AbstractPieceManager::Shape shape);
 
-    shared_ptr<AbstractPieceManager> pieceManager;
+    const unique_ptr<AbstractPieceManager> &pieceManager;
 
     bool trySolveForShape(AbstractPieceManager::Shape shape);
 
@@ -48,7 +48,7 @@ private:
 
 public:
 
-    explicit PuzzleSolver(shared_ptr<AbstractPieceManager> &pieceManager);
+    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager);
 
     bool trySolve();
 

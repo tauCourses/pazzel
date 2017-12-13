@@ -12,6 +12,7 @@ class PuzzlePiece {
 
 public:
     PuzzlePiece(int index, int left, int up, int right, int down);
+    PuzzlePiece(const PuzzlePiece* copy);
 
     const int index;
     const int left, up, down, right;
