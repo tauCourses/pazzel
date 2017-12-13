@@ -49,7 +49,7 @@ void CommandLineManager::updateIOStreams(char **argv) {
         return;
     }
     currentInx = this->getNextIndex(currentInx);
-    this->outputStream = ofstream(argv[currentInx], ifstream::out);
+    this->outputStream.open(argv[currentInx], ifstream::out);
 }
 
 int CommandLineManager::getNextIndex(int current) {
@@ -59,7 +59,7 @@ int CommandLineManager::getNextIndex(int current) {
 }
 
 CommandLineManager::~CommandLineManager() {
-    if (ifstream.is_open()) ifstream.close();
-    if (ofstream.is_open()) ofstream.close();
+    if (inputStream.is_open()) inputStream.close();
+    if (outputStream.is_open()) outputStream.close();
 }
 
