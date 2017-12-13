@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <algorithm>
+#include <regex>
 
 #include "AbstractPieceManager.h"
 #include "PuzzlePiece.h"
@@ -18,13 +20,14 @@ private:
     bool firstLineMalformed = false;
     bool inValidNumberOfPieces = false;
     vector<int> missingPuzzleElements;
+    vector<int> elementsAppearMoreThanOnce; //elements that have more than one occurrence
     vector<int> wrongPiecesIds;
     vector<tuple<int, string>> wrongPieceFormatLine;
     vector<string> notIntegerIds;
 
     bool tryReadFirstLine(); //return false if failed
     int getPieceId(string& line);
-    unique_ptr<PuzzlePiece>&& getNextPiece(int id, string& line);
+    unique_ptr<PuzzlePiece> getNextPiece(int id, string& line);
     bool tryReadSide(string& rest, int *side);
     bool isInteger(const string &str);
 
@@ -34,11 +37,13 @@ private:
     void printOutOfRangeElements(ofstream& outf) const;
     void printWrongFormatPieces(ofstream& outf) const;
     void printNotValidIdsElements(ofstream& outf) const;
+    void printElementsAppearMoreThanOnce(ofstream &outf) const;
 
 public:
     explicit PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager> &pieceManager);
     bool hasErrors() const;
     void exportErrors(ofstream& outf) const;
+
 };
 
 

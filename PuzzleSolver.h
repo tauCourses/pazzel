@@ -1,13 +1,15 @@
 #ifndef PUZZLE_PUZZLESOLVER_H
 #define PUZZLE_PUZZLESOLVER_H
 
-#include "AbstractPieceManager.h"
-#include "PuzzlePieceConstrain.h"
+
 #include <vector>
 #include <memory>
 #include <fstream>
 #include <deque>
 #include "limits.h"
+
+#include "AbstractPieceManager.h"
+#include "PuzzlePieceConstrain.h"
 
 using namespace std;
 

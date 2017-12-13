@@ -22,33 +22,37 @@ public:
         int width, height;
     };
 
-    virtual vector<Shape> getAllPossiblePuzzleShapes();
-
-    AbstractPieceManager();
+    virtual vector<Shape> getAllPossiblePuzzleShapes() = 0;
 
     virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
-    int countConstrainPiece(Piece_t constrain);
-    int countConstrainOptions(Piece_t constrain);
+    virtual int countConstrainPiece(Piece_t constrain) = 0;
+    virtual int countConstrainOptions(Piece_t constrain) = 0;
 
-    virtual void addPiece(unique_ptr<PuzzlePiece>&& piece);
-    virtual const vector<PuzzlePiece>& getAllPuzzlePieces();
-    void setSize(int numberOfPieses);
+    virtual void addPiece(unique_ptr<PuzzlePiece> piece) = 0;
+    int checkPieceIdExistOnce(int id) const;
 
     bool hasErrors();
 
     void exportErrors(ofstream& fout);
 
 private:
-    ParsingErrors errors;
-    PuzzlePiece **pieces = nullptr;
+    vector<PuzzlePiece> pieces;
 
-    virtual void hasWrongNumberOfStraightLines(int numberOfPieces);
+    virtual bool isPuzzleShapePossible(Shape shape) = 0;
 
-    virtual void hasASumOfZero();
+    //error hundeling:
+    virtual bool hasASumOfZero() = 0;
 
-    virtual void hasAllCorners();
+    virtual bool hasAllCorners() = 0;
 
-    virtual bool isPuzzleShapePossible(Shape shape);
+    bool noPossibleShape = false;
+    bool pieceSumNotZero = false;
+
+    void printNoPissibleShape(ofstream& fout);
+    virtual void printMissingCorners(ofstream& fout) = 0;
+    void printSumNotZero(ofstream& fout);
+
+
 };
 
 

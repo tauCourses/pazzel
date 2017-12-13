@@ -17,11 +17,11 @@ private:
     bool _rotateEnabled = false;
 
     bool updateRotateParamInx(int argc, char** argv); //return false if no rotate param found
-    void updateIOStreams(int argc, char** argv); //return false if failed
+    void updateIOStreams(char** argv); //return false if failed
     int getNextIndex(int current); //return the next available cmd argument
 public:
-    ifstream& inputStream;
-    ofstream& outputStream;
+    ifstream inputStream;
+    ofstream outputStream;
     explicit CommandLineManager(int argc, char** argv);
     bool hasErrors() const;
     void exportErrors() const;

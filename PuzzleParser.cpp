@@ -1,18 +1,15 @@
-#include <algorithm>
-#include <regex>
 #include "PuzzleParser.h"
 
-PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager> const &pieceManager) : fin(fin){
+PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager> &pieceManager) : fin(fin){
     string line;
     if(!this->tryReadFirstLine())
         return ;
     if(this->inValidNumberOfPieces)
         return;
-    pieceManager->setSize(this->numberOfPieces);
 
     while(!fin.eof()) {
         getline(fin, line);
-        if(std::all_of(line.begin(), line.end(), isspace))
+        if(std::all_of(line.begin(), line.end(), std::isspace))
             continue;
         int id = getPieceId(line); //check if it's a valid id, return -1 if not
         if(id < 0)
@@ -24,18 +21,21 @@ PuzzleParser::PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager>
 }
 
 bool PuzzleParser::tryReadFirstLine() {
-    this->fin >> std::skipws >> "NumElement" >> "=" >> &this->numberOfPieces >> endl;
-    if(this->fin.fail())
+    string line;
+    getline(fin, line);
+    std::regex firstLinePattern("^NumElement([ \r\\t])*=([ \t])*(0|[1-9][0-9]*)([ \t])*\n$");
+    if(!std::regex_match(line, firstLinePattern))
     {
         this->firstLineMalformed = true;
         return false;
     }
+    string number = line.substr(line.find("0123456789"));
+    this->numberOfPieces = std::stoi(number);
     if(this->numberOfPieces<0)
     {
         this->inValidNumberOfPieces = true;
         return false;
     }
-    this->fin >> std::noskipws;
     return true;
 }
 
@@ -44,7 +44,7 @@ int PuzzleParser::getPieceId(string &line) {
     auto first_token = line.substr(0, line.find(" \t"));
     if(!this->isInteger(first_token))
     {
-        this->notIntegerIds.emplace_back(unique_ptr<string>(first_token));
+        this->notIntegerIds.emplace_back(first_token);
         return -1;
     }
     int id =  std::stoi(first_token);
@@ -56,7 +56,7 @@ int PuzzleParser::getPieceId(string &line) {
 
 }
 
-unique_ptr<PuzzlePiece> &&PuzzleParser::getNextPiece(int id, string &line) {
+unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
     int left, up, right, down;
     line = line.substr(line.find(" \t\r") + 1); //after id
     string rest = string(line);
@@ -64,12 +64,12 @@ unique_ptr<PuzzlePiece> &&PuzzleParser::getNextPiece(int id, string &line) {
         !tryReadSide(rest, &up) ||
         !tryReadSide(rest, &right) ||
         !tryReadSide(rest, &down) ||
-        !std::all_of(rest.begin(), rest.end(), isspace))
+        !std::all_of(rest.begin(), rest.end(), std::isspace))
     {
-        this->wrongPieceFormatLine.emplace_back(make_tuple(unique_ptr<string>(line), id));
-        return unique_ptr(PuzzlePiece(id,0,0,0,0));
+        this->wrongPieceFormatLine.emplace_back(make_tuple(id, line));
+        return unique_ptr<PuzzlePiece>(new PuzzlePiece(id,0,0,0,0));
     }
-    return unique_ptr(PuzzlePiece(id,left,up,right,down));
+    return unique_ptr<PuzzlePiece>(new PuzzlePiece(id,left,up,right,down));
 }
 
 
@@ -84,23 +84,20 @@ bool PuzzleParser::tryReadSide(string &rest, int *side) {
 }
 
 bool PuzzleParser::isInteger(const string &str) {
-    static std::regex isNumber("(\\+|-)?[[:digit:]]+");
+    static std::regex isNumber("^([ \t]*)[-]?(0|[1-9][0-9]*)([ \t]*)$");
     return std::regex_match(str, isNumber);
 }
 
-void PuzzleParser::checkForMissingParts(const unique_ptr<AbstractPieceManager> const &pieceManager) {
-    auto pieces = pieceManager->getAllPuzzlePieces();
-    auto pieceIter = pieces.begin();
-    int i;
-    for(i=0;i<this->numberOfPieces ;i++)
+void PuzzleParser::checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager) {
+    for(int i=0;i<this->numberOfPieces ;i++)
     {
-        if(pieceIter->index != i)
-            this->missingPuzzleElements.emplace_back(i);
-        else
-            pieceIter++;
+        int occurrences = pieceManager->checkPieceIdExistOnce(i+1);
+        if(occurrences == 0)
+            this->missingPuzzleElements.emplace_back(i+1);
+        if(occurrences > 1)
+            this->elementsAppearMoreThanOnce.emplace_back(i+1);
     }
-    for(;i<this->numberOfPieces;i++)
-        this->missingPuzzleElements.emplace_back(i);
+
 }
 
 bool PuzzleParser::hasErrors() const{
@@ -109,7 +106,8 @@ bool PuzzleParser::hasErrors() const{
            !this->missingPuzzleElements.empty() ||
            !this->wrongPiecesIds.empty() ||
            !this->wrongPieceFormatLine.empty() ||
-           !this->notIntegerIds.empty();
+           !this->notIntegerIds.empty() ||
+           !this->elementsAppearMoreThanOnce.empty();
 }
 
 void PuzzleParser::exportErrors(ofstream& outf) const{
@@ -125,6 +123,7 @@ void PuzzleParser::exportErrors(ofstream& outf) const{
     this->printOutOfRangeElements(outf);
     this->printWrongFormatPieces(outf);
     this->printNotValidIdsElements(outf);
+    this->printElementsAppearMoreThanOnce(outf);
 }
 
 void PuzzleParser::printMissingElements(ofstream& outf) const{
@@ -176,11 +175,26 @@ void PuzzleParser::printNotValidIdsElements(ofstream& outf) const{
     outf << "The following element(s) doesn't has a valid id:";
     bool firstElement = true;
 
-    for (const auto const &id : this->notIntegerIds) {
+    for (auto &id : this->notIntegerIds) {
         if(firstElement) {
             outf << " " << id;
             firstElement = false;
         }else
             outf << ", " << id;
     }
+}
+
+void PuzzleParser::printElementsAppearMoreThanOnce(ofstream &outf) const{
+    if (this->elementsAppearMoreThanOnce.empty())
+        return;
+    outf << "The following ids appear more than once:";
+    bool firstElement = true;
+    for (auto element : this->elementsAppearMoreThanOnce) {
+        if(firstElement) {
+            outf << " " << element;
+            firstElement = false;
+        }else
+            outf << ", " << element;
+    }
+    outf << "\n";
 }

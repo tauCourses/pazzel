@@ -9,7 +9,7 @@ CommandLineManager::CommandLineManager(int argc, char** argv) : numberOfArgument
     if(argc==4)
         if(!updateRotateParamInx(argc, argv))
             return;
-    updateIOStreams(argc, argv);
+    updateIOStreams(argv);
 }
 
 bool CommandLineManager::isRotateEnable() const {
@@ -43,7 +43,7 @@ bool CommandLineManager::updateRotateParamInx(int argc, char **argv) {
     return false;
 }
 
-void CommandLineManager::updateIOStreams(int argc, char **argv) {
+void CommandLineManager::updateIOStreams(char **argv) {
     int currentInx = 0;
     currentInx = this->getNextIndex(currentInx);
     this->inputStream = ifstream(argv[currentInx], ifstream::in);

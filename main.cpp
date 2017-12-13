@@ -1,6 +1,6 @@
 #include "CommandLineManager.h"
 #include "PieceManagerFactory.h"
-#include "PuzzleSolver.h"
+//#include "PuzzleSolver.h"
 #include "PuzzleParser.h"
 
 int main(int argc, char **argv)
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
         parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    if(pieceManager->hasErrors()) { //handle piece manager errors:
+    /*if(pieceManager->hasErrors()) { //handle piece manager errors:
         pieceManager->exportErrors(cmd.outputStream);
         return -1;
     }
@@ -24,6 +24,6 @@ int main(int argc, char **argv)
     if(puzzleSolver.trySolve()) //return true if succeeded
         puzzleSolver.exportSolution(cmd.outputStream);
     else
-        puzzleSolver.exportErrors(cmd.outputStream);
+        puzzleSolver.exportErrors(cmd.outputStream);*/
     return 0;
 }
