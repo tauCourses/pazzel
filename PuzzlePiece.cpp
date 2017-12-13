@@ -8,7 +8,7 @@ Piece_t PuzzlePiece::representor() {
 }
 
 PuzzlePiece::PuzzlePiece(const PuzzlePiece *copy) :
-        index(copy->index), left(copy->left), up(copy->up), down(copy->down), right(copy->right) {}
+        index(copy->index), left(copy->left), up(copy->up), right(copy->right), down(copy->down) {}
 
 bool PuzzlePiece::isValidPiece(Piece_t piece) {
     return (0x3 << 6 & piece) != (0x3 << 6) &&
