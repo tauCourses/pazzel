@@ -8,8 +8,7 @@ public:
     vector<Shape> getAllPossiblePuzzleShapes() override;
 
     Piece_t getNextPiece(Piece_t constrain, Piece_t last) override;
-    int countConstrainPiece(Piece_t constrain) override;
-    int countConstrainOptions(Piece_t constrain) override;
+    virtual int numOfOptionsForConstrain(Piece_t constrain) override;
 
     void addPiece(unique_ptr<PuzzlePiece> piece) override ;
 

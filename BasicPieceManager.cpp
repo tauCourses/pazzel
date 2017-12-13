@@ -4,14 +4,6 @@ void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
 }
 
-int BasicPieceManager::countConstrainOptions(Piece_t constrain) {
-    return constrain;
-}
-
-int BasicPieceManager::countConstrainPiece(Piece_t constrain) {
-    return constrain;
-}
-
 Piece_t BasicPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
     return constrain + last;
 }
@@ -34,4 +26,8 @@ bool BasicPieceManager::hasAllCorners() {
 
 void BasicPieceManager::printMissingCorners(ofstream &fout) {
     fout << "no way!";
+}
+
+int BasicPieceManager::numOfOptionsForConstrain(Piece_t constrain) {
+    return 0;
 }

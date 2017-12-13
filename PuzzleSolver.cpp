@@ -1,53 +1,5 @@
 #include "PuzzleSolver.h"
 
-bool SolverErrors::hasError() {
-    return wrongNumberOfStraightLine || missingTL || missingTR || missingBL || missingBR || sumOfEdgesIsNotZero ||
-           couldNotSolvePuzzle;
-}
-
-namespace {
-    bool hasWrongNumberOfStraightLines(AbstractPieceManager &pm, int numberOfRows, int numberOfCols) {
-        bool ret = false;
-        ret |= pm.countConstrainPiece(hasLeftStraight) < numberOfRows;
-        ret |= pm.countConstrainPiece(hasUpperStraight) < numberOfCols;
-        ret |= pm.countConstrainPiece(hasRightStraight) < numberOfRows;
-        ret |= pm.countConstrainPiece(hasDownStraight) < numberOfCols;
-        return ret;
-    }
-
-    void hasWrongNumberOfStraightLines(SolverErrors &se, AbstractPieceManager &pm, int numberOfPieces) {
-        bool wrongNumberOfStraightLines = true; // to be checked
-        for (int i = 1; i * i <= numberOfPieces; ++i) {
-            if (numberOfPieces % i == 0) {
-                int row = i, col = numberOfPieces / i;
-                // do one time if row == col else do 2 times row X col, col X row
-                for (int j = 0; j < ((row == col) ? 1 : 2); ++j) {
-                    wrongNumberOfStraightLines &= hasWrongNumberOfStraightLines(pm, row, col);
-
-                    row = col, col = i;
-                }
-            }
-        }
-        se.wrongNumberOfStraightLine = wrongNumberOfStraightLines;
-    }
-
-    void hasASumOfZero(SolverErrors &se, AbstractPieceManager &pm) {
-        se.sumOfEdgesIsNotZero =
-                ((pm.countConstrainPiece(hasLeftMale) - pm.countConstrainPiece(hasRightFemale)) != 0) ||
-                ((pm.countConstrainPiece(hasLeftFemale) - pm.countConstrainPiece(hasRightMale)) != 0) ||
-                ((pm.countConstrainPiece(hasUpperMale) - pm.countConstrainPiece(hasDownFemale)) != 0) ||
-                ((pm.countConstrainPiece(hasUpperFemale) - pm.countConstrainPiece(hasDownMale)) != 0);
-    }
-
-    void hasAllCorners(SolverErrors &se, AbstractPieceManager &pm) {
-        se.missingTL = pm.countConstrainPiece(hasUpperStraight & hasLeftStraight) == 0;
-        se.missingTR = pm.countConstrainPiece(hasUpperStraight & hasRightStraight) == 0;
-        se.missingBL = pm.countConstrainPiece(hasDownStraight & hasLeftStraight) == 0;
-        se.missingBR = pm.countConstrainPiece(hasDownStraight & hasRightStraight) == 0;
-    }
-
-}
-
 PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager>& pieceManager) : pieceManager(pieceManager) {}
 
 bool PuzzleSolver::trySolve() {
@@ -87,7 +39,7 @@ bool PuzzleSolver::trySolveForShape(AbstractPieceManager::Shape shape) {
 }
 
 void PuzzleSolver::exportErrors(ofstream &out) {
-    out << "Cannot solve puzzle: it seems that there is no proper solution" << "\n";
+    out << "Cannot solve puzzle: it seems that there is no proper solution" << endl;
 }
 
 void PuzzleSolver::exportSolution(ofstream &out) {

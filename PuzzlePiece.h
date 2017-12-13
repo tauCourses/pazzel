@@ -11,13 +11,18 @@
 class PuzzlePiece {
 
 public:
+    static bool isPieceRespectConstrain(Piece_t p, Piece_t c);
+    static bool isValidPiece(Piece_t piece);
+
     PuzzlePiece(int index, int left, int up, int right, int down);
     PuzzlePiece(const PuzzlePiece* copy);
 
     const int index;
-    const int left, up, down, right;
+    const int left, up, right, down;
 
     Piece_t representor();
+
+
 };
 
 
