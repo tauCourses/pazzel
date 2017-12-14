@@ -2,28 +2,21 @@
 #define PUZZLE_ROTATABLEPIECEMANAGER_H
 
 #include "AbstractPieceManager.h"
+#include "PuzzlePieceConstrain.h"
 
-class RotatablePieceManager : public AbstractPieceManager{
+class RotatablePieceManager : public AbstractPieceManager {
 private:
-    Piece_t lookupTable[256]; //translate Piece_t to generic Permutation
-    int pieceRepository[256] = {0}; //hold the number in each Permutation
-    Piece_t nextPieceWithConstrain[256][256]; //constrain*pieces
-    Piece_t constrainRepository[256] = {0};
-    Piece_t maskOptions[1 << 4];
+    Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation
 
     bool isPuzzleShapePossible(Shape shape) override;
 
     int numberOfCorners();
 
     void initialLookupTable();
-    void initialNextPieceTable();
-    void initialMaskOptionTable();
+
     bool isPermutation(Piece_t p1, Piece_t p2);
 
-    void addPiece(Piece_t piece);
-
-    void removePiece(Piece_t next);
-
+    int getPermutationDegree(Piece_t current, Piece_t origin);
 
     void removeFromConstrainRepository(Piece_t piece);
 
@@ -34,16 +27,25 @@ private:
 
     bool hasAllCorners() override;
 
-    void printMissingCorners(ofstream& fout) override;
+    void printMissingCorners(ofstream &fout) override;
+
+protected:
+    void addPieceToRepository(Piece_t piece) override;
+
+    void removePieceFromRepository(Piece_t piece) override;
+
+    bool pieceExistInRepository(Piece_t piece) override;
 
 public:
     RotatablePieceManager();
+
     vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() override;
 
-    Piece_t getNextPiece(Piece_t constrain, Piece_t last) override;
     int numOfOptionsForConstrain(Piece_t constrain) override;
 
-    void addPiece(unique_ptr<PuzzlePiece> piece) override ;
+    void addPiece(unique_ptr<PuzzlePiece> piece) override;
+
+    void printPiece(Piece_t piece, ofstream &out) override;
 };
 
 

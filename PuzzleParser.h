@@ -28,7 +28,7 @@ private:
     bool tryReadFirstLine(); //return false if failed
     int getPieceId(string& line);
     unique_ptr<PuzzlePiece> getNextPiece(int id, string& line);
-    bool tryReadSide(string& rest, int *side);
+    bool tryReadSide(string& rest, int &side);
     bool isInteger(const string &str);
 
     void checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager);

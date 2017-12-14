@@ -7,9 +7,9 @@
 #include <memory>
 
 #include "PuzzlePiece.h"
+#include "PuzzlePieceConstrain.h"
 
 using namespace std;
-
 
 class AbstractPieceManager {
 
@@ -18,9 +18,10 @@ public:
         int width, height;
     };
 
+
     virtual vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() = 0;
 
-    virtual Piece_t getNextPiece(Piece_t constrain, Piece_t last) = 0;
+    Piece_t getNextPiece(Piece_t constrain, Piece_t last);
 
     virtual int numOfOptionsForConstrain(Piece_t constrain) = 0;
 
@@ -32,13 +33,27 @@ public:
 
     void exportErrors(ofstream &fout);
 
-    virtual void addPieceToCount(Piece_t piece) = 0;
+    virtual void printPiece(Piece_t piece, ofstream &out) = 0;
 
-    virtual void removePieceFromCount(Piece_t piece) = 0;
-
-    virtual unique_ptr<PuzzlePiece> getPieceOfType(Piece_t piece) = 0;
 
 protected:
+    Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
+    Piece_t maskOptions[1 << 4];
+    int pieceRepository[numberOfConstrains] = {0};
+    Piece_t constrainRepository[numberOfConstrains] = {0};
+
+    AbstractPieceManager();
+
+    void initialNextPieceTable();
+
+    void initialMaskOptionTable();
+
+    virtual void addPieceToRepository(Piece_t piece) = 0;
+
+    virtual void removePieceFromRepository(Piece_t piece) = 0;
+
+    virtual bool pieceExistInRepository(Piece_t piece) =0;
+
     vector<PuzzlePiece> pieces;
 
     virtual bool isPuzzleShapePossible(Shape shape) = 0;

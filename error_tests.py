@@ -11,7 +11,7 @@ tests = [f for f in listdir('Tests') if isfile(join('Tests', f))]
 tests = [f for f in tests if f.endswith(".in")]
 
 for test in errot_tests:
-    p = Popen(['./ex1', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./ex2', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     time.sleep(0.1)
     output_file = join('error_tests',test.replace('test','output'))
     with open("b") as f1:
@@ -24,7 +24,7 @@ for test in errot_tests:
                 raise Exception("")
 
 for test in tests:
-    p = Popen(['./ex1', join('Tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['./ex2', join('Tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     time.sleep(0.1)
     output_file = join('Tests',test.replace('.in','.out'))
     with open("b") as f1:
@@ -36,7 +36,7 @@ for test in tests:
                 print(str1 + "\n\n" + str2)
                 raise Exception("")
 
-p = Popen(['./ex1', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p = Popen(['./ex2', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
 out, err = p.communicate()
 with open("b") as f1:

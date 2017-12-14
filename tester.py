@@ -135,7 +135,7 @@ def _run_single(puzzle_size, rotate):
     if rotate:
         _rotate_puzzle(puzzle)
     export_puzzle(puzzle, 'a')
-    args = ['./ex1', 'a', 'b']
+    args = ['./ex2', 'a', 'b']
     if rotate:
         args.append('-rotate')
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)

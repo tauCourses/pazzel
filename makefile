@@ -1,4 +1,4 @@
-CPP = g++
+CPP = g++-4.9.3
 
 EXEC = ex2
 CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
@@ -33,7 +33,7 @@ PuzzleParser.o: PuzzleParser.cpp AbstractPieceManager.h PuzzlePiece.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 PuzzleSolver.o: PuzzleSolver.cpp AbstractPieceManager.h PuzzlePieceConstrain.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-main.o: main.cpp ParsedPuzzle.h CommandLineManager.h PieceManagerFactory.h PuzzleParser.h
+main.o: main.cpp CommandLineManager.h PieceManagerFactory.h PuzzleParser.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 clean:
 	rm -f $(OBJS) $(EXEC)
