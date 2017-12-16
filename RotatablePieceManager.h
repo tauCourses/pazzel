@@ -22,19 +22,24 @@ private:
 
     void addToConstrainRepository(Piece_t piece);
 
+    void changeConstrains(Piece_t piece, const int delta);
+
+    inline Piece_t rotatePieceCounterClockWise(Piece_t piece);
+
+protected:
+
+    void addPieceToRepository(Piece_t piece) override;
+
+    void removePieceFromRepository(Piece_t piece) override;
+
+    bool pieceExistInRepository(Piece_t piece) override;
+
     //error hundeling:
     bool hasASumOfZero() override;
 
     bool hasAllCorners() override;
 
     void printMissingCorners(ofstream &fout) override;
-
-protected:
-    void addPieceToRepository(Piece_t piece) override;
-
-    void removePieceFromRepository(Piece_t piece) override;
-
-    bool pieceExistInRepository(Piece_t piece) override;
 
 public:
     RotatablePieceManager();

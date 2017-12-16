@@ -33,6 +33,7 @@ bool CommandLineManager::updateRotateParamInx(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         if (rotateStr == argv[i]) {
             this->rotateParamInx = i;
+            _rotateEnabled = true;
             return true;
         }
     }

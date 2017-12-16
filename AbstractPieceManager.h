@@ -35,7 +35,6 @@ public:
 
     virtual void printPiece(Piece_t piece, ofstream &out) = 0;
 
-
 protected:
     Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
     Piece_t maskOptions[1 << 4];

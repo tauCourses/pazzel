@@ -12,21 +12,15 @@
 
 using namespace std;
 
-class SolverErrors {
-public:
-    bool wrongNumberOfStraightLine = false;
-    bool missingTL = false, missingTR = false, missingBL = false, missingBR = false;
-    bool sumOfEdgesIsNotZero = false;
-    bool couldNotSolvePuzzle = false;
-
-    bool hasError();
-};
-
-
 class PuzzleSolver {
 private:
     struct PuzzleLocation {
         int row, col;
+    };
+
+    struct PuzzlePieceData {
+        PuzzleLocation location;
+        Piece_t current;
     };
 
     vector<vector<Piece_t>> puzzleSolution;
@@ -38,7 +32,7 @@ private:
 
     bool trySolveForShape(AbstractPieceManager::Shape shape);
 
-    PuzzleLocation getNextPuzzleLocationToFill();
+    bool tryGettingNextPuzzleLocationToFill(PuzzleLocation &bestLocation);
 
     void updatePieceInSolution(PuzzleLocation puzzleLocation, Piece_t currentPiece);
 

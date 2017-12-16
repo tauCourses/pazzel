@@ -1,10 +1,10 @@
 #include "PuzzlePiece.h"
 
 PuzzlePiece::PuzzlePiece(int index, int left, int up, int right, int down) :
-        index(index), left(left + 1), up(up + 1), right(right + 1), down(down + 1) {}
+        index(index), left(left), up(up), right(right), down(down) {}
 
 Piece_t PuzzlePiece::representor() {
-    return (Piece_t) ((left << 6) | (up << 4) | (right << 2) | down);
+    return (Piece_t) (((left+1) << 6) | ((up+1) << 4) | ((right +1)<< 2) | (down+1));
 }
 
 PuzzlePiece::PuzzlePiece(const PuzzlePiece *copy) :

@@ -54,6 +54,7 @@ int PuzzleParser::getPieceId(string &line) {
 
 unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
     int left, up, right, down;
+    auto originLine = line;
     line = line.substr(line.find_first_of(" \t\r") + 1); //after id
     string rest = string(line);
     auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
@@ -67,7 +68,7 @@ unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
         return unique_ptr<PuzzlePiece>(new PuzzlePiece(id, left, up, right, down));
     } else {
         string s = rest;
-        this->wrongPieceFormatLine.emplace_back(make_tuple(id, s));//todo line));
+        this->wrongPieceFormatLine.emplace_back(make_tuple(id, originLine));
         return unique_ptr<PuzzlePiece>(new PuzzlePiece(id, 0, 0, 0, 0));
     }
 }
@@ -170,7 +171,7 @@ void PuzzleParser::printWrongFormatPieces(ofstream &outf) const {
 
     for (auto tuple : this->wrongPieceFormatLine) {
         outf << "Puzzle ID " << get<0>(tuple);
-        outf << " has wrong data:  " << get<1>(tuple) << "\n";
+        outf << " has wrong data: " << get<1>(tuple) << "\n";
     }
 }
 
@@ -188,6 +189,7 @@ void PuzzleParser::printNotValidIdsElements(ofstream &outf) const {
         } else
             outf << ", " << id;
     }
+    outf << "\n";
 }
 
 void PuzzleParser::printElementsAppearMoreThanOnce(ofstream &outf) const {

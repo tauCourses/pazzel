@@ -10,38 +10,46 @@ bool PuzzleSolver::trySolve() {
     return false;
 }
 
+
 bool PuzzleSolver::trySolveForShape(AbstractPieceManager::Shape shape) {
     createNewPuzzleSolution(shape);
     int numberOfPieces = shape.width * shape.height;
     vector<PuzzleLocation> puzzleLocationFilled(numberOfPieces);
     int puzzleLocationFilledSize = 0;
+    PuzzlePieceData currentPiece;
     bool puzzleIsCompleted = false;
+    bool needToGoBack = false;
     // loop while puzzle is not completed or no piece to fill in.
     while (!puzzleIsCompleted) {
-        //get next piece to fill
-        PuzzleLocation puzzleLocation = getNextPuzzleLocationToFill();
-        Piece_t currentPieceValue = nullPiece;
-        if (puzzleLocation.row < 0) { // no location to fill.
-            if (puzzleLocationFilledSize == 0) {
-                // No solution possible.
-                break;
-            } else {
-                puzzleLocation = puzzleLocationFilled[--puzzleLocationFilledSize];
-                currentPieceValue = puzzleSolution[puzzleLocation.row][puzzleLocation.col];
-                removePieceFromSolution(puzzleLocation);
+        if (needToGoBack) {
+            needToGoBack = false;
+            if (puzzleLocationFilledSize == 0) return false; // no solution;
+            currentPiece.location = puzzleLocationFilled[--puzzleLocationFilledSize];
+            currentPiece.current = puzzleSolution[currentPiece.location.row][currentPiece.location.col];
+            removePieceFromSolution(currentPiece.location);
+        } else {
+            if (!tryGettingNextPuzzleLocationToFill(currentPiece.location)) {
+                needToGoBack = true; // you screwed up something in the last move.
+                continue;
             }
+            currentPiece.current = nullPiece;
         }
-        Piece_t currentConstrain = puzzleConstrain[puzzleLocation.row][puzzleLocation.col];
-        puzzleLocationFilled[puzzleLocationFilledSize++] = puzzleLocation;
-        currentPieceValue = pieceManager->getNextPiece(currentConstrain, currentPieceValue);
-        updatePieceInSolution(puzzleLocation, currentPieceValue);
+        auto currentConstrain = puzzleConstrain[currentPiece.location.row][currentPiece.location.col];
+        currentPiece.current = pieceManager->getNextPiece(currentConstrain, currentPiece.current);
+        if (currentPiece.current == nullPiece) {
+            needToGoBack = true;
+        } else {
+            puzzleLocationFilled[puzzleLocationFilledSize++] = currentPiece.location;
+            updatePieceInSolution(currentPiece.location, currentPiece.current);
+            puzzleSolution[currentPiece.location.row][currentPiece.location.col] = currentPiece.current;
+        }
         puzzleIsCompleted = numberOfPieces == puzzleLocationFilledSize;
     }
     return puzzleIsCompleted;
 }
 
 void PuzzleSolver::exportErrors(ofstream &out) {
-    out << "Cannot solve puzzle: it seems that there is no proper solution" << endl;
+    out << "Cannot solve puzzle: it seems that there is no proper solution" << "\n";
 }
 
 void PuzzleSolver::exportSolution(ofstream &out) {
@@ -53,7 +61,7 @@ void PuzzleSolver::exportSolution(ofstream &out) {
             if (j + 1 != width)
                 out << " ";
             else
-                out << endl;
+                out << "\n";
         }
     }
 }
@@ -97,43 +105,47 @@ void PuzzleSolver::updatePieceInSolution(PuzzleSolver::PuzzleLocation puzzleLoca
     puzzleSolution[puzzleLocation.row][puzzleLocation.col] = currentPiece;
     if (puzzleLocation.row > 0) {
         puzzleConstrain[(puzzleLocation.row - 1)][puzzleLocation.col] &=
-                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 4) & 0x3)) << 0) | ((0x3 << 0) ^ nullPiece);
+                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 4) & 0x3)) << 0) |
+                ((0x3 << 0) ^ nullPiece);
     }
     if (puzzleLocation.col > 0) {
         puzzleConstrain[puzzleLocation.row][puzzleLocation.col - 1] &=
-                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 6) & 0x3)) << 2) | ((0x3 << 2) ^ nullPiece);
+                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 6) & 0x3)) << 2) |
+                ((0x3 << 2) ^ nullPiece);
     }
     if (puzzleLocation.row < static_cast<int>(puzzleConstrain.size()) - 1) {
         puzzleConstrain[(puzzleLocation.row + 1)][puzzleLocation.col] &=
-                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 0) & 0x3)) << 4) | ((0x3 << 4) ^ nullPiece);
+                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 0) & 0x3)) << 4) |
+                ((0x3 << 4) ^ nullPiece);
     }
     if (puzzleLocation.col < static_cast<int>(puzzleConstrain[0].size()) - 1) {
         puzzleConstrain[puzzleLocation.row][puzzleLocation.col + 1] &=
-                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 2) & 0x3)) << 6) | ((0x3 << 6) ^ nullPiece);
+                (getConstrainOpposite(static_cast<Piece_t>((currentPiece >> 2) & 0x3)) << 6) |
+                ((0x3 << 6) ^ nullPiece);
     }
 }
 
-PuzzleSolver::PuzzleLocation PuzzleSolver::getNextPuzzleLocationToFill() {
+bool PuzzleSolver::tryGettingNextPuzzleLocationToFill(PuzzleLocation &bestLocation) {
     int minOption = INT_MAX;
-    PuzzleLocation bestLocation = {-1, -1}, currentLocation = {-1, -1};
     auto row = static_cast<int>(puzzleSolution.size()), col = static_cast<int>(puzzleSolution[0].size());
-    for (currentLocation.row = 0; currentLocation.row < row; ++currentLocation.row) {
-        for (currentLocation.col = 0; currentLocation.col < col; ++currentLocation.col) {
-            if (nullPiece == puzzleSolution[currentLocation.row][currentLocation.col]) {
+    for (int currentRow = 0; currentRow < row; ++currentRow) {
+        for (int currentCol = 0; currentCol < col; ++currentCol) {
+            if (nullPiece == puzzleSolution[currentRow][currentCol]) {
                 int currentConstrainCount = pieceManager->numOfOptionsForConstrain(
-                        puzzleConstrain[currentLocation.row][currentLocation.col]);
+                        puzzleConstrain[currentRow][currentCol]);
                 if (currentConstrainCount < minOption) {
                     if (currentConstrainCount == 0) {
-                        return bestLocation; // no available piece for a location, should go back.
+                        return false; // no available piece for a location, should go back.
                     } else {
                         minOption = currentConstrainCount;
-                        bestLocation = currentLocation;
+                        bestLocation.row = currentRow;
+                        bestLocation.col = currentCol;
                     }
                 }
             }
         }
     }
-    return bestLocation;
+    return true;
 }
 
 inline Piece_t PuzzleSolver::getConstrainOpposite(Piece_t currentConstrain) {

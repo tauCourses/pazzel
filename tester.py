@@ -173,6 +173,10 @@ for arg in sys.argv:
     if '-rotate' in arg:
         rotate = True
 
+if rotate:
+    if puzzle_size[0] < puzzle_size[1]:
+        puzzle_size = (puzzle_size[1], puzzle_size[0])
+
 run_times = []
 puzzles = []
 
@@ -194,4 +198,3 @@ ax = fig.add_subplot(111)
 ax.hist(run_times, normed=True, bins=30)
 plt.ylabel('Probability')
 fig.savefig('histogram.png')
-

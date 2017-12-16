@@ -2,12 +2,15 @@
 
 void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
-    addPieceToCount(piece->representor());
+    addPieceToRepository(piece->representor());
+    for (Piece_t maskOption : maskOptions) {
+        if (maskOption != 0)
+            ++constrainRepository[piece->representor() | maskOption];
+    }
 }
 
 inline int BasicPieceManager::numOfOptionsForConstrain(Piece_t constrain) {
-    return constrainOption[constrain] * constrainOption[nullPiece] +
-           constrainRepository[constrain]; // todo delete this if it's slower this way. it's a change in the algorithm
+    return constrainOption[constrain];
 }
 
 
@@ -54,31 +57,25 @@ void BasicPieceManager::printMissingCorners(ofstream &fout) {
     if (constrainRepository[hasDownStraight & hasRightStraight] == 0) { fout << message << "BR" << endl; }
 }
 
-void BasicPieceManager::addPieceToCount(Piece_t piece) {
-    if (constrainRepository[piece] == 0) {
-        addPieceToRepository(piece);
-    }
-    for (Piece_t maskOption : maskOptions) {
-        ++constrainRepository[piece | maskOption];
-    }
-}
-
-void BasicPieceManager::removePieceFromCount(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
-        --constrainRepository[piece | maskOption];
-    }
-    if (constrainRepository[piece] == 0) {
-        removePieceFromRepository(piece);
-    }
-}
-
 void BasicPieceManager::addPieceToRepository(Piece_t piece) {
+    if (constrainRepository[piece]++ == 0) {
+        addPieceToOption(piece);
+    }
+}
+
+void BasicPieceManager::removePieceFromRepository(Piece_t piece) {
+    if (--constrainRepository[piece] == 0) {
+        removePieceFromOption(piece);
+    }
+}
+
+void BasicPieceManager::addPieceToOption(Piece_t piece) {
     for (Piece_t maskOption : maskOptions) {
         ++constrainOption[piece | maskOption];
     }
 }
 
-void BasicPieceManager::removePieceFromRepository(Piece_t piece) {
+void BasicPieceManager::removePieceFromOption(Piece_t piece) {
     for (Piece_t maskOption : maskOptions) {
         --constrainOption[piece | maskOption];
     }
@@ -92,7 +89,7 @@ void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
             return;
         }
     }
-    cerr << "Error: couldn't find piece: " << piece << endl;
+    cerr << "Error: couldn't find piece: " << int(piece) << endl;
 }
 
 inline bool BasicPieceManager::pieceExistInRepository(Piece_t piece) {

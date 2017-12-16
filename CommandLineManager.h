@@ -32,7 +32,6 @@ public:
     void exportErrors() const;
 
     bool isRotateEnable() const;
-
 };
 
 #endif //PUZZLE_COMMANDLINEMANAGER_H

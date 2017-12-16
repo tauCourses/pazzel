@@ -14,7 +14,6 @@ public:
     void addPiece(unique_ptr<PuzzlePiece> piece) override;
 
 protected:
-
     void addPieceToRepository(Piece_t piece) override;
 
     void removePieceFromRepository(Piece_t piece) override;
@@ -33,9 +32,9 @@ private:
 
     void printMissingCorners(ofstream &fout) override;
 
-    void addPieceToCount(Piece_t piece);
+    void addPieceToOption(Piece_t piece);
 
-    inline void removePieceFromCount(Piece_t piece);
+    inline void removePieceFromOption(Piece_t piece);
 
     void printPiece(Piece_t piece, ofstream &out) override;
 };
