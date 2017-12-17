@@ -6,6 +6,7 @@ import time
 
 dirs = [('error_tests', ''),
         ('Tests', ''),
+	('ex1_Tests', ''),
         ('rotate_error_tests', '-rotate')]
 
 for dir, args in dirs:
