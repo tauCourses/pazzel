@@ -4,39 +4,31 @@ from os.path import isfile, join
 from filecmp import cmp
 import time
 
-error_files = [f for f in listdir('error_tests') if isfile(join('error_tests', f))]
-errot_tests = [f for f in error_files if f.startswith("test_")]
+dirs = [('error_tests', ''),
+        ('Tests', ''),
+        ('rotate_error_tests', '-rotate')]
 
-tests = [f for f in listdir('Tests') if isfile(join('Tests', f))]
-tests = [f for f in tests if f.endswith(".in")]
+for dir, args in dirs:
+    print("run %s tests" % dir)
+    tests = [f for f in listdir(dir) if isfile(join(dir, f)) and join(dir, f).endswith(".in")]
+    for test in tests:
+        if args == '':
+            p = Popen(['./ex2', join(dir,test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        else:
+            p = Popen(['./ex2', join(dir, test), 'b', args], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        time.sleep(0.1)
+        output_file = join(dir,test.replace('.in','.out'))
+        with open("b") as f1:
+            with open(output_file) as f2:
+                str1 = f1.read()
+                str2 = f2.read()
+                if str1 != str2:
+                    print("test - %s\noutput - %s\n" % (test, output_file))
+                    print(str1 + "\n\n" + str2)
+                    assert False, "failed to run tests"
 
-for test in errot_tests:
-    p = Popen(['./ex2', join('error_tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    time.sleep(0.1)
-    output_file = join('error_tests',test.replace('test','output'))
-    with open("b") as f1:
-        with open(output_file) as f2:
-            str1 = f1.read()
-            str2 = f2.read()
-            if str1 != str2:
-                print("test - %s\noutput - %s\n" % (test, output_file))
-                print(str1 + "\n\n" + str2)
-                raise Exception("")
 
-for test in tests:
-    p = Popen(['./ex2', join('Tests',test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    time.sleep(0.1)
-    output_file = join('Tests',test.replace('.in','.out'))
-    with open("b") as f1:
-        with open(output_file) as f2:
-            str1 = f1.read()
-            str2 = f2.read()
-            if str1 != str2:
-                print("test - %s\noutput - %s\n" % (test, output_file))
-                print(str1 + "\n\n" + str2)
-                raise Exception("")
-
-p = Popen(['./ex2', join('error_tests',"not_exist"), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p = Popen(['./ex2', 'not_exist', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
 out, err = p.communicate()
 with open("b") as f1:
