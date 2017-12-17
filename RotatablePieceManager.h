@@ -35,8 +35,6 @@ protected:
     bool pieceExistInRepository(Piece_t piece) override;
 
     //error hundeling:
-    bool hasASumOfZero() override;
-
     bool hasAllCorners() override;
     bool hasTwoSideForARaw();
 

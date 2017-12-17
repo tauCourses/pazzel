@@ -26,13 +26,6 @@ void RotatablePieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->addPieceToRepository(piece->representor());
 }
 
-bool RotatablePieceManager::hasASumOfZero() {
-    int sum = 0;
-    for (auto piece : this->pieces)
-        sum += piece.right + piece.left + piece.down + piece.up;
-    return sum == 0;
-}
-
 bool RotatablePieceManager::hasAllCorners() {
     if(this->pieces.size() == 1) {
         return this->pieces[0].up == 0 || this->pieces[0].down == 0 ||

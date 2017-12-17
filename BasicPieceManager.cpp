@@ -35,7 +35,7 @@ bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape)
            this->constrainRepository[hasDownStraight] >= shape.width;
 }
 
-bool BasicPieceManager::hasASumOfZero() {
+bool BasicPieceManager::preConditions() {
     return this->constrainRepository[hasLeftMale] - this->constrainRepository[hasRightFemale] == 0 &&
            this->constrainRepository[hasLeftFemale] - this->constrainRepository[hasRightMale] == 0 &&
            this->constrainRepository[hasUpperMale] - this->constrainRepository[hasDownFemale] == 0 &&

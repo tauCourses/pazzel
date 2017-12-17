@@ -13,6 +13,8 @@ public:
 
     void addPiece(unique_ptr<PuzzlePiece> piece) override;
 
+    bool preConditions() override;
+
 protected:
     void addPieceToRepository(Piece_t piece) override;
 
@@ -26,8 +28,6 @@ private:
     bool isPuzzleShapePossible(Shape shape) override;
 
     //error hundeling:
-    bool hasASumOfZero() override;
-
     bool hasAllCorners() override;
 
     void printMissingCorners(ofstream &fout) override;
@@ -37,6 +37,8 @@ private:
     inline void removePieceFromOption(Piece_t piece);
 
     void printPiece(Piece_t piece, ofstream &out) override;
+
+
 };
 
 

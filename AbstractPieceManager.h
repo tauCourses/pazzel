@@ -35,6 +35,8 @@ public:
 
     virtual void printPiece(Piece_t piece, ofstream &out) = 0;
 
+    virtual bool preConditions();
+
 protected:
     Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
     Piece_t maskOptions[1 << 4];
@@ -58,7 +60,7 @@ protected:
     virtual bool isPuzzleShapePossible(Shape shape) = 0;
 
     //error handling:
-    virtual bool hasASumOfZero() = 0;
+    bool hasASumOfZero();
 
     virtual bool hasAllCorners() = 0;
 

@@ -3,6 +3,9 @@
 PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager) : pieceManager(pieceManager) {}
 
 bool PuzzleSolver::trySolve() {
+    if(!this->pieceManager->preConditions()) //check pre-conditions
+        return false;
+
     auto allPossiblePuzzleShapes = pieceManager->getAllPossiblePuzzleShapes();
     for (auto const &shape:allPossiblePuzzleShapes)
         if (trySolveForShape(shape))

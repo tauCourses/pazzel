@@ -84,3 +84,14 @@ Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
         last = next;
     }
 }
+
+bool AbstractPieceManager::hasASumOfZero() {
+    int sum = 0;
+    for (auto piece : this->pieces)
+        sum += piece.right + piece.left + piece.down + piece.up;
+    return sum == 0;
+}
+
+bool AbstractPieceManager::preConditions() {
+    return true;
+}
