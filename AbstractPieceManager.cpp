@@ -92,6 +92,6 @@ bool AbstractPieceManager::hasASumOfZero() {
     return sum == 0;
 }
 
-bool AbstractPieceManager::preConditions() {
+bool AbstractPieceManager::preConditions() { //default implementation, could be override
     return true;
 }
