@@ -9,8 +9,7 @@ int main(int argc, char **argv) {
         cmd.exportErrors();
         return -1;
     }
-    auto pieceManager = PieceManagerFactory::getPieceManager(
-            cmd.isRotateEnable()); //factory to get the right piece manager
+    auto pieceManager = PieceManagerFactory::getPieceManager(cmd.isRotateEnable()); //factory to get piece manager
     PuzzleParser parser(cmd.inputStream, pieceManager); //parse input file and inject pieces into piece Manager
     if (parser.hasErrors()) {//handle parser errors
         parser.exportErrors(cmd.outputStream);

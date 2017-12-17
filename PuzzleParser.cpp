@@ -7,10 +7,9 @@ PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager>
     }
     while (!fin.eof()) {
         getline(fin, line);
-        auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
-        if (std::all_of(line.begin(), line.end(), isspaceLambda))
+        if (this->isStringEmpty(line))
             continue;
-        int id = getPieceId(line); //check if it's a valid id, return -1 if not
+        int id = this->getPieceId(line); //check if it's a valid id, return -1 if not
         if (id < 0)
             continue;
         pieceManager->addPiece(getNextPiece(id, line));
@@ -22,13 +21,13 @@ PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager>
 bool PuzzleParser::tryReadFirstLine() {
     string line;
     getline(fin, line);
-    std::regex firstLinePattern("^NumElements([ \t\r])*=([ \t\r])*(-)?(0|[1-9])[0-9]*([ \t\r\n])*$");
-    if (!std::regex_match(line.c_str(), firstLinePattern)) {
-        this->firstLineMalformed = true;
+    auto number_token = line.substr(line.find_first_of('=')+1);
+    if(!this->isInteger(number_token))
+    {
+        this->inValidNumberOfPieces = true;
         return false;
     }
-    string number = line.substr(line.find_first_of("-0123456789"));
-    this->numberOfPieces = std::stoi(number);
+    this->numberOfPieces = std::stoi(number_token);
     if (this->numberOfPieces < 0) {
         this->inValidNumberOfPieces = true;
         return false;
@@ -38,7 +37,8 @@ bool PuzzleParser::tryReadFirstLine() {
 
 
 int PuzzleParser::getPieceId(string &line) {
-    auto first_token = line.substr(0, line.find_first_of(" \t"));
+    auto first_token = line.substr(line.find_first_not_of(" \t")); //ignore spaces before any char
+    first_token = first_token.substr(0, first_token.find_first_of(" \t")); //
     if (!this->isInteger(first_token)) {
         this->notIntegerIds.emplace_back(first_token);
         return -1;
@@ -55,14 +55,13 @@ int PuzzleParser::getPieceId(string &line) {
 unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
     int left, up, right, down;
     auto originLine = line;
-    line = line.substr(line.find_first_of(" \t\r") + 1); //after id
-    string rest = string(line);
-    auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
-    bool leftOK = tryReadSide(rest, left);
-    bool upOK = tryReadSide(rest, up);
-    bool rightOK = tryReadSide(rest, right);
-    bool downOK = tryReadSide(rest, down);
-    bool restOK = std::all_of(rest.begin(), rest.end(), isspaceLambda);
+    string rest = line.substr(line.find_first_not_of(" \t")); //before id
+    rest = rest.substr(rest.find_first_of(" \t")); //after id
+    bool leftOK = this->tryReadSide(rest, left);
+    bool upOK = this->tryReadSide(rest, up);
+    bool rightOK = this->tryReadSide(rest, right);
+    bool downOK = this->tryReadSide(rest, down);
+    bool restOK = this->isStringEmpty(rest);
 
     if (leftOK && rightOK && downOK && upOK && restOK) {
         return unique_ptr<PuzzlePiece>(new PuzzlePiece(id, left, up, right, down));
@@ -75,19 +74,21 @@ unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
 
 
 bool PuzzleParser::tryReadSide(string &rest, int &side) {
-    int pos = 0;
-    int length = rest.size();
-    while (pos < length && isspace(rest[pos])) pos++;
-    rest = rest.substr(pos);
-    length = rest.size();
-    pos = 0;
-    while (pos < length && !isspace(rest[pos])) pos++;
-    auto first_token = rest.substr(0, pos);
-    rest = rest.substr(pos);
+     if (isStringEmpty(rest))
+        return false;
+    rest = rest.substr(rest.find_first_not_of(" \t"));
+    auto first_token = rest.substr(0, rest.find_first_of(" \t"));
+    rest = rest.substr(first_token.size());
     if (!this->isInteger(first_token))
         return false;
     side = std::stoi(first_token);
     return side >= -1 && side <= 1;
+}
+
+bool PuzzleParser::isStringEmpty(const string &str) {
+    static auto isspaceLambda = [](unsigned char const c) { return std::isspace(c); };
+    return std::all_of(str.begin(), str.end(), isspaceLambda);
+
 }
 
 bool PuzzleParser::isInteger(const string &str) {
@@ -107,8 +108,7 @@ void PuzzleParser::checkForMissingParts(const unique_ptr<AbstractPieceManager> &
 }
 
 bool PuzzleParser::hasErrors() const {
-    return this->firstLineMalformed ||
-           this->inValidNumberOfPieces ||
+    return this->inValidNumberOfPieces ||
            !this->missingPuzzleElements.empty() ||
            !this->wrongPiecesIds.empty() ||
            !this->wrongPieceFormatLine.empty() ||
@@ -117,10 +117,6 @@ bool PuzzleParser::hasErrors() const {
 }
 
 void PuzzleParser::exportErrors(ofstream &outf) const {
-    if (this->firstLineMalformed) {
-        outf << "First line melformed" << "\n";
-        return;
-    }
     if (this->inValidNumberOfPieces) {
         outf << "Invalid number of elements" << "\n";
         return;

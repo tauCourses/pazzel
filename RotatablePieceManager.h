@@ -22,7 +22,7 @@ private:
 
     void addToConstrainRepository(Piece_t piece);
 
-    void changeConstrains(Piece_t piece, const int delta);
+    void changeConstrains(Piece_t piece, int delta);
 
     inline Piece_t rotatePieceCounterClockWise(Piece_t piece);
 
@@ -38,6 +38,7 @@ protected:
     bool hasASumOfZero() override;
 
     bool hasAllCorners() override;
+    bool hasTwoSideForARaw();
 
     void printMissingCorners(ofstream &fout) override;
 
@@ -51,6 +52,8 @@ public:
     void addPiece(unique_ptr<PuzzlePiece> piece) override;
 
     void printPiece(Piece_t piece, ofstream &out) override;
+
+
 };
 
 

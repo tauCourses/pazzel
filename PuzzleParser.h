@@ -30,6 +30,7 @@ private:
     unique_ptr<PuzzlePiece> getNextPiece(int id, string& line);
     bool tryReadSide(string& rest, int &side);
     bool isInteger(const string &str);
+    bool isStringEmpty(const string &str);
 
     void checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager);
     //export errors functions:
@@ -43,9 +44,6 @@ public:
     explicit PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager> &pieceManager);
     bool hasErrors() const;
     void exportErrors(ofstream& outf) const;
-
 };
-
-
 
 #endif //PUZZLE_PUZZLEPARSER_H

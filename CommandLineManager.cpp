@@ -2,13 +2,13 @@
 
 CommandLineManager::CommandLineManager(int argc, char **argv) : numberOfArguments(argc) {
     if (argc < 3 || argc > 4) {
-        wrongNumberOfArguments = true;
+        this->wrongNumberOfArguments = true;
         return;
     }
     if (argc == 4)
-        if (!updateRotateParamInx(argc, argv))
+        if (!this->updateRotateParamInx(argc, argv))
             return;
-    updateIOStreams(argv);
+    this->updateIOStreams(argv);
 }
 
 bool CommandLineManager::isRotateEnable() const {
@@ -33,7 +33,7 @@ bool CommandLineManager::updateRotateParamInx(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         if (rotateStr == argv[i]) {
             this->rotateParamInx = i;
-            _rotateEnabled = true;
+            this->_rotateEnabled = true;
             return true;
         }
     }

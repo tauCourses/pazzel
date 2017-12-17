@@ -8,7 +8,7 @@
 vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleShapes() {
 
     vector<AbstractPieceManager::Shape> shapes;
-    auto numberOfPieces = static_cast<int>(pieces.size());
+    auto numberOfPieces = static_cast<int>(this->pieces.size());
     for (int i = 1; i * i <= numberOfPieces; i++) {
         if (numberOfPieces % i != 0)
             continue;
@@ -34,7 +34,11 @@ bool RotatablePieceManager::hasASumOfZero() {
 }
 
 bool RotatablePieceManager::hasAllCorners() {
-    return this->numberOfCorners() >= 1; // todo implement a better solution
+    if(this->pieces.size() == 1) {
+        return this->pieces[0].up == 0 || this->pieces[0].down == 0 ||
+                this->pieces[0].left == 0 ||this->pieces[0].right == 0;
+    }
+    return this->numberOfCorners() >= 4 || this->hasTwoSideForARaw();
 }
 
 int RotatablePieceManager::numberOfCorners() {
@@ -45,12 +49,34 @@ int RotatablePieceManager::numberOfCorners() {
     return corners;
 }
 
+bool RotatablePieceManager::hasTwoSideForARaw() {
+    int numOfRawSide = 0;
+    for (auto piece : this->pieces)
+    {
+        int strightSides = 0;
+        if(piece.down == 0)
+            strightSides++;
+        if(piece.up == 0)
+            strightSides++;
+        if(piece.right == 0)
+            strightSides++;
+        if(piece.left == 0)
+            strightSides++;
+        if(strightSides>=3)
+            numOfRawSide++;
+    }
+    return numOfRawSide>=2;
+}
+
 void RotatablePieceManager::printMissingCorners(ofstream &fout) {
-    auto corners = this->numberOfCorners();
-    if (corners >= 1)// todo implement a better solution
+    if(this->pieces.size() == 1) {
+        fout << "Piece is not square" << endl;
+        return;
+    }
+    if(this->numberOfCorners() >= 4 || this->hasTwoSideForARaw())
         return;
 
-    fout << "There are only " << corners << " corners" << endl;
+    fout << "There are not enough corners" << endl;
 }
 
 RotatablePieceManager::RotatablePieceManager() {
@@ -62,8 +88,8 @@ void RotatablePieceManager::initialLookupTable() {
     {
         for (int t = 0;; t++) //look for the first permutation
         {
-            if (this->isPermutation(l, t)) {
-                this->lookupTable[l] = t; //set as representor
+            if (this->isPermutation(static_cast<Piece_t>(l), static_cast<Piece_t>(t))) {
+                this->lookupTable[l] = static_cast<Piece_t>(t); //set as representor
                 break;
             }
         }

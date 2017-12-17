@@ -2,15 +2,15 @@
 
 void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
-    addPieceToRepository(piece->representor());
-    for (Piece_t maskOption : maskOptions) {
+    this->addPieceToRepository(piece->representor());
+    for (Piece_t maskOption : this->maskOptions) {
         if (maskOption != 0)
-            ++constrainRepository[piece->representor() | maskOption];
+            ++this->constrainRepository[piece->representor() | maskOption];
     }
 }
 
 inline int BasicPieceManager::numOfOptionsForConstrain(Piece_t constrain) {
-    return constrainOption[constrain];
+    return this->constrainOption[constrain];
 }
 
 
@@ -18,10 +18,10 @@ vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShape
     vector<AbstractPieceManager::Shape> possibleShapes;
     Shape shape;
     shape.width = shape.height = 1;
-    auto numberOfPieces = static_cast<int>(pieces.size());
+    auto numberOfPieces = static_cast<int>(this->pieces.size());
     for (; shape.width <= numberOfPieces; shape.width++) {
         shape.height = numberOfPieces / shape.width;
-        if (numberOfPieces == shape.height * shape.width && isPuzzleShapePossible(shape)) {
+        if (numberOfPieces == shape.height * shape.width && this->isPuzzleShapePossible(shape)) {
             possibleShapes.push_back(shape);
         }
     }
@@ -29,63 +29,65 @@ vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShape
 }
 
 bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) {
-    return constrainRepository[hasLeftStraight] >= shape.height &&
-           constrainRepository[hasUpperStraight] >= shape.width &&
-           constrainRepository[hasRightStraight] >= shape.height &&
-           constrainRepository[hasDownStraight] >= shape.width;
+    return this->constrainRepository[hasLeftStraight] >= shape.height &&
+           this->constrainRepository[hasUpperStraight] >= shape.width &&
+           this->constrainRepository[hasRightStraight] >= shape.height &&
+           this->constrainRepository[hasDownStraight] >= shape.width;
 }
 
 bool BasicPieceManager::hasASumOfZero() {
-    return constrainRepository[hasLeftMale] - constrainRepository[hasRightFemale] == 0 &&
-           constrainRepository[hasLeftFemale] - constrainRepository[hasRightMale] == 0 &&
-           constrainRepository[hasUpperMale] - constrainRepository[hasDownFemale] == 0 &&
-           constrainRepository[hasUpperFemale] - constrainRepository[hasDownMale] == 0;
+    return this->constrainRepository[hasLeftMale] - this->constrainRepository[hasRightFemale] == 0 &&
+           this->constrainRepository[hasLeftFemale] - this->constrainRepository[hasRightMale] == 0 &&
+           this->constrainRepository[hasUpperMale] - this->constrainRepository[hasDownFemale] == 0 &&
+           this->constrainRepository[hasUpperFemale] - this->constrainRepository[hasDownMale] == 0;
 }
 
 bool BasicPieceManager::hasAllCorners() {
-    return constrainRepository[hasUpperStraight & hasLeftStraight] != 0 &&
-           constrainRepository[hasUpperStraight & hasRightStraight] != 0 &&
-           constrainRepository[hasDownStraight & hasLeftStraight] != 0 &&
-           constrainRepository[hasDownStraight & hasRightStraight] != 0;
+    return this->constrainRepository[hasUpperStraight & hasLeftStraight] != 0 &&
+           this->constrainRepository[hasUpperStraight & hasRightStraight] != 0 &&
+           this->constrainRepository[hasDownStraight & hasLeftStraight] != 0 &&
+           this->constrainRepository[hasDownStraight & hasRightStraight] != 0;
 }
 
 void BasicPieceManager::printMissingCorners(ofstream &fout) {
+    if(hasAllCorners())
+        return;
     const char *message = "Cannot solve puzzle: missing corner element: ";
-    if (constrainRepository[hasUpperStraight & hasLeftStraight] == 0) { fout << message << "TL" << endl; }
-    if (constrainRepository[hasUpperStraight & hasRightStraight] == 0) { fout << message << "TR" << endl; }
-    if (constrainRepository[hasDownStraight & hasLeftStraight] == 0) { fout << message << "BL" << endl; }
-    if (constrainRepository[hasDownStraight & hasRightStraight] == 0) { fout << message << "BR" << endl; }
+    if (this->constrainRepository[hasUpperStraight & hasLeftStraight] == 0)
+        fout << message << "TL" << endl;
+    if (this->constrainRepository[hasUpperStraight & hasRightStraight] == 0)
+        fout << message << "TR" << endl;
+    if (this->constrainRepository[hasDownStraight & hasLeftStraight] == 0)
+        fout << message << "BL" << endl;
+    if (this->constrainRepository[hasDownStraight & hasRightStraight] == 0)
+        fout << message << "BR" << endl;
 }
 
 void BasicPieceManager::addPieceToRepository(Piece_t piece) {
-    if (constrainRepository[piece]++ == 0) {
-        addPieceToOption(piece);
-    }
+    if (this->constrainRepository[piece]++ == 0)
+        this->addPieceToOption(piece);
 }
 
 void BasicPieceManager::removePieceFromRepository(Piece_t piece) {
-    if (--constrainRepository[piece] == 0) {
-        removePieceFromOption(piece);
-    }
+    if (--this->constrainRepository[piece] == 0)
+        this->removePieceFromOption(piece);
 }
 
 void BasicPieceManager::addPieceToOption(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
-        ++constrainOption[piece | maskOption];
-    }
+    for (Piece_t maskOption : this->maskOptions)
+        ++this->constrainOption[piece | maskOption];
 }
 
 void BasicPieceManager::removePieceFromOption(Piece_t piece) {
-    for (Piece_t maskOption : maskOptions) {
-        --constrainOption[piece | maskOption];
-    }
+    for (Piece_t maskOption : this->maskOptions)
+        --this->constrainOption[piece | maskOption];
 }
 
 void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
-    for (auto it = pieces.begin(); it != pieces.end(); ++it) {
-        if (it->representor() == piece && !it->wasUsedInSolution) {
-            it->wasUsedInSolution = true;
-            out << it->index;
+    for (auto &it : this->pieces) {
+        if (it.representor() == piece && !it.wasUsedInSolution) {
+            it.wasUsedInSolution = true;
+            out << it.index;
             return;
         }
     }

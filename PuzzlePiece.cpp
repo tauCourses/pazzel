@@ -4,7 +4,10 @@ PuzzlePiece::PuzzlePiece(int index, int left, int up, int right, int down) :
         index(index), left(left), up(up), right(right), down(down) {}
 
 Piece_t PuzzlePiece::representor() {
-    return (Piece_t) (((left+1) << 6) | ((up+1) << 4) | ((right +1)<< 2) | (down+1));
+    return (Piece_t) (((this->left+1) << 6) |
+                      ((this->up+1) << 4) |
+                      ((this->right +1)<< 2) |
+                      (this->down+1));
 }
 
 PuzzlePiece::PuzzlePiece(const PuzzlePiece *copy) :
