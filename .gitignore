@@ -356,9 +356,11 @@ OpenCover/
 
 a
 b
+b.txt
 *.o
 puzzle
 *.zip
 ex1
+ex2
 *.png
 longest
