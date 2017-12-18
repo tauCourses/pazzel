@@ -98,7 +98,7 @@ bool PuzzleParser::isInteger(const string &str) {
 
 void PuzzleParser::checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager) {
     for (int i = 0; i < this->numberOfPieces; i++) {
-        int occurrences = pieceManager->checkPieceIdExistOnce(i + 1);
+        int occurrences = pieceManager->getNumOfOccurrences(i + 1);
         if (occurrences == 0)
             this->missingPuzzleElements.emplace_back(i + 1);
         if (occurrences > 1)

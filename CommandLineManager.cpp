@@ -60,7 +60,9 @@ int CommandLineManager::getNextIndex(int current) {
 }
 
 CommandLineManager::~CommandLineManager() {
-    if (inputStream.is_open()) inputStream.close();
-    if (outputStream.is_open()) outputStream.close();
+    if (inputStream.is_open())
+        inputStream.close();
+    if (outputStream.is_open())
+        outputStream.close();
 }
 

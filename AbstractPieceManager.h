@@ -27,7 +27,7 @@ public:
 
     virtual void addPiece(unique_ptr<PuzzlePiece> piece) = 0;
 
-    int checkPieceIdExistOnce(int id) const;
+    int getNumOfOccurrences(int id) const;
 
     bool hasErrors();
 

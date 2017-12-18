@@ -9,6 +9,7 @@
 
 #include "AbstractPieceManager.h"
 #include "PuzzlePiece.h"
+
 using namespace std;
 
 class PuzzleParser {
@@ -17,7 +18,6 @@ private:
 
     //errors types:
     int numberOfPieces;
-    bool firstLineMalformed = false;
     bool inValidNumberOfPieces = false;
     vector<int> missingPuzzleElements;
     vector<int> elementsAppearMoreThanOnce; //elements that have more than one occurrence
