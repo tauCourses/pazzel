@@ -1,5 +1,8 @@
 #include "AbstractPieceManager.h"
 
+Piece_t AbstractPieceManager::nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
+Piece_t AbstractPieceManager::maskOptions[1 << 4];
+
 int AbstractPieceManager::getNumOfOccurrences(int id) const {
     int occurrences = 0;
     for (auto piece : this->pieces)
@@ -41,11 +44,11 @@ void AbstractPieceManager::initialNextPieceTable() {
             if (!PuzzlePiece::isValidPiece(next))
                 continue;
             if (PuzzlePiece::isPieceRespectConstrain(next, static_cast<Piece_t>(constrain))) {
-                this->nextPieceWithConstrain[constrain][last] = next;
+                AbstractPieceManager::nextPieceWithConstrain[constrain][last] = next;
                 last = next;
             }
         }
-        this->nextPieceWithConstrain[constrain][last] = nullPiece;
+        AbstractPieceManager::nextPieceWithConstrain[constrain][last] = nullPiece;
     }
 }
 
@@ -61,7 +64,7 @@ void AbstractPieceManager::initialMaskOptionTable() {
             maskPiece |= (0x3 << 2);
         if ((mask & (1 << 0)) == 0)
             maskPiece |= (0x3 << 0);
-        this->maskOptions[mask] = maskPiece;
+        AbstractPieceManager::maskOptions[mask] = maskPiece;
     }
 }
 
@@ -74,7 +77,7 @@ Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
     if (last != nullPiece)
         addPieceToRepository(last);
     while (true) {
-        Piece_t next = this->nextPieceWithConstrain[constrain][last];
+        Piece_t next = AbstractPieceManager::nextPieceWithConstrain[constrain][last];
         if (next == nullPiece)
             return nullPiece;
         if (this->pieceExistInRepository(next)) {

@@ -1,7 +1,7 @@
 #include "CommandLineManager.h"
 
 CommandLineManager::CommandLineManager(int argc, char **argv) : numberOfArguments(argc) {
-    if (argc < 3 || argc > 4) {
+    if (argc < 3 || argc > 6) {
         this->wrongNumberOfArguments = true;
         return;
     }
@@ -64,5 +64,9 @@ CommandLineManager::~CommandLineManager() {
         inputStream.close();
     if (outputStream.is_open())
         outputStream.close();
+}
+
+int CommandLineManager::getNumberOfThreads() const {
+    return this->numberOfThreads;
 }
 

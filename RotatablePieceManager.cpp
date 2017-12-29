@@ -1,9 +1,6 @@
-//
-// Created by private on 12/12/17.
-//
-
-#include <algorithm>
 #include "RotatablePieceManager.h"
+
+Piece_t RotatablePieceManager::lookupTable[numberOfConstrains];
 
 vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleShapes() {
 
@@ -82,7 +79,7 @@ void RotatablePieceManager::initialLookupTable() {
         for (int t = 0;; t++) //look for the first permutation
         {
             if (this->isPermutation(static_cast<Piece_t>(l), static_cast<Piece_t>(t))) {
-                this->lookupTable[l] = static_cast<Piece_t>(t); //set as representor
+                RotatablePieceManager::lookupTable[l] = static_cast<Piece_t>(t); //set as representor
                 break;
             }
         }
@@ -133,7 +130,7 @@ void RotatablePieceManager::addToConstrainRepository(Piece_t piece) {
 
 void RotatablePieceManager::changeConstrains(Piece_t piece, const int delta) {
     Piece_t p1 = piece;
-    for (Piece_t maskOption : this->maskOptions)
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
         this->constrainRepository[p1 | maskOption] += delta;
 
     Piece_t p2 = rotatePieceCounterClockWise(p1);
@@ -141,7 +138,7 @@ void RotatablePieceManager::changeConstrains(Piece_t piece, const int delta) {
         return; // piece completely symmetric
 
     // else - add it:
-    for (Piece_t maskOption : this->maskOptions)
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
         this->constrainRepository[p2 | maskOption] += delta;
 
     Piece_t p3 = rotatePieceCounterClockWise(p2);
@@ -149,7 +146,7 @@ void RotatablePieceManager::changeConstrains(Piece_t piece, const int delta) {
         return; // piece is symmetric to 180 degree turns
 
     Piece_t p4 = rotatePieceCounterClockWise(p3);
-    for (Piece_t maskOption : this->maskOptions) {
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions) {
         this->constrainRepository[p3 | maskOption] += delta;
         this->constrainRepository[p4 | maskOption] += delta;
     }
@@ -186,9 +183,24 @@ void RotatablePieceManager::printPiece(Piece_t piece, ofstream &out) {
 }
 
 inline bool RotatablePieceManager::pieceExistInRepository(Piece_t piece) {
-    return this->pieceRepository[lookupTable[piece]] > 0;
+    return this->constrainRepository[RotatablePieceManager::lookupTable[piece]] > 0;
 }
 
 inline Piece_t RotatablePieceManager::rotatePieceCounterClockWise(Piece_t piece) {
     return (piece << 2) | (piece >> 6); //roll one left
+}
+
+unique_ptr<AbstractPieceManager> RotatablePieceManager::clone() {
+    return unique_ptr<AbstractPieceManager>(new RotatablePieceManager(*this));
+}
+
+RotatablePieceManager::RotatablePieceManager(RotatablePieceManager const & copyPieceManager)
+{
+    std::copy(copyPieceManager.constrainRepository,
+              copyPieceManager.constrainRepository + (int)(numberOfConstrains),
+              this->constrainRepository);
+
+    std::copy(copyPieceManager.pieceRepository,
+              copyPieceManager.pieceRepository + (int)(numberOfConstrains),
+              this->pieceRepository);
 }

@@ -1,12 +1,13 @@
 #ifndef PUZZLE_ROTATABLEPIECEMANAGER_H
 #define PUZZLE_ROTATABLEPIECEMANAGER_H
 
+#include <algorithm>
 #include "AbstractPieceManager.h"
 #include "PuzzlePieceConstrain.h"
 
 class RotatablePieceManager : public AbstractPieceManager {
 private:
-    Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation
+    static Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation
 
     bool isPuzzleShapePossible(Shape shape) override;
 
@@ -27,7 +28,7 @@ private:
     inline Piece_t rotatePieceCounterClockWise(Piece_t piece);
 
 protected:
-
+    RotatablePieceManager(RotatablePieceManager const & copyPieceManager);
     void addPieceToRepository(Piece_t piece) override;
 
     void removePieceFromRepository(Piece_t piece) override;
@@ -51,6 +52,7 @@ public:
 
     void printPiece(Piece_t piece, ofstream &out) override;
 
+    unique_ptr<AbstractPieceManager> clone() override;
 
 };
 

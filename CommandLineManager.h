@@ -11,6 +11,7 @@ class CommandLineManager {
 private:
     int numberOfArguments;
     int rotateParamInx;
+    int numberOfThreads = 4;
     bool wrongNumberOfArguments = false;
     bool rotateParamDoesntExist = false;
     bool unableToReadInputFile = false;
@@ -32,6 +33,10 @@ public:
     void exportErrors() const;
 
     bool isRotateEnable() const;
+
+    int getNumberOfThreads() const;
+
+
 };
 
 #endif //PUZZLE_COMMANDLINEMANAGER_H

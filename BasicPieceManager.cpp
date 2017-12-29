@@ -3,7 +3,7 @@
 void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
     this->addPieceToRepository(piece->representor());
-    for (Piece_t maskOption : this->maskOptions) {
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions) {
         if (maskOption != 0)
             ++this->constrainRepository[piece->representor() | maskOption];
     }
@@ -74,12 +74,12 @@ void BasicPieceManager::removePieceFromRepository(Piece_t piece) {
 }
 
 void BasicPieceManager::addPieceToOption(Piece_t piece) {
-    for (Piece_t maskOption : this->maskOptions)
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
         ++this->constrainOption[piece | maskOption];
 }
 
 void BasicPieceManager::removePieceFromOption(Piece_t piece) {
-    for (Piece_t maskOption : this->maskOptions)
+    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
         --this->constrainOption[piece | maskOption];
 }
 
@@ -96,4 +96,19 @@ void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
 
 inline bool BasicPieceManager::pieceExistInRepository(Piece_t piece) {
     return this->constrainRepository[piece] > 0;
+}
+
+unique_ptr<AbstractPieceManager> BasicPieceManager::clone() {
+    return unique_ptr<AbstractPieceManager>(new BasicPieceManager(*this));
+}
+
+BasicPieceManager::BasicPieceManager(BasicPieceManager const & copyPieceManager)
+{
+    std::copy(copyPieceManager.constrainRepository,
+              copyPieceManager.constrainRepository + (int)(numberOfConstrains),
+              this->constrainRepository);
+
+    std::copy(copyPieceManager.constrainOption,
+              copyPieceManager.constrainOption + (int)(numberOfConstrains),
+              this->constrainOption);
 }

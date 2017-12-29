@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         pieceManager->exportErrors(cmd.outputStream);
         return -1;
     }
-    PuzzleSolver puzzleSolver(pieceManager);
+    PuzzleSolver puzzleSolver(pieceManager, cmd.getNumberOfThreads());
     if (puzzleSolver.trySolve()) //return true if succeeded
         puzzleSolver.exportSolution(cmd.outputStream);
     else

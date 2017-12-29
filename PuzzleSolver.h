@@ -7,11 +7,16 @@
 #include <fstream>
 #include <deque>
 #include <climits>
+#include <thread>
+#include <mutex>
+#include <algorithm>
+
 #include "AbstractPieceManager.h"
 #include "PuzzlePieceConstrain.h"
 
 using namespace std;
 
+#define STEP_TO_CHECK_MUTEX 1000
 class PuzzleSolver {
 private:
     struct PuzzleLocation {
@@ -23,32 +28,52 @@ private:
         Piece_t current;
     };
 
-    vector<vector<Piece_t>> puzzleSolution;
-    vector<vector<Piece_t>> puzzleConstrain;
+    class ThreadRun{
+    public:
+        explicit ThreadRun(unique_ptr<AbstractPieceManager> &pieceManager);
 
-    void createNewPuzzleSolution(AbstractPieceManager::Shape shape);
+        vector<vector<Piece_t>> puzzleSolution;
+        vector<vector<Piece_t>> puzzleConstrain;
+        AbstractPieceManager::Shape shape;
+        unique_ptr<AbstractPieceManager> &pieceManager;
+        int stepCounter = 0;
+    };
+
+    int numberOfThreads;
+    //shared data for all of threads:
+    vector<AbstractPieceManager::Shape> allPossiblePuzzleShapes;
+    bool solutionFound = false;
+    vector<vector<Piece_t>> puzzleSolution;
+    mutex globalDataMutex; //mutex to get access to global data
 
     const unique_ptr<AbstractPieceManager> &pieceManager;
+    mutex pieceManagerMutex;
 
-    bool trySolveForShape(AbstractPieceManager::Shape shape);
+    void createNewPuzzleSolution(ThreadRun &run);
 
-    bool tryGettingNextPuzzleLocationToFill(PuzzleLocation &bestLocation);
+    bool trySolveForShape(ThreadRun &run);
 
-    void updatePieceInSolution(PuzzleLocation puzzleLocation, Piece_t currentPiece);
+    bool tryGettingNextPuzzleLocationToFill(ThreadRun &run, PuzzleLocation &bestLocation);
 
-    void removePieceFromSolution(PuzzleLocation puzzleLocation);
+    void updatePieceInSolution(ThreadRun &run, PuzzleLocation puzzleLocation, Piece_t currentPiece);
 
-    inline Piece_t getConstrainOpposite(Piece_t currentConstrain);
+    void removePieceFromSolution(ThreadRun &run, PuzzleLocation puzzleLocation);
+
+    void runThread();
+
+    static inline Piece_t getConstrainOpposite(Piece_t currentConstrain);
 
 public:
 
-    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager);
+    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads);
 
     bool trySolve();
 
     void exportSolution(ofstream &out);
 
     void exportErrors(ofstream &out);
+
+    bool isSolutionFound();
 };
 
 

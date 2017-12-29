@@ -15,6 +15,10 @@ public:
 
     bool preConditions() override;
 
+    unique_ptr<AbstractPieceManager> clone() override;
+
+    BasicPieceManager () = default;
+
 protected:
     void addPieceToRepository(Piece_t piece) override;
 
@@ -23,6 +27,7 @@ protected:
     bool pieceExistInRepository(Piece_t piece) override;
 
 private:
+    BasicPieceManager(BasicPieceManager const & copyPieceManager);
     int constrainOption[numberOfConstrains] = {0};
 
     bool isPuzzleShapePossible(Shape shape) override;

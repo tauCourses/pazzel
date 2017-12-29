@@ -1,8 +1,8 @@
-CPP = g++-4.9.3
+CPP = g++-4.9 -pthread
 
-EXEC = ex2
+EXEC = ex3
 CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
--Werror -pedantic-errors -DNDEBUG
+-Werror -pedantic-errors -DNDEBUG 
 
 OBJS =  PuzzlePiece.o \
 		CommandLineManager.o \
@@ -32,7 +32,7 @@ PieceManagerFactory.o: PieceManagerFactory.cpp AbstractPieceManager.h RotatableP
 PuzzleParser.o: PuzzleParser.cpp AbstractPieceManager.h PuzzlePiece.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 PuzzleSolver.o: PuzzleSolver.cpp AbstractPieceManager.h PuzzlePieceConstrain.h
-	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
+	$(CPP)  $(CPP_COMP_FLAG) -c $*.cpp 
 main.o: main.cpp CommandLineManager.h PieceManagerFactory.h PuzzleParser.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 clean:

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include "PuzzlePiece.h"
 #include "PuzzlePieceConstrain.h"
@@ -20,6 +21,7 @@ public:
 
 
     virtual vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() = 0;
+    virtual unique_ptr<AbstractPieceManager> clone() = 0;
 
     Piece_t getNextPiece(Piece_t constrain, Piece_t last);
 
@@ -38,8 +40,8 @@ public:
     virtual bool preConditions();
 
 protected:
-    Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
-    Piece_t maskOptions[1 << 4];
+    static Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
+    static Piece_t maskOptions[1 << 4];
     int pieceRepository[numberOfConstrains] = {0};
     Piece_t constrainRepository[numberOfConstrains] = {0};
 

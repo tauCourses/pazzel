@@ -6,7 +6,7 @@ import time
 
 dirs = [('error_tests', ''),
         ('Tests', ''),
-	('ex1_Tests', ''),
+	    ('ex1_Tests', ''),
         ('rotate_error_tests', '-rotate')]
 
 for dir, args in dirs:
@@ -14,9 +14,9 @@ for dir, args in dirs:
     tests = [f for f in listdir(dir) if isfile(join(dir, f)) and join(dir, f).endswith(".in")]
     for test in tests:
         if args == '':
-            p = Popen(['./ex2', join(dir,test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = Popen(['./ex3', join(dir,test), 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         else:
-            p = Popen(['./ex2', join(dir, test), 'b', args], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = Popen(['./ex3', join(dir, test), 'b', args], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         time.sleep(0.1)
         output_file = join(dir,test.replace('.in','.out'))
         with open("b") as f1:
@@ -29,7 +29,7 @@ for dir, args in dirs:
                     assert False, "failed to run tests"
 
 
-p = Popen(['./ex2', 'not_exist', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+p = Popen(['./ex3', 'not_exist', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 time.sleep(0.1)
 out, err = p.communicate()
 with open("b") as f1:
