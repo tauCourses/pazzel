@@ -27,11 +27,3 @@ for dir, args in dirs:
                     print("test - %s\noutput - %s\n" % (test, output_file))
                     print(str1 + "\n\n" + str2)
                     assert False, "failed to run tests"
-
-
-p = Popen(['./ex3', 'not_exist', 'b'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-time.sleep(0.1)
-out, err = p.communicate()
-with open("b") as f1:
-    print("It's OK. when file doesn't exist the Error message is- ")
-    print(err)

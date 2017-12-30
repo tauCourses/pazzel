@@ -1,14 +1,38 @@
 #include "CommandLineManager.h"
 
 CommandLineManager::CommandLineManager(int argc, char **argv) : numberOfArguments(argc) {
-    if (argc < 3 || argc > 6) {
-        this->wrongNumberOfArguments = true;
-        return;
-    }
-    if (argc == 4)
-        if (!this->updateRotateParamInx(argc, argv))
+    string rotateStr("-rotate");
+    string threadsStr("-threads");
+    bool inputStreamParamFound = false;
+    bool outputStreamParamFound = false;
+    for(int i=1; i<argc; i++)
+    {
+        if (rotateStr == argv[i])
+            this->_rotateEnabled = true;
+        else if (threadsStr == argv[i])
+        {
+            if(!checkForValidNumberOfThreads(argc,argv,i+1))
+                return;
+            i++;
+        }
+        else if(!inputStreamParamFound) {
+            if (!tryOpenInputStream(argv[i]))
+                return;
+            inputStreamParamFound = true;
+        }
+        else if(!outputStreamParamFound)
+        {
+            this->outputStream.open(argv[i], ifstream::out);
+            outputStreamParamFound = true;
+        }
+        else
+        {
+            this->wrongNumberOfArguments = true;
             return;
-    this->updateIOStreams(argv);
+        }
+    }
+    if(!inputStreamParamFound || !outputStreamParamFound)
+        this->wrongNumberOfArguments = true;
 }
 
 bool CommandLineManager::isRotateEnable() const {
@@ -16,47 +40,25 @@ bool CommandLineManager::isRotateEnable() const {
 }
 
 bool CommandLineManager::hasErrors() const {
-    return this->wrongNumberOfArguments || this->rotateParamDoesntExist || this->unableToReadInputFile;
+    return this->wrongNumberOfArguments || this->unableToOpenInputFile || this->notValidNumberOfThreads;
 }
 
 void CommandLineManager::exportErrors() const {
     if (this->wrongNumberOfArguments)
         std::cerr << "Wrong number of command line arguments" << "\n";
-    if (this->rotateParamDoesntExist)
-        std::cerr << "No '-rotate' argument found" << "\n";
-    if (this->unableToReadInputFile)
+    if (this->notValidNumberOfThreads)
+        std::cerr << "Number of threads is not valid" << "\n";
+    if (this->unableToOpenInputFile)
         std::cerr << "Unable to open input file" << "\n";
 }
 
-bool CommandLineManager::updateRotateParamInx(int argc, char **argv) {
-    string rotateStr("-rotate");
-    for (int i = 1; i < argc; i++) {
-        if (rotateStr == argv[i]) {
-            this->rotateParamInx = i;
-            this->_rotateEnabled = true;
-            return true;
-        }
-    }
-    this->rotateParamDoesntExist = true;
-    return false;
-}
-
-void CommandLineManager::updateIOStreams(char **argv) {
-    int currentInx = 0;
-    currentInx = this->getNextIndex(currentInx);
-    this->inputStream.open(argv[currentInx], ifstream::in);
+bool CommandLineManager::tryOpenInputStream(char *fileName) {
+    this->inputStream.open(fileName, ifstream::in);
     if (!this->inputStream.good()) {
-        this->unableToReadInputFile = true;
-        return;
+        this->unableToOpenInputFile = true;
+        return false;
     }
-    currentInx = this->getNextIndex(currentInx);
-    this->outputStream.open(argv[currentInx], ifstream::out);
-}
-
-int CommandLineManager::getNextIndex(int current) {
-    if (current + 1 == this->rotateParamInx)
-        return current + 2;
-    return current + 1;
+    return true;
 }
 
 CommandLineManager::~CommandLineManager() {
@@ -66,7 +68,24 @@ CommandLineManager::~CommandLineManager() {
         outputStream.close();
 }
 
-int CommandLineManager::getNumberOfThreads() const {
+bool CommandLineManager::checkForValidNumberOfThreads(int argc, char **argv, int index) {
+    if(index >= argc)
+    {
+        this->notValidNumberOfThreads = true;
+        return false;
+    }
+    string numberOfThreads(argv[index]);
+    static std::regex isNumber("^[1-9][0-9]*$");
+    if(std::regex_match(numberOfThreads, isNumber))
+    {
+        this->numberOfThreads = std::stoi(numberOfThreads);
+        return true;
+    }
+    this->notValidNumberOfThreads = true;
+    return false;
+}
+
+int CommandLineManager::getNumberOfThreads() {
     return this->numberOfThreads;
 }
 

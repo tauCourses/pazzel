@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <regex>
 
 using namespace std;
 
@@ -11,15 +12,14 @@ class CommandLineManager {
 private:
     int numberOfArguments;
     int rotateParamInx;
+    int threadsParamInx;
     int numberOfThreads = 4;
     bool wrongNumberOfArguments = false;
-    bool rotateParamDoesntExist = false;
-    bool unableToReadInputFile = false;
+    bool notValidNumberOfThreads = false;
+    bool unableToOpenInputFile = false;
     bool _rotateEnabled = false;
 
-    bool updateRotateParamInx(int argc, char **argv); //return false if no rotate param found
-    void updateIOStreams(char **argv); //return false if failed
-    int getNextIndex(int current); //return the next available cmd argument
+    bool tryOpenInputStream(char *fileName);
 public:
     ifstream inputStream;
     ofstream outputStream;
@@ -34,9 +34,9 @@ public:
 
     bool isRotateEnable() const;
 
-    int getNumberOfThreads() const;
+    bool checkForValidNumberOfThreads(int argc, char **argv, int index);
 
-
+    int getNumberOfThreads();
 };
 
 #endif //PUZZLE_COMMANDLINEMANAGER_H

@@ -6,9 +6,6 @@ import statistics
 import sys
 import matplotlib as mpl
 
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-
 sides = ['right', 'left', 'up', 'down']
 side_direction = [(0, 1), (0, -1), (-1, 0), (1, 0)]
 opposite_side = ['left', 'right', 'down', 'up']
@@ -162,19 +159,25 @@ def _print_puzzle(puzzle):
 
 
 total = 100
-puzzle_size = (2, 2)
+puzzle_size = (8,4)
 rotate = False
-threads = 1
+threads_sizes = [1,2,4]
+save_to_file = True
+timeout = 60
 for arg in sys.argv:
     if 'runs=' in arg:
         total = int(arg.split('=')[1])
+    if 'timeout=' in arg:
+        timeout = float(arg.split('=')[1])
     if 'size=' in arg:
         sizes = arg.split('=')[1].split(',')
         puzzle_size = (int(sizes[0]), int(sizes[1]))
     if 'threads=' in arg:
-        threads = int(arg.split('=')[1])
+        threads_sizes = [int(thread) for thread in arg.split('=')[1].split(',')]
     if '-rotate' in arg:
         rotate = True
+    if '-show' in arg:
+        save_to_file = False
 
 if rotate:
     if puzzle_size[0] < puzzle_size[1]:
@@ -183,21 +186,31 @@ if rotate:
 run_times = []
 puzzles = []
 
+threads_lists = [[] for thread_size in threads_sizes]
 for x in range(10):
     for y in range(int(total / 10)):
-        puzzle, run_time = _run_single(puzzle_size, rotate, threads)
-        run_times.append(run_time)
-        puzzles.append(puzzle)
-    print(x)
+        for threads, threads_list in zip(threads_sizes, threads_lists):
+            puzzle, run_time = _run_single(puzzle_size, rotate, threads)
+            threads_list.append(min(timeout,run_time))
+            print('%f,' % run_time, end='')
+        print('')
 
-print("max %f" % max(run_times))
-print("there are %d puzzles that run for more than 60 seconds" % len([t for t in run_times if t >= 60]))
-print("avg %f" % statistics.mean(run_times))
+if save_to_file:
+    mpl.use('Agg')
 
-export_puzzle(puzzles[run_times.index(max(run_times))], 'longest')
+import matplotlib.pyplot as plt
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.hist(run_times, normed=True, bins=30)
-plt.ylabel('Probability')
-fig.savefig('histogram.png')
+runs = [i for i in range(total)]
+for threads, threads_list in zip(threads_sizes, threads_lists):
+    print("for %d threads the average run time is %f and std is %f" % (threads,  statistics.mean(threads_list), statistics.stdev(threads_list)))
+    ax.plot(runs, threads_list, label=str(threads))
+
+plt.xlabel('runs', fontsize=18)
+plt.ylabel('time', fontsize=16)
+plt.legend()
+if save_to_file:
+    fig.savefig('threads.png')
+else:
+    plt.show()

@@ -1,13 +1,15 @@
 #include "PuzzleSolver.h"
+
+#include <random>
 #include "BasicPieceManager.h"
 
 PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads) :
         pieceManager(pieceManager)
 {
-    int hardwareConcurrency = std::thread::hardware_concurrency();
-    cout << "hardware threads: " << hardwareConcurrency << endl; //TODO->remove!
-    if(numberOfThreads != 0)
-        this->numberOfThreads = 1;//std::min(hardwareConcurrency, numberOfThreads);
+   /* int hardwareConcurrency = std::thread::hardware_concurrency();
+    if(hardwareConcurrency != 0)
+        this->numberOfThreads = std::min(hardwareConcurrency, numberOfThreads);*/
+    this->numberOfThreads = numberOfThreads;
 }
 
 
@@ -19,12 +21,15 @@ bool PuzzleSolver::trySolve() {
         return false;
 
     this->allPossiblePuzzleShapes = pieceManager->getAllPossiblePuzzleShapes();
-    std::random_shuffle(allPossiblePuzzleShapes.begin(), allPossiblePuzzleShapes.end());
+
+    auto rng = std::default_random_engine {};
+    rng.seed(unsigned(time(nullptr)));
+    std::shuffle(std::begin(this->allPossiblePuzzleShapes), std::end(this->allPossiblePuzzleShapes), rng);
 
     vector<std::thread> threadVector;
 
-   // for(int i=0; i<this->numberOfThreads-1;++i) //one thread is the main thread
-     //   threadVector.emplace_back(std::thread(&PuzzleSolver::runThread, this));
+    for(int i=0; i<this->numberOfThreads-1;++i) //one thread is the main thread
+        threadVector.emplace_back(std::thread(&PuzzleSolver::runThread, this));
 
     runThread();
     for (auto &threadRun : threadVector)
@@ -50,10 +55,11 @@ void PuzzleSolver::runThread() {
         threadData.shape = this->allPossiblePuzzleShapes.back();
         this->allPossiblePuzzleShapes.pop_back();
         this->globalDataMutex.unlock();
-
+        cout << "start shpae " << threadData.shape.width << ", " << threadData.shape.height <<endl;
         threadData.stepCounter = 0; //start counter from begining
         if(trySolveForShape(threadData))
         {
+            cout << "won shpae " << threadData.shape.width << ", " << threadData.shape.height <<endl;
             this->globalDataMutex.lock();
 
             this->solutionFound = true;
@@ -61,7 +67,8 @@ void PuzzleSolver::runThread() {
 
             this->globalDataMutex.unlock();
             break;
-        }
+        } else
+            cout << "end shpae " << threadData.shape.width << ", " << threadData.shape.height <<endl;
     }
 }
 
