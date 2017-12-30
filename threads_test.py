@@ -5,6 +5,7 @@ import timeit
 import statistics
 import sys
 import matplotlib as mpl
+from colorama import Fore
 
 sides = ['right', 'left', 'up', 'down']
 side_direction = [(0, 1), (0, -1), (-1, 0), (1, 0)]
@@ -137,7 +138,6 @@ def _run_single(puzzle_size, rotate, threads):
         args.append('-rotate')
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     run_time = timeit.timeit(p.communicate, number=1)
-    check_output_file(puzzle)
     return puzzle, run_time
 
 
@@ -191,9 +191,12 @@ for x in range(10):
     for y in range(int(total / 10)):
         for threads, threads_list in zip(threads_sizes, threads_lists):
             puzzle, run_time = _run_single(puzzle_size, rotate, threads)
-            threads_list.append(min(timeout,run_time))
-            print('%f,' % run_time, end='')
-        print('')
+            threads_list.append(run_time)
+            if(run_time > timeout/2):
+                print(Fore.RED + '%f,' % run_time, end='', flush=True)
+            else:
+                print(Fore.WHITE +'%f,' % run_time, end='', flush=True)
+        print(Fore.WHITE + '')
 
 if save_to_file:
     mpl.use('Agg')
