@@ -54,6 +54,8 @@ public:
 
     unique_ptr<AbstractPieceManager> clone() override;
 
+    void retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) override;
+
 };
 
 

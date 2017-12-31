@@ -55,7 +55,7 @@ void PuzzleSolver::runThread() {
     int id = this->threadsCounter++;
     this->pieceManagerMutex.unlock();
     ThreadData threadData(tempPieceManager, numberOfPieces, id);
-    //ThreadData threadData = this->initThreadData();
+
     while(true)
     {
         if(!tryInitNextThreadRun(threadData))
@@ -74,24 +74,15 @@ void PuzzleSolver::runThread() {
     cout << "thread " << threadData.id << " died" << endl << std::flush;
 }
 
-PuzzleSolver::ThreadData PuzzleSolver::initThreadData() {
-    this->pieceManagerMutex.lock();
-    unique_ptr<AbstractPieceManager> tempPieceManager = this->pieceManager->clone();
-    int numberOfPieces = this->numberOfPieces;
-    int id = this->threadsCounter++;
-    this->pieceManagerMutex.unlock();
-    return ThreadData(tempPieceManager, numberOfPieces, id);
-}
-
 bool PuzzleSolver::tryInitNextThreadRun(PuzzleSolver::ThreadData &threadData) {
     this->globalDataMutex.lock();
     if(this->solutionFound) {
         this->globalDataMutex.unlock();
         return false;
     }
-    if(!this->ShapesForSerialScanning.empty())
-        this->initSerialRun(threadData);
-    else
+    //if(!this->ShapesForSerialScanning.empty())
+    //    this->initSerialRun(threadData);
+    //else
         this->initRandomizeRun(threadData);
     this->globalDataMutex.unlock();
     if(threadData.randomize)
@@ -159,13 +150,15 @@ bool PuzzleSolver::isThreadShouldEnd(ThreadData &threadData) {
     {
         if(this->isSolutionFound())
             return true;
-        if(threadData.randomStepsCounter == RANDOM_RUN_LIMIT)
+        if(threadData.randomize)
         {
-          //  this->initThreadData(threadData); TODO -> retrieve pieceManager
-          //  return true;
-            cout << "Random thread " << threadData.id << " reach end point" << endl << std::flush;
+            if(threadData.randomStepsCounter == RANDOM_RUN_LIMIT)
+            {
+                this->retrieveThreadPieceManager(threadData);
+                return true;
+            }
+            threadData.randomStepsCounter++;
         }
-        threadData.randomStepsCounter++;
         threadData.stepCounter = 0;
     }
     return false;
@@ -352,6 +345,12 @@ void PuzzleSolver::setRandomPiece(ThreadData &threadData, PuzzlePieceData &curre
     currentPiece.current = nullPiece;
     for(int i=0;i<randomPieceIndex;i++)
         currentPiece.current = threadData.pieceManager->getNextPiece(currentConstrain,currentPiece.current);
+}
+
+void PuzzleSolver::retrieveThreadPieceManager(PuzzleSolver::ThreadData &threadData) {
+    this->pieceManagerMutex.lock();
+    threadData.pieceManager->retrieveData(this->pieceManager);
+    this->pieceManagerMutex.unlock();
 }
 
 

@@ -1,4 +1,5 @@
 #include "RotatablePieceManager.h"
+#include "BasicPieceManager.h"
 
 Piece_t RotatablePieceManager::lookupTable[numberOfConstrains];
 
@@ -202,5 +203,15 @@ RotatablePieceManager::RotatablePieceManager(RotatablePieceManager const & copyP
 
     std::copy(copyPieceManager.pieceRepository,
               copyPieceManager.pieceRepository + (int)(numberOfConstrains),
+              this->pieceRepository);
+}
+
+void RotatablePieceManager::retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) {
+    std::copy(basePieceManager->constrainRepository,
+              basePieceManager->constrainRepository + (int)(numberOfConstrains),
+              this->constrainRepository);
+
+    std::copy(basePieceManager->pieceRepository,
+              basePieceManager->pieceRepository + (int)(numberOfConstrains),
               this->pieceRepository);
 }

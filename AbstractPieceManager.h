@@ -22,6 +22,7 @@ public:
 
     virtual vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() = 0;
     virtual unique_ptr<AbstractPieceManager> clone() = 0;
+    virtual void retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) = 0;
 
     Piece_t getNextPiece(Piece_t constrain, Piece_t last);
 
@@ -41,12 +42,13 @@ public:
 
     virtual bool preConditions();
 
-protected:
+
     static Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
     static Piece_t maskOptions[1 << 4];
     int pieceRepository[numberOfConstrains] = {0};
     Piece_t constrainRepository[numberOfConstrains] = {0};
 
+protected:
     AbstractPieceManager();
 
     void initialNextPieceTable();

@@ -112,3 +112,13 @@ BasicPieceManager::BasicPieceManager(BasicPieceManager const & copyPieceManager)
               copyPieceManager.constrainOption + (int)(numberOfConstrains),
               this->constrainOption);
 }
+
+void BasicPieceManager::retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) {
+    std::copy(dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainRepository,
+              dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainRepository + (int)(numberOfConstrains),
+              this->constrainRepository);
+
+    std::copy(dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainOption,
+              dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainOption + (int)(numberOfConstrains),
+              this->constrainOption);
+}
