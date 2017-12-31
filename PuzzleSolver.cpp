@@ -67,11 +67,11 @@ void PuzzleSolver::runThread() {
             break;
         }
         else if(threadData.randomize)
-                cout << "thread " << threadData.id << " end random run" << endl;
+                cout << "thread " << threadData.id << " end random run" << endl << std::flush;
         else
-            cout << "thread " << threadData.id << " end scanning shpae "
-                 << threadData.shape.width << ", " << threadData.shape.height <<endl;
+            cout << "thread " << threadData.id << " end serial run" << endl << std::flush;
     }
+    cout << "thread " << threadData.id << " died" << endl << std::flush;
 }
 
 PuzzleSolver::ThreadData PuzzleSolver::initThreadData() {
@@ -92,9 +92,12 @@ bool PuzzleSolver::tryInitNextThreadRun(PuzzleSolver::ThreadData &threadData) {
     if(!this->ShapesForSerialScanning.empty())
         this->initSerialRun(threadData);
     else
-        return false;//this->initRandomizeRun(threadData);
+        this->initRandomizeRun(threadData);
     this->globalDataMutex.unlock();
-
+    if(threadData.randomize)
+        cout << "random ";
+    cout << "thread " << threadData.id << " start scanning shpae "
+         << threadData.shape.width << ", " << threadData.shape.height << endl << std::flush;
     return true;
 }
 
@@ -104,8 +107,6 @@ void PuzzleSolver::initSerialRun(ThreadData &threadData) //globalDataMutex has t
     this->ShapesForSerialScanning.pop_back();
     threadData.randomize = false;
     threadData.stepCounter = 0; //start counter from begining
-    cout << "thread " << threadData.id << " start serial scanning shpae "
-         << threadData.shape.width << ", " << threadData.shape.height << endl;
 }
 
 void PuzzleSolver::initRandomizeRun(ThreadData &threadData) //globalDataMutex has to be locked!
@@ -115,15 +116,11 @@ void PuzzleSolver::initRandomizeRun(ThreadData &threadData) //globalDataMutex ha
     threadData.randomize = true;
     threadData.stepCounter = 0;
     threadData.randomStepsCounter = 0;
-    cout << "thread " << threadData.id << " start random scanning shpae "
-         << threadData.shape.width << ", " << threadData.shape.height << endl;
 }
 
 void PuzzleSolver::exportThreadSolution(PuzzleSolver::ThreadData &threadData) {
-    if(threadData.randomize)
-        cout << "random ";
     cout << "thread " << threadData.id << " found solution for shpae "
-         << threadData.shape.width << ", " << threadData.shape.height <<endl;
+         << threadData.shape.width << ", " << threadData.shape.height <<endl << std::flush;
     this->globalDataMutex.lock();
     this->solutionFound = true;
     this->puzzleSolution = threadData.puzzleSolution;
@@ -137,10 +134,9 @@ bool PuzzleSolver::trySolveForThread(ThreadData &threadData) {
     PuzzlePieceData currentPiece;
 
     if(threadData.randomize) {
-        cout << "randomize - not supported yet" << endl;
-        return false;
-    }
-    else if(this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location))
+        if (!this->trySetRandomizePossition(threadData, puzzleLocationStack, currentPiece))
+            return false;
+    }else if(this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location))
         currentPiece.current = nullPiece;
     else
         return false;
@@ -166,7 +162,8 @@ bool PuzzleSolver::isThreadShouldEnd(ThreadData &threadData) {
         if(threadData.randomStepsCounter == RANDOM_RUN_LIMIT)
         {
           //  this->initThreadData(threadData); TODO -> retrieve pieceManager
-            return true;
+          //  return true;
+            cout << "Random thread " << threadData.id << " reach end point" << endl << std::flush;
         }
         threadData.randomStepsCounter++;
         threadData.stepCounter = 0;
@@ -184,7 +181,7 @@ bool PuzzleSolver::fillCurrentPiece(ThreadData &threadData, stack <PuzzleLocatio
     this->updatePieceInSolution(threadData, currentPiece.location, currentPiece.current);
     threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col] = currentPiece.current;
 
-    return threadData.numberOfPieces == static_cast<int>(stack.size());
+    return threadData.numberOfPieces == static_cast<int>(stack.size()); //return if puzzle solved!
 }
 
 bool PuzzleSolver::tryFindNextLocation(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece) {
@@ -316,6 +313,45 @@ bool PuzzleSolver::isSolutionFound() {
 
 void PuzzleSolver::exportErrors(ofstream &out) {
     out << "Cannot solve puzzle: it seems that there is no proper solution" << "\n";
+}
+
+bool PuzzleSolver::trySetRandomizePossition(ThreadData &threadData, stack <PuzzleLocation> &stack,
+                                            PuzzlePieceData &currentPiece) {
+    if(!this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location))
+        return false;
+
+    do
+    {
+        setRandomPiece(threadData, currentPiece);
+
+        stack.push(currentPiece.location);
+        this->updatePieceInSolution(threadData, currentPiece.location, currentPiece.current);
+        threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col] = currentPiece.current;
+
+        if(threadData.numberOfPieces == static_cast<int>(stack.size()))
+            break;
+
+    }while(this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location));
+
+    currentPiece.location = stack.top();
+    stack.pop();
+    currentPiece.current = threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col];
+    this->removePieceFromSolution(threadData, currentPiece.location);
+    cout << "random thread " << threadData.id << " starting from random position at depth " << stack.size() << endl << std::flush;
+    return true;
+}
+
+void PuzzleSolver::setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece) {
+    auto currentConstrain = threadData.puzzleConstrain[currentPiece.location.row][currentPiece.location.col];
+    unsigned long numberOfPossiblePieces=0;
+    for(uint8_t piece = threadData.pieceManager->getNextPiece(currentConstrain,nullPiece); piece != nullPiece;
+        piece = threadData.pieceManager->getNextPiece(currentConstrain,piece))
+        numberOfPossiblePieces++;
+
+    int randomPieceIndex = static_cast<int>((rand() % numberOfPossiblePieces) + 1);
+    currentPiece.current = nullPiece;
+    for(int i=0;i<randomPieceIndex;i++)
+        currentPiece.current = threadData.pieceManager->getNextPiece(currentConstrain,currentPiece.current);
 }
 
 

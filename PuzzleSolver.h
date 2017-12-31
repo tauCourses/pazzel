@@ -17,8 +17,8 @@
 
 using namespace std;
 
-#define STEP_TO_CHECK_MUTEX 10000
-#define RANDOM_RUN_LIMIT 10000
+#define STEP_TO_CHECK_MUTEX 100
+#define RANDOM_RUN_LIMIT 1000
 class PuzzleSolver {
 private:
     struct PuzzleLocation {
@@ -98,6 +98,10 @@ public:
     bool tryFindNextLocation(ThreadData &data, stack<PuzzleLocation> &stack, PuzzlePieceData &pieceData);
 
     bool fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiec);
+
+    bool trySetRandomizePossition(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece);
+
+    void setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece);
 };
 
 
