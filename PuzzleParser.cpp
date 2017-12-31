@@ -1,6 +1,7 @@
 #include "PuzzleParser.h"
 
-PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager) : fin(fin) {
+PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager,
+                           AbstractPieceManager::PieceRepository &pieceRepository) : fin(fin) {
     string line;
     if (!this->tryReadFirstLine()) {
         return;
@@ -12,18 +13,18 @@ PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager>
         int id = this->getPieceId(line); //check if it's a valid id, return -1 if not
         if (id < 0)
             continue;
-        pieceManager->addPiece(getNextPiece(id, line));
+        pieceManager->addPiece(pieceRepository, getNextPiece(id, line));
     }
-
     checkForMissingParts(pieceManager);
 }
 
 bool PuzzleParser::tryReadFirstLine() {
     string line;
     getline(fin, line);
-    auto number_token = line.substr(line.find_first_of('=')+1);
-    if(!this->isInteger(number_token))
-    {
+    auto number_token = line.substr(line.find_first_of('=') + 1);
+    if (!this->isInteger(number_token)) {
+
+        cout << number_token << "error1" << endl;//todo delete
         this->inValidNumberOfPieces = true;
         return false;
     }
@@ -74,7 +75,7 @@ unique_ptr<PuzzlePiece> PuzzleParser::getNextPiece(int id, string &line) {
 
 
 bool PuzzleParser::tryReadSide(string &rest, int &side) {
-     if (isStringEmpty(rest))
+    if (isStringEmpty(rest))
         return false;
     rest = rest.substr(rest.find_first_not_of(" \t"));
     auto first_token = rest.substr(0, rest.find_first_of(" \t"));
@@ -118,7 +119,7 @@ bool PuzzleParser::hasErrors() const {
 
 void PuzzleParser::exportErrors(ofstream &outf) const {
     if (this->inValidNumberOfPieces) {
-        outf << "Invalid number of elements" << "\n";
+        outf << "Invalid number of elements" << endl;
         return;
     }
     this->printMissingElements(outf);
@@ -141,7 +142,7 @@ void PuzzleParser::printMissingElements(ofstream &outf) const {
             outf << ", " << missingElement;
         }
     }
-    outf << "\n";
+    outf << endl;
 }
 
 void PuzzleParser::printOutOfRangeElements(ofstream &outf) const {
@@ -158,7 +159,7 @@ void PuzzleParser::printOutOfRangeElements(ofstream &outf) const {
         } else
             outf << ", " << outOfRangeElement;
     }
-    outf << "\n";
+    outf << endl;
 }
 
 void PuzzleParser::printWrongFormatPieces(ofstream &outf) const {
@@ -167,7 +168,7 @@ void PuzzleParser::printWrongFormatPieces(ofstream &outf) const {
 
     for (auto tuple : this->wrongPieceFormatLine) {
         outf << "Puzzle ID " << get<0>(tuple);
-        outf << " has wrong data: " << get<1>(tuple) << "\n";
+        outf << " has wrong data: " << get<1>(tuple) << endl;
     }
 }
 
@@ -185,7 +186,7 @@ void PuzzleParser::printNotValidIdsElements(ofstream &outf) const {
         } else
             outf << ", " << id;
     }
-    outf << "\n";
+    outf << endl;
 }
 
 void PuzzleParser::printElementsAppearMoreThanOnce(ofstream &outf) const {
@@ -200,5 +201,5 @@ void PuzzleParser::printElementsAppearMoreThanOnce(ofstream &outf) const {
         } else
             outf << ", " << element;
     }
-    outf << "\n";
+    outf << endl;
 }
