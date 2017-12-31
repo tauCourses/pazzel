@@ -11,8 +11,6 @@ using namespace std;
 class CommandLineManager {
 private:
     int numberOfArguments;
-    int rotateParamInx;
-    int threadsParamInx;
     int numberOfThreads = 4;
     bool wrongNumberOfArguments = false;
     bool notValidNumberOfThreads = false;

@@ -19,6 +19,7 @@ using namespace std;
 
 #define STEP_TO_CHECK_MUTEX 5000
 #define RANDOM_RUN_LIMIT 150
+
 class PuzzleSolver {
 private:
     struct PuzzleLocation {
@@ -30,79 +31,88 @@ private:
         Piece_t current;
     };
 
-    class ThreadData{
+    class ThreadData {
     public:
-        explicit ThreadData(unique_ptr<AbstractPieceManager> &pieceManager, int numberOfPieces, int id);
+        explicit ThreadData(bool randomize, int id, int numberOfPieces);
 
         vector<vector<Piece_t>> puzzleSolution;
         vector<vector<Piece_t>> puzzleConstrain;
         AbstractPieceManager::Shape shape;
-        unique_ptr<AbstractPieceManager> &pieceManager;
+        AbstractPieceManager::PieceRepository pieceRepository;
         bool randomize = false;
-        int stepCounter = 0; //
+        int stepCounter = 0;
         int randomStepsCounter = 0;
         int id = 0;
         int numberOfPieces = 0;
     };
 
-    int numberOfThreads;
     //shared data for all of threads:
     vector<AbstractPieceManager::Shape> allPossiblePuzzleShapes;
-    vector<AbstractPieceManager::Shape> ShapesForSerialScanning;
+    vector<AbstractPieceManager::Shape> shapesForSerialScanning;
     bool solutionFound = false;
+    bool noSolutionExist = false;
     vector<vector<Piece_t>> puzzleSolution;
     mutex globalDataMutex; //mutex to get access to global data
 
     const unique_ptr<AbstractPieceManager> &pieceManager;
+    const AbstractPieceManager::PieceRepository &prototypePiecesRepository;
     int threadsCounter = 1;
+    int numberOfThreads;
     int numberOfPieces;
     mutex pieceManagerMutex;
 
-    void createNewPuzzleSolution(ThreadData &threadData);
+    void createNewPuzzleSolution(ThreadData &threadData) const;
 
     bool trySolveForThread(ThreadData &threadData);
 
-    bool tryGettingNextPuzzleLocationToFill(ThreadData &threadData, PuzzleLocation &bestLocation);
+    bool tryGettingNextPuzzleLocationToFill(ThreadData &threadData, PuzzleLocation &bestLocation) const;
 
-    void updatePieceInSolution(ThreadData &threadData, PuzzleLocation puzzleLocation, Piece_t currentPiece);
+    void updatePieceInSolution(ThreadData &threadData, PuzzleLocation puzzleLocation, Piece_t currentPiece) const;
 
-    void removePieceFromSolution(ThreadData &threadData, PuzzleLocation puzzleLocation);
+    void removePieceFromSolution(ThreadData &threadData, PuzzleLocation puzzleLocation) const;
 
-    void runThread();
+    void runRandomThread();
 
-    static inline Piece_t getConstrainOpposite(Piece_t currentConstrain);
+    void runSerialThread();
 
-    void initPuzzleShapesVectors();
+    void runThread(ThreadData &threadData);
+
+    inline Piece_t getConstrainOpposite(Piece_t currentConstrain) const;
+
+    void initPuzzleShapesVectors() ;
 
     bool tryInitNextThreadRun(ThreadData &threadData);
+
     void initSerialRun(ThreadData &threadData);
-    void initRandomizeRun(ThreadData &threadData);
+
+    void initRandomizeRun(ThreadData &threadData) const;
+
     void exportThreadSolution(ThreadData &threadData);
 
 public:
 
-    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads);
+    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager,
+                          const AbstractPieceManager::PieceRepository &prototypePiecesRepository,
+                          int numberOfThreads);
 
     bool trySolve();
 
-    void exportSolution(ofstream &out);
+    void exportSolution(ofstream &out) const;
 
-    void exportErrors(ofstream &out);
+    void exportErrors(ofstream &out) const;
 
     bool isSolutionFound();
 
-
     bool isThreadShouldEnd(ThreadData &threadData);
 
-    bool tryFindNextLocation(ThreadData &data, stack<PuzzleLocation> &stack, PuzzlePieceData &pieceData);
+    bool tryFindNextLocation(ThreadData &data, stack<PuzzleLocation> &stack, PuzzlePieceData &pieceData) const;
 
-    bool fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiec);
+    bool fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiec) const;
 
-    bool trySetRandomizePossition(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece);
+    bool
+    trySetRandomizePosition(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece) const;
 
-    void setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece);
-
-    void retrieveThreadPieceManager(ThreadData &threadData);
+    void setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece) const;
 };
 
 

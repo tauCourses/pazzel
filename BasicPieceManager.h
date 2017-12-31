@@ -7,41 +7,36 @@
 
 class BasicPieceManager : public AbstractPieceManager {
 public:
-    vector<Shape> getAllPossiblePuzzleShapes() override;
+    vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() const override;
 
-    int numOfOptionsForConstrain(Piece_t constrain) override;
+    int numOfOptionsForConstrain(const PieceRepository &pieceRepository, Piece_t constrain) const override;
 
-    void addPiece(unique_ptr<PuzzlePiece> piece) override;
+    void addPiece(PieceRepository &pieceRepository, unique_ptr<PuzzlePiece> piece) override;
 
-    bool preConditions() override;
+    bool preConditions() const override;
 
-    unique_ptr<AbstractPieceManager> clone() override;
-
-    void retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) override;
-
-    BasicPieceManager () = default;
+    BasicPieceManager() = default;
 
 protected:
-    void addPieceToRepository(Piece_t piece) override;
+    void addPieceToRepository(PieceRepository &pieceRepository, Piece_t piece) const override;
 
-    void removePieceFromRepository(Piece_t piece) override;
+    void removePieceFromRepository(PieceRepository &pieceRepository, Piece_t piece) const override;
 
-    bool pieceExistInRepository(Piece_t piece) override;
+    bool pieceExistInRepository(const PieceRepository &pieceRepository, Piece_t piece) const override;
 
 private:
-    BasicPieceManager(BasicPieceManager const & copyPieceManager);
-    int constrainOption[numberOfConstrains] = {0};
+    BasicPieceManager(BasicPieceManager const &copyPieceManager);
 
-    bool isPuzzleShapePossible(Shape shape) override;
+    bool isPuzzleShapePossible(AbstractPieceManager::Shape shape) const override;
 
     //error hundeling:
-    bool hasAllCorners() override;
+    bool hasAllCorners(const PieceRepository &pieceRepository) const override;
 
-    void printMissingCorners(ofstream &fout) override;
+    void printMissingCorners(const PieceRepository &pieceRepository, ofstream &fout) const override;
 
-    void addPieceToOption(Piece_t piece);
+    void addPieceToConstrain(PieceRepository &pieceRepository, Piece_t piece) const;
 
-    inline void removePieceFromOption(Piece_t piece);
+    inline void removePieceFromConstrain(PieceRepository &pieceRepository, Piece_t piece) const;
 
     void printPiece(Piece_t piece, ofstream &out) override;
 

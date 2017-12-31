@@ -14,7 +14,7 @@ using namespace std;
 
 class PuzzleParser {
 private:
-    ifstream& fin;
+    ifstream &fin;
 
     //errors types:
     int numberOfPieces;
@@ -26,24 +26,36 @@ private:
     vector<string> notIntegerIds;
 
     bool tryReadFirstLine(); //return false if failed
-    int getPieceId(string& line);
-    unique_ptr<PuzzlePiece> getNextPiece(int id, string& line);
-    bool tryReadSide(string& rest, int &side);
+    int getPieceId(string &line);
+
+    unique_ptr<PuzzlePiece> getNextPiece(int id, string &line);
+
+    bool tryReadSide(string &rest, int &side);
+
     bool isInteger(const string &str);
+
     bool isStringEmpty(const string &str);
 
     void checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager);
+
     //export errors functions:
-    void printMissingElements(ofstream& outf) const;
-    void printOutOfRangeElements(ofstream& outf) const;
-    void printWrongFormatPieces(ofstream& outf) const;
-    void printNotValidIdsElements(ofstream& outf) const;
+    void printMissingElements(ofstream &outf) const;
+
+    void printOutOfRangeElements(ofstream &outf) const;
+
+    void printWrongFormatPieces(ofstream &outf) const;
+
+    void printNotValidIdsElements(ofstream &outf) const;
+
     void printElementsAppearMoreThanOnce(ofstream &outf) const;
 
 public:
-    explicit PuzzleParser(ifstream& fin, const unique_ptr<AbstractPieceManager> &pieceManager);
+    explicit PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager,
+                          AbstractPieceManager::PieceRepository &pieceRepository);
+
     bool hasErrors() const;
-    void exportErrors(ofstream& outf) const;
+
+    void exportErrors(ofstream &outf) const;
 };
 
 #endif //PUZZLE_PUZZLEPARSER_H

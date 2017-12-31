@@ -12,32 +12,30 @@ int AbstractPieceManager::getNumOfOccurrences(int id) const {
     return occurrences;
 }
 
-bool AbstractPieceManager::hasErrors() {
+bool AbstractPieceManager::hasErrors(const PieceRepository &pieceRepository) {
     this->noPossibleShape = this->getAllPossiblePuzzleShapes().empty();
     this->pieceSumNotZero = !this->hasASumOfZero();
 
-    return this->noPossibleShape ||
-           this->pieceSumNotZero ||
-           !this->hasAllCorners();
+    return this->noPossibleShape || this->pieceSumNotZero || !this->hasAllCorners(pieceRepository);
 }
 
-void AbstractPieceManager::exportErrors(ofstream &fout) {
+void AbstractPieceManager::exportErrors(const PieceRepository &pieceRepository, ofstream &fout) const {
     this->printNoPossibleShape(fout);
-    this->printMissingCorners(fout);
+    this->printMissingCorners(pieceRepository, fout);
     this->printSumNotZero(fout);
 }
 
-void AbstractPieceManager::printNoPossibleShape(ofstream &fout) {
+void AbstractPieceManager::printNoPossibleShape(ofstream &fout) const {
     if (this->noPossibleShape)
         fout << "Cannot solve puzzle: wrong number of straight edges" << endl;
 }
 
-void AbstractPieceManager::printSumNotZero(ofstream &fout) {
+void AbstractPieceManager::printSumNotZero(ofstream &fout) const {
     if (this->pieceSumNotZero)
         fout << "Cannot solve puzzle: sum of edges is not zero" << endl;
 }
 
-void AbstractPieceManager::initialNextPieceTable() {
+void AbstractPieceManager::initialNextPieceTable() const {
     for (int constrain = 0; constrain <= nullPiece; constrain++) {
         auto last = nullPiece;
         for (Piece_t next = 0; next < nullPiece; next++) {
@@ -52,7 +50,7 @@ void AbstractPieceManager::initialNextPieceTable() {
     }
 }
 
-void AbstractPieceManager::initialMaskOptionTable() {
+void AbstractPieceManager::initialMaskOptionTable() const {
     Piece_t maskPiece;
     for (int mask = 0; mask < (1 << 4); ++mask) {
         maskPiece = 0;
@@ -73,32 +71,32 @@ AbstractPieceManager::AbstractPieceManager() {
     this->initialMaskOptionTable();
 }
 
-Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
+Piece_t AbstractPieceManager::getNextPiece(PieceRepository &pieceRepository, Piece_t constrain, Piece_t last) const {
     if (last != nullPiece)
-        addPieceToRepository(last);
+        addPieceToRepository(pieceRepository, last);
     while (true) {
         Piece_t next = AbstractPieceManager::nextPieceWithConstrain[constrain][last];
         if (next == nullPiece)
             return nullPiece;
-        if (this->pieceExistInRepository(next)) {
-            removePieceFromRepository(next);
+        if (this->pieceExistInRepository(pieceRepository, next)) {
+            removePieceFromRepository(pieceRepository, next);
             return next;
         }
         last = next;
     }
 }
 
-bool AbstractPieceManager::hasASumOfZero() {
+bool AbstractPieceManager::hasASumOfZero() const {
     int sum = 0;
     for (auto piece : this->pieces)
         sum += piece.right + piece.left + piece.down + piece.up;
     return sum == 0;
 }
 
-bool AbstractPieceManager::preConditions() { //default implementation, could be override
+bool AbstractPieceManager::preConditions() const { //default implementation, could be override
     return true;
 }
 
 int AbstractPieceManager::getNumberOfPieces() const {
-    return this->pieces.size();
+    return (int) this->pieces.size();
 }

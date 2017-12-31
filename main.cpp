@@ -9,20 +9,23 @@ int main(int argc, char **argv) {
         cmd.exportErrors();
         return -1;
     }
-    cout << "hi" <<endl;
-    auto pieceManager = PieceManagerFactory::getPieceManager(cmd.isRotateEnable()); //factory to get piece manager
-    PuzzleParser parser(cmd.inputStream, pieceManager); //parse input file and inject pieces into piece Manager
+
+    //factory to get piece manager
+    auto pieceManager = PieceManagerFactory::getPieceManager(cmd.isRotateEnable());
+    AbstractPieceManager::PieceRepository prototypePiecesRepository = {};
+
+    //parse input file and inject pieces into piece Manager
+    PuzzleParser parser(cmd.inputStream, pieceManager, prototypePiecesRepository);
     if (parser.hasErrors()) {//handle parser errors
         parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    cout << "hi2" <<endl;
-    if (pieceManager->hasErrors()) { //handle piece manager errors:
-        pieceManager->exportErrors(cmd.outputStream);
+    if (pieceManager->hasErrors(prototypePiecesRepository)) { //handle piece manager errors:
+        pieceManager->exportErrors(prototypePiecesRepository, cmd.outputStream);
         return -1;
     }
-    cout << "hi3" <<endl;
-    PuzzleSolver puzzleSolver(pieceManager, cmd.getNumberOfThreads());
+
+    PuzzleSolver puzzleSolver(pieceManager, prototypePiecesRepository, cmd.getNumberOfThreads());
     if (puzzleSolver.trySolve()) //return true if succeeded
         puzzleSolver.exportSolution(cmd.outputStream);
     else

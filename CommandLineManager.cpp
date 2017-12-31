@@ -45,11 +45,11 @@ bool CommandLineManager::hasErrors() const {
 
 void CommandLineManager::exportErrors() const {
     if (this->wrongNumberOfArguments)
-        std::cerr << "Wrong number of command line arguments" << "\n";
+        std::cerr << "Wrong number of command line arguments" << endl;
     if (this->notValidNumberOfThreads)
-        std::cerr << "Number of threads is not valid" << "\n";
+        std::cerr << "Number of threads is not valid" << endl;
     if (this->unableToOpenInputFile)
-        std::cerr << "Unable to open input file" << "\n";
+        std::cerr << "Unable to open input file" << endl;
 }
 
 bool CommandLineManager::tryOpenInputStream(char *fileName) {

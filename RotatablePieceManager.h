@@ -6,55 +6,47 @@
 #include "PuzzlePieceConstrain.h"
 
 class RotatablePieceManager : public AbstractPieceManager {
-private:
-    static Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation
-
-    bool isPuzzleShapePossible(Shape shape) override;
-
-    int numberOfCorners();
-
-    void initialLookupTable();
-
-    bool isPermutation(Piece_t p1, Piece_t p2);
-
-    int getPermutationDegree(Piece_t current, Piece_t origin);
-
-    void removeFromConstrainRepository(Piece_t piece);
-
-    void addToConstrainRepository(Piece_t piece);
-
-    void changeConstrains(Piece_t piece, int delta);
-
-    inline Piece_t rotatePieceCounterClockWise(Piece_t piece);
-
-protected:
-    RotatablePieceManager(RotatablePieceManager const & copyPieceManager);
-    void addPieceToRepository(Piece_t piece) override;
-
-    void removePieceFromRepository(Piece_t piece) override;
-
-    bool pieceExistInRepository(Piece_t piece) override;
-
-    //error hundeling:
-    bool hasAllCorners() override;
-    bool hasTwoSideForARaw();
-
-    void printMissingCorners(ofstream &fout) override;
-
 public:
     RotatablePieceManager();
 
-    vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() override;
+    vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() const override;
 
-    int numOfOptionsForConstrain(Piece_t constrain) override;
+    int numOfOptionsForConstrain(const PieceRepository &pieceRepository, Piece_t constrain) const override;
 
-    void addPiece(unique_ptr<PuzzlePiece> piece) override;
+    void addPiece(PieceRepository &pieceRepository, unique_ptr<PuzzlePiece> piece) override;
 
     void printPiece(Piece_t piece, ofstream &out) override;
 
-    unique_ptr<AbstractPieceManager> clone() override;
+protected:
+    void addPieceToRepository(PieceRepository &pieceRepository, Piece_t piece) const override;
 
-    void retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) override;
+    void removePieceFromRepository(PieceRepository &pieceRepository, Piece_t piece) const override;
+
+    bool pieceExistInRepository(const PieceRepository &pieceRepository, Piece_t piece) const override;
+
+    //error hundeling:
+    bool hasAllCorners(const PieceRepository &pieceRepository) const override;
+
+    bool hasTwoSideForARaw() const;
+
+    void printMissingCorners(const PieceRepository &pieceRepository, ofstream &fout) const override;
+
+private:
+    static Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation
+
+    bool isPuzzleShapePossible(AbstractPieceManager::Shape shape) const override;
+
+    int numberOfCorners() const;
+
+    void initialLookupTable() const;
+
+    bool isPermutation(Piece_t p1, Piece_t p2) const;
+
+    int getPermutationDegree(Piece_t current, Piece_t origin) const;
+
+    void changeConstrainsCount(PieceRepository &pieceRepository, Piece_t piece, int delta) const;
+
+    inline Piece_t rotatePieceCounterClockWise(Piece_t piece) const;
 
 };
 

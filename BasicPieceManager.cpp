@@ -1,24 +1,19 @@
 #include "BasicPieceManager.h"
 
-void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
+void BasicPieceManager::addPiece(PieceRepository &pieceRepository, unique_ptr <PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
-    this->addPieceToRepository(piece->representor());
-    for (Piece_t maskOption : AbstractPieceManager::maskOptions) {
-        if (maskOption != 0)
-            ++this->constrainRepository[piece->representor() | maskOption];
-    }
+    this->addPieceToRepository(pieceRepository, piece->representor());
 }
 
-inline int BasicPieceManager::numOfOptionsForConstrain(Piece_t constrain) {
-    return this->constrainOption[constrain];
+inline int
+BasicPieceManager::numOfOptionsForConstrain(const PieceRepository &pieceRepository, Piece_t constrain) const {
+    return pieceRepository.constrainRepository[constrain];
 }
 
-
-vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShapes() {
-    vector<AbstractPieceManager::Shape> possibleShapes;
-    Shape shape;
-    shape.width = shape.height = 1;
+vector <AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShapes() const {
+    vector <AbstractPieceManager::Shape> possibleShapes;
     auto numberOfPieces = static_cast<int>(this->pieces.size());
+    AbstractPieceManager::Shape shape = {1, 1};
     for (; shape.width <= numberOfPieces; shape.width++) {
         shape.height = numberOfPieces / shape.width;
         if (numberOfPieces == shape.height * shape.width && this->isPuzzleShapePossible(shape)) {
@@ -28,59 +23,73 @@ vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShape
     return possibleShapes;
 }
 
-bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) {
-    return this->constrainRepository[hasLeftStraight] >= shape.height &&
-           this->constrainRepository[hasUpperStraight] >= shape.width &&
-           this->constrainRepository[hasRightStraight] >= shape.height &&
-           this->constrainRepository[hasDownStraight] >= shape.width;
+bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) const {
+    int leftStraightCount = 0, rightStraightCount = 0, upStraightCount = 0, downStraightCount = 0;
+    for (auto &it : this->pieces) {
+        if (it.left == 0) leftStraightCount++;
+        if (it.right == 0) rightStraightCount++;
+        if (it.up == 0) upStraightCount++;
+        if (it.down == 0) downStraightCount++;
+    }
+    return leftStraightCount >= shape.height &&
+           rightStraightCount >= shape.height &&
+           upStraightCount >= shape.width &&
+           downStraightCount >= shape.width;
 }
 
-bool BasicPieceManager::preConditions() {
-    return this->constrainRepository[hasLeftMale] - this->constrainRepository[hasRightFemale] == 0 &&
-           this->constrainRepository[hasLeftFemale] - this->constrainRepository[hasRightMale] == 0 &&
-           this->constrainRepository[hasUpperMale] - this->constrainRepository[hasDownFemale] == 0 &&
-           this->constrainRepository[hasUpperFemale] - this->constrainRepository[hasDownMale] == 0;
+bool BasicPieceManager::preConditions() const {
+    int leftMaleRightFemaleRatio = 0, leftFemaleRightMaleRatio = 0, upMaleDownFemaleRatio = 0, upFemaleDownMaleRatio = 0;
+    for (auto &it : this->pieces) {
+        if (it.left == 1) leftMaleRightFemaleRatio++;
+        if (it.right == -1) leftMaleRightFemaleRatio--;
+        if (it.left == -1) leftFemaleRightMaleRatio++;
+        if (it.right == 1) leftFemaleRightMaleRatio--;
+        if (it.up == 1) upMaleDownFemaleRatio++;
+        if (it.down == -1) upMaleDownFemaleRatio--;
+        if (it.up == -1) upFemaleDownMaleRatio++;
+        if (it.down == 1) upFemaleDownMaleRatio--;
+    }
+    return leftMaleRightFemaleRatio == 0 &&
+           leftFemaleRightMaleRatio == 0 &&
+           upMaleDownFemaleRatio == 0 &&
+           upFemaleDownMaleRatio == 0;
 }
 
-bool BasicPieceManager::hasAllCorners() {
-    return this->constrainRepository[hasUpperStraight & hasLeftStraight] != 0 &&
-           this->constrainRepository[hasUpperStraight & hasRightStraight] != 0 &&
-           this->constrainRepository[hasDownStraight & hasLeftStraight] != 0 &&
-           this->constrainRepository[hasDownStraight & hasRightStraight] != 0;
+bool BasicPieceManager::hasAllCorners(const PieceRepository &pieceRepository) const {
+    return pieceRepository.constrainRepository[hasUpperStraight & hasLeftStraight] != 0 &&
+           pieceRepository.constrainRepository[hasUpperStraight & hasRightStraight] != 0 &&
+           pieceRepository.constrainRepository[hasDownStraight & hasLeftStraight] != 0 &&
+           pieceRepository.constrainRepository[hasDownStraight & hasRightStraight] != 0;
 }
 
-void BasicPieceManager::printMissingCorners(ofstream &fout) {
-    if(hasAllCorners())
+void BasicPieceManager::printMissingCorners(const PieceRepository &pieceRepository, ofstream &fout) const {
+    if (hasAllCorners(pieceRepository))
         return;
     const char *message = "Cannot solve puzzle: missing corner element: ";
-    if (this->constrainRepository[hasUpperStraight & hasLeftStraight] == 0)
-        fout << message << "TL" << endl;
-    if (this->constrainRepository[hasUpperStraight & hasRightStraight] == 0)
-        fout << message << "TR" << endl;
-    if (this->constrainRepository[hasDownStraight & hasLeftStraight] == 0)
-        fout << message << "BL" << endl;
-    if (this->constrainRepository[hasDownStraight & hasRightStraight] == 0)
-        fout << message << "BR" << endl;
+    if (pieceRepository.constrainRepository[hasUpperStraight & hasLeftStraight] == 0) fout << message << "TL" << endl;
+    if (pieceRepository.constrainRepository[hasUpperStraight & hasRightStraight] == 0) fout << message << "TR" << endl;
+    if (pieceRepository.constrainRepository[hasDownStraight & hasLeftStraight] == 0) fout << message << "BL" << endl;
+    if (pieceRepository.constrainRepository[hasDownStraight & hasRightStraight] == 0) fout << message << "BR" << endl;
 }
 
-void BasicPieceManager::addPieceToRepository(Piece_t piece) {
-    if (this->constrainRepository[piece]++ == 0)
-        this->addPieceToOption(piece);
+void BasicPieceManager::addPieceToRepository(PieceRepository &pieceRepository, Piece_t piece) const {
+    if (pieceRepository.pieceRepository[piece]++ == 0)
+        this->addPieceToConstrain(pieceRepository, piece);
 }
 
-void BasicPieceManager::removePieceFromRepository(Piece_t piece) {
-    if (--this->constrainRepository[piece] == 0)
-        this->removePieceFromOption(piece);
+void BasicPieceManager::removePieceFromRepository(PieceRepository &pieceRepository, Piece_t piece) const {
+    if (--pieceRepository.pieceRepository[piece] == 0)
+        this->removePieceFromConstrain(pieceRepository, piece);
 }
 
-void BasicPieceManager::addPieceToOption(Piece_t piece) {
-    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
-        ++this->constrainOption[piece | maskOption];
+void BasicPieceManager::addPieceToConstrain(PieceRepository &pieceRepository, Piece_t piece) const {
+    for (Piece_t maskOption : maskOptions)
+        ++pieceRepository.constrainRepository[piece | maskOption];
 }
 
-void BasicPieceManager::removePieceFromOption(Piece_t piece) {
-    for (Piece_t maskOption : AbstractPieceManager::maskOptions)
-        --this->constrainOption[piece | maskOption];
+void BasicPieceManager::removePieceFromConstrain(PieceRepository &pieceRepository, Piece_t piece) const {
+    for (Piece_t maskOption : maskOptions)
+        --pieceRepository.constrainRepository[piece | maskOption];
 }
 
 void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
@@ -94,31 +103,7 @@ void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
     cerr << "Error: couldn't find piece: " << int(piece) << endl;
 }
 
-inline bool BasicPieceManager::pieceExistInRepository(Piece_t piece) {
-    return this->constrainRepository[piece] > 0;
+inline bool BasicPieceManager::pieceExistInRepository(const PieceRepository &pieceRepository, Piece_t piece) const {
+    return pieceRepository.pieceRepository[piece] > 0;
 }
 
-unique_ptr<AbstractPieceManager> BasicPieceManager::clone() {
-    return unique_ptr<AbstractPieceManager>(new BasicPieceManager(*this));
-}
-
-BasicPieceManager::BasicPieceManager(BasicPieceManager const & copyPieceManager)
-{
-    std::copy(copyPieceManager.constrainRepository,
-              copyPieceManager.constrainRepository + (int)(numberOfConstrains),
-              this->constrainRepository);
-
-    std::copy(copyPieceManager.constrainOption,
-              copyPieceManager.constrainOption + (int)(numberOfConstrains),
-              this->constrainOption);
-}
-
-void BasicPieceManager::retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) {
-    std::copy(dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainRepository,
-              dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainRepository + (int)(numberOfConstrains),
-              this->constrainRepository);
-
-    std::copy(dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainOption,
-              dynamic_cast<BasicPieceManager*>(basePieceManager.get())->constrainOption + (int)(numberOfConstrains),
-              this->constrainOption);
-}

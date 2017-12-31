@@ -19,65 +19,63 @@ public:
         int width, height;
     };
 
+    struct PieceRepository {
+        int pieceRepository[numberOfConstrains] = {0};
+        Piece_t constrainRepository[numberOfConstrains] = {0};
+    };
 
-    virtual vector<AbstractPieceManager::Shape> getAllPossiblePuzzleShapes() = 0;
-    virtual unique_ptr<AbstractPieceManager> clone() = 0;
-    virtual void retrieveData(const unique_ptr<AbstractPieceManager>& basePieceManager) = 0;
+    virtual vector<Shape> getAllPossiblePuzzleShapes() const = 0;
 
-    Piece_t getNextPiece(Piece_t constrain, Piece_t last);
+    Piece_t getNextPiece(PieceRepository &pieceRepository, Piece_t constrain, Piece_t last) const;
 
-    virtual int numOfOptionsForConstrain(Piece_t constrain) = 0;
+    virtual int numOfOptionsForConstrain(const PieceRepository &pieceRepository, Piece_t constrain) const = 0;
 
-    virtual void addPiece(unique_ptr<PuzzlePiece> piece) = 0;
+    virtual void addPiece(PieceRepository &pieceRepository, unique_ptr<PuzzlePiece> piece) = 0;
 
     int getNumOfOccurrences(int id) const;
 
     int getNumberOfPieces() const;
 
-    bool hasErrors();
+    bool hasErrors(const PieceRepository &pieceRepository);
 
-    void exportErrors(ofstream &fout);
+    void exportErrors(const PieceRepository &pieceRepository, ofstream &fout) const;
 
     virtual void printPiece(Piece_t piece, ofstream &out) = 0;
 
-    virtual bool preConditions();
-
+    virtual bool preConditions() const;
 
     static Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
     static Piece_t maskOptions[1 << 4];
-    int pieceRepository[numberOfConstrains] = {0};
-    Piece_t constrainRepository[numberOfConstrains] = {0};
 
 protected:
-    AbstractPieceManager();
-
-    void initialNextPieceTable();
-
-    void initialMaskOptionTable();
-
-    virtual void addPieceToRepository(Piece_t piece) = 0;
-
-    virtual void removePieceFromRepository(Piece_t piece) = 0;
-
-    virtual bool pieceExistInRepository(Piece_t piece) =0;
-
     vector<PuzzlePiece> pieces;
-
-    virtual bool isPuzzleShapePossible(Shape shape) = 0;
-
-    //error handling:
-    bool hasASumOfZero();
-
-    virtual bool hasAllCorners() = 0;
-
     bool noPossibleShape = false;
     bool pieceSumNotZero = false;
 
-    void printNoPossibleShape(ofstream &fout);
+    AbstractPieceManager();
 
-    virtual void printMissingCorners(ofstream &fout) = 0;
+    void initialNextPieceTable() const;
 
-    void printSumNotZero(ofstream &fout);
+    void initialMaskOptionTable() const;
+
+    virtual void addPieceToRepository(PieceRepository &pieceRepository, Piece_t piece) const = 0;
+
+    virtual void removePieceFromRepository(PieceRepository &pieceRepository, Piece_t piece) const = 0;
+
+    virtual bool pieceExistInRepository(const PieceRepository &pieceRepository, Piece_t piece) const =0;
+
+    virtual bool isPuzzleShapePossible(Shape shape) const = 0;
+
+    //error handling:
+    bool hasASumOfZero() const;
+
+    virtual bool hasAllCorners(const PieceRepository &pieceRepository) const = 0;
+
+    void printNoPossibleShape(ofstream &fout) const;
+
+    virtual void printMissingCorners(const PieceRepository &pieceRepository, ofstream &fout) const = 0;
+
+    void printSumNotZero(ofstream &fout) const;
 };
 
 
