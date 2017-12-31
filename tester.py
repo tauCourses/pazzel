@@ -5,6 +5,7 @@ import timeit
 import statistics
 import sys
 import matplotlib as mpl
+import signal
 
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -165,16 +166,18 @@ total = 100
 puzzle_size = (2, 2)
 rotate = False
 threads = 1
-for arg in sys.argv:
+for arg in sys.argv[1:]:
     if 'runs=' in arg:
         total = int(arg.split('=')[1])
-    if 'size=' in arg:
+    elif 'size=' in arg:
         sizes = arg.split('=')[1].split(',')
         puzzle_size = (int(sizes[0]), int(sizes[1]))
-    if 'threads=' in arg:
+    elif 'threads=' in arg:
         threads = int(arg.split('=')[1])
-    if '-rotate' in arg:
+    elif '-rotate' in arg:
         rotate = True
+    else:
+        print("unkown arg %s" % arg)
 
 if rotate:
     if puzzle_size[0] < puzzle_size[1]:
@@ -183,16 +186,21 @@ if rotate:
 run_times = []
 puzzles = []
 
-for x in range(10):
-    for y in range(int(total / 10)):
-        puzzle, run_time = _run_single(puzzle_size, rotate, threads)
-        run_times.append(run_time)
-        puzzles.append(puzzle)
-    print(x)
+try:
+    for x in range(10):
+        for y in range(int(total / 10)):
+            puzzle, run_time = _run_single(puzzle_size, rotate, threads)
+            run_times.append(run_time)
+            puzzles.append(puzzle)
+        print(x)
+finally:
+    print("%d puzzeled solved" % len(puzzles))
+    print("max %f" % max(run_times))
+    print("there are %d puzzles that run for more than 60 seconds" % len([t for t in run_times if t >= 60]))
+    print("avg %f" % statistics.mean(run_times))
 
-print("max %f" % max(run_times))
-print("there are %d puzzles that run for more than 60 seconds" % len([t for t in run_times if t >= 60]))
-print("avg %f" % statistics.mean(run_times))
+    export_puzzle(puzzles[run_times.index(max(run_times))], 'longest')
+    exit(0)
 
 export_puzzle(puzzles[run_times.index(max(run_times))], 'longest')
 
@@ -201,3 +209,5 @@ ax = fig.add_subplot(111)
 ax.hist(run_times, normed=True, bins=30)
 plt.ylabel('Probability')
 fig.savefig('histogram.png')
+
+

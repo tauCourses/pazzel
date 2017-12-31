@@ -31,6 +31,8 @@ public:
 
     int getNumOfOccurrences(int id) const;
 
+    int getNumberOfPieces() const;
+
     bool hasErrors();
 
     void exportErrors(ofstream &fout);

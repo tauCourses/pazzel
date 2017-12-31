@@ -212,6 +212,8 @@ for threads, threads_list in zip(threads_sizes, threads_lists):
 
 plt.xlabel('runs', fontsize=18)
 plt.ylabel('time', fontsize=16)
+x1, x2, y1, y2 = plt.axis()
+plt.axis((x1, x2, 0, min(0.3,y2)))
 plt.legend()
 if save_to_file:
     fig.savefig('threads.png')

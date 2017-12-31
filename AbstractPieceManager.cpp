@@ -98,3 +98,7 @@ bool AbstractPieceManager::hasASumOfZero() {
 bool AbstractPieceManager::preConditions() { //default implementation, could be override
     return true;
 }
+
+int AbstractPieceManager::getNumberOfPieces() const {
+    return this->pieces.size();
+}
