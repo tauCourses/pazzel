@@ -23,12 +23,12 @@ using namespace std;
 class PuzzleSolver {
 private:
     struct PuzzleLocation {
-        int row, col;
+        int row = 0, col = 0;
     };
 
     struct PuzzlePieceData {
         PuzzleLocation location;
-        Piece_t current;
+        Piece_t current = 0;
     };
 
     class ThreadData {
@@ -89,6 +89,18 @@ private:
 
     void exportThreadSolution(ThreadData &threadData);
 
+    bool tryFindNextLocation(ThreadData &data, stack<PuzzleLocation> &stack, PuzzlePieceData &pieceData) const;
+
+    bool fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiec) const;
+
+    bool
+    tryFillRandomPieces(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece) const;
+
+    void setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece) const;
+
+    bool isSolutionFound();
+
+    bool isThreadShouldEnd(ThreadData &threadData);
 public:
 
     explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager,
@@ -101,18 +113,6 @@ public:
 
     void exportErrors(ofstream &out) const;
 
-    bool isSolutionFound();
-
-    bool isThreadShouldEnd(ThreadData &threadData);
-
-    bool tryFindNextLocation(ThreadData &data, stack<PuzzleLocation> &stack, PuzzlePieceData &pieceData) const;
-
-    bool fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiec) const;
-
-    bool
-    trySetRandomizePosition(ThreadData &threadData, stack<PuzzleLocation> &stack, PuzzlePieceData &currentPiece) const;
-
-    void setRandomPiece(ThreadData &threadData, PuzzlePieceData &currentPiece) const;
 };
 
 

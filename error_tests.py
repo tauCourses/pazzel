@@ -26,4 +26,4 @@ for dir, args in dirs:
                 if str1 != str2:
                     print("test - %s\noutput - %s\n" % (test, output_file))
                     print(str1 + "\n\n" + str2)
-                    assert False, "failed to run tests"
+                    

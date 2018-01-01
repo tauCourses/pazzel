@@ -22,7 +22,9 @@ bool PuzzleSolver::trySolve() {
 
 
     runSerialThread();
-    noSolutionExist = !solutionFound; //TODO ??
+    this->globalDataMutex.lock();
+    noSolutionExist = !solutionFound;
+    this->globalDataMutex.unlock();
     for (auto &threadRun : randomThreadsVector)
         if (threadRun.joinable())
             threadRun.join();
@@ -119,18 +121,18 @@ bool PuzzleSolver::trySolveForThread(ThreadData &threadData) {
     createNewPuzzleSolution(threadData);
     threadData.pieceRepository = this->prototypePiecesRepository;
     stack<PuzzleLocation> puzzleLocationStack;
-    PuzzlePieceData currentPiece = {0, 0, 0};
+    PuzzlePieceData currentPiece{};
 
     if (threadData.randomize) {
-        if (!this->trySetRandomizePosition(threadData, puzzleLocationStack, currentPiece))
-            return false;
+        if (!this->tryFillRandomPieces(threadData, puzzleLocationStack, currentPiece))
+            return threadData.numberOfPieces == static_cast<int>(puzzleLocationStack.size());
     }
-
+    cout << "heher" << puzzleLocationStack.size() << endl;
     while (!this->isThreadShouldEnd(threadData)) {
+        cout << puzzleLocationStack.size() << "," << std::flush;
         if (!this->tryFindNextLocation(threadData, puzzleLocationStack, currentPiece))
             //return false when arriving at the "end" of all possible solutions.
-            return false;
-
+            return printf("lol1\n"), false;
         if (this->fillCurrentPiece(threadData, puzzleLocationStack, currentPiece)) //return if puzzle completed
             return true;
     }
@@ -140,7 +142,7 @@ bool PuzzleSolver::trySolveForThread(ThreadData &threadData) {
 bool PuzzleSolver::isThreadShouldEnd(ThreadData &threadData) {
     ++threadData.stepCounter;
     if (threadData.stepCounter >= STEP_TO_CHECK_MUTEX) {
-        if (this->isSolutionFound())
+        if (this->isSolutionFound() )
             return true;
         if (threadData.randomize) {
             if (threadData.randomStepsCounter >= RANDOM_RUN_LIMIT) {
@@ -169,13 +171,16 @@ bool PuzzleSolver::fillCurrentPiece(ThreadData &threadData, stack<PuzzleLocation
 
 bool PuzzleSolver::tryFindNextLocation(ThreadData &threadData, stack <PuzzleLocation> &stack,
                                        PuzzlePieceData &currentPiece) const {
-    if (currentPiece.current != nullPiece && //we are on the way in
+    //we are on the way in:
+    if (currentPiece.current != nullPiece &&
         this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location)) {
         currentPiece.current = nullPiece;
         return true;
     }
-    //we are on the way out
-    if (stack.empty()) return false; // no solution;
+    //we are on the way out:
+    if (stack.empty())
+        return false; // no solution;
+
     currentPiece.location = stack.top();
     stack.pop();
     currentPiece.current = threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col];
@@ -285,7 +290,7 @@ inline Piece_t PuzzleSolver::getConstrainOpposite(Piece_t currentConstrain) cons
             (currentConstrain & 0x1));
 }
 
-bool PuzzleSolver::isSolutionFound() {
+bool PuzzleSolver::isSolutionFound() { //TODO -> change solutionFound and noSolutionExist to terminateThreads and solutionExist
     this->globalDataMutex.lock();
     bool solutionFound = this->solutionFound;
     this->globalDataMutex.unlock();
@@ -296,11 +301,10 @@ void PuzzleSolver::exportErrors(ofstream &out) const {
     out << "Cannot solve puzzle: it seems that there is no proper solution" << endl;
 }
 
-bool PuzzleSolver::trySetRandomizePosition(ThreadData &threadData, stack <PuzzleLocation> &stack,
-                                           PuzzlePieceData &currentPiece) const {
+bool PuzzleSolver::tryFillRandomPieces(ThreadData &threadData, stack <PuzzleLocation> &stack,
+                                       PuzzlePieceData &currentPiece) const {
     if (!this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location))
         return false;
-
     do {
         setRandomPiece(threadData, currentPiece);
 
@@ -309,14 +313,10 @@ bool PuzzleSolver::trySetRandomizePosition(ThreadData &threadData, stack <Puzzle
         threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col] = currentPiece.current;
 
         if (threadData.numberOfPieces == static_cast<int>(stack.size()))
-            break;
+            return false;
 
     } while (this->tryGettingNextPuzzleLocationToFill(threadData, currentPiece.location));
 
-    currentPiece.location = stack.top();
-    stack.pop();
-    currentPiece.current = threadData.puzzleSolution[currentPiece.location.row][currentPiece.location.col];
-    this->removePieceFromSolution(threadData, currentPiece.location);
     cout << "random thread " << threadData.id << " starting from random position at depth " << stack.size() << endl
          << std::flush;//TODO need to delete
     return true;
@@ -335,4 +335,3 @@ void PuzzleSolver::setRandomPiece(ThreadData &threadData, PuzzlePieceData &curre
         currentPiece.current = this->pieceManager->getNextPiece(threadData.pieceRepository, currentConstrain,
                                                                 currentPiece.current);
 }
-
