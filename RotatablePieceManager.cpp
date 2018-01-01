@@ -8,7 +8,7 @@ vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleS
     for (int i = 1; i * i <= numberOfPieces; i++) {
         if (numberOfPieces % i != 0)
             continue;
-        AbstractPieceManager::Shape s;
+        AbstractPieceManager::Shape s{};
         s.width = i;
         s.height = (numberOfPieces / i);
         if (this->isPuzzleShapePossible(s))
@@ -18,30 +18,33 @@ vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleS
 }
 
 void RotatablePieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
-    this->pieces.emplace_back(piece.get());
+    this->pieces.emplace_back(make_tuple(PuzzlePiece(piece.get()),false));
     this->addPieceToRepository(piece->representor());
 }
 
 bool RotatablePieceManager::hasAllCorners() const {
     (void) pieceRepository;
     if (this->pieces.size() == 1) {
-        return this->pieces[0].up == 0 || this->pieces[0].down == 0 ||
-               this->pieces[0].left == 0 || this->pieces[0].right == 0;
+        auto &piece = get<0>(this->pieces[0]);
+        return piece.up == 0 || piece.down == 0 ||
+                piece.left == 0 || piece.right == 0;
     }
     return this->numberOfCorners() >= 4 || this->hasTwoSideForARaw();
 }
 
 int RotatablePieceManager::numberOfCorners() const {
     int corners = 0;
-    for (auto piece : this->pieces)
+    for (auto &pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
         if ((piece.up == 0 || piece.down == 0) && (piece.left == 0 || piece.right == 0))
             ++corners;
-    return corners;
+    }return corners;
 }
 
 bool RotatablePieceManager::hasTwoSideForARaw() const {
     int numOfRawSide = 0;
-    for (auto piece : this->pieces) {
+    for (auto &pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
         int strightSides = 0;
         if (piece.down == 0)
             strightSides++;
@@ -145,11 +148,15 @@ void RotatablePieceManager::changeConstrainsCount(Piece_t piece, int delta) {
 
 bool RotatablePieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) const {
     if (shape.width == 1) {
-        auto straightTest = [](PuzzlePiece c) { return (c.up == 0 && c.down == 0) || (c.right == 0 && c.left == 0); };
+        auto straightTest = [](std::tuple<PuzzlePiece,bool> pieceTuple) {
+            auto piece=get<0>(pieceTuple);
+            return (piece.up == 0 && piece.down == 0) || (piece.right == 0 && piece.left == 0);
+        };
         return std::all_of(this->pieces.begin(), this->pieces.end(), straightTest);
     }
     int numberOfStraightNeeded = shape.height * 2 + shape.width * 2 - 4;
-    for (auto piece : this->pieces) {
+    for (auto &pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
         if (piece.left == 0 || piece.right == 0 ||
             piece.down == 0 || piece.up == 0) {
             if (--numberOfStraightNeeded == 0)
@@ -160,11 +167,11 @@ bool RotatablePieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape sh
 }
 
 void RotatablePieceManager::printPiece(Piece_t piece, ofstream &out) {
-    for (auto it = pieces.begin(); it != pieces.end(); ++it) {
-        if (isPermutation(it->representor(), piece) && !it->wasUsedInSolution) {
-            it->wasUsedInSolution = true;
-            out << it->index;
-            int degree = getPermutationDegree(piece, it->representor());
+    for (auto &pieceTuple : this->pieces) {
+        if (this->isPermutation(get<0>(pieceTuple).representor(), piece) && !get<1>(pieceTuple)) {
+            get<1>(pieceTuple) = true;
+            out << get<0>(pieceTuple).index;
+            int degree = getPermutationDegree(piece, get<0>(pieceTuple).representor());
             if (degree != 0)
                 out << " [" << degree << "]";
             return;

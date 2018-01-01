@@ -47,7 +47,8 @@ public:
     virtual unique_ptr<AbstractPieceManager> clone() const = 0;
 
 protected:
-    vector<PuzzlePiece> pieces;
+
+    vector<std::tuple<PuzzlePiece,bool>> pieces; //the boolean represent if it used for solution. just for printing!
     bool noPossibleShape = false;
     bool pieceSumNotZero = false;
     int pieceRepository[numberOfConstrains] = {0};

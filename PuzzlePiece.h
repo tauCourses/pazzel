@@ -23,11 +23,8 @@ public:
 
     const int index;
     const int left, up, right, down;
-    bool wasUsedInSolution = false;
 
     Piece_t representor();
-
-
 };
 
 

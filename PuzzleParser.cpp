@@ -22,7 +22,6 @@ bool PuzzleParser::tryReadFirstLine() {
     getline(fin, line);
     auto number_token = line.substr(line.find_first_of('=') + 1);
         if (!this->isInteger(number_token)) {
-        cout << number_token << "error1" << endl;//todo delete
         this->inValidNumberOfPieces = true;
         return false;
     }

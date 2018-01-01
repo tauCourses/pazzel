@@ -6,7 +6,7 @@ Piece_t AbstractPieceManager::maskOptions[1 << 4];
 int AbstractPieceManager::getNumOfOccurrences(int id) const {
     int occurrences = 0;
     for (auto piece : this->pieces)
-        if (piece.index == id)
+        if (get<0>(piece).index == id)
             occurrences++;
 
     return occurrences;
@@ -89,9 +89,10 @@ Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
 
 bool AbstractPieceManager::hasASumOfZero() const {
     int sum = 0;
-    for (auto piece : this->pieces)
+    for (auto pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
         sum += piece.right + piece.left + piece.down + piece.up;
-    return sum == 0;
+    }return sum == 0;
 }
 
 bool AbstractPieceManager::preConditions() const { //default implementation, could be override

@@ -1,7 +1,8 @@
 #include "BasicPieceManager.h"
 
+
 void BasicPieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
-    this->pieces.emplace_back(piece.get());
+    this->pieces.emplace_back(make_tuple(PuzzlePiece(piece.get()),false));
     this->addPieceToRepository(piece->representor());
 }
 
@@ -24,11 +25,12 @@ vector<AbstractPieceManager::Shape> BasicPieceManager::getAllPossiblePuzzleShape
 
 bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape) const {
     int leftStraightCount = 0, rightStraightCount = 0, upStraightCount = 0, downStraightCount = 0;
-    for (auto &it : this->pieces) {
-        if (it.left == 0) leftStraightCount++;
-        if (it.right == 0) rightStraightCount++;
-        if (it.up == 0) upStraightCount++;
-        if (it.down == 0) downStraightCount++;
+    for (auto &pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
+        if (piece.left == 0) leftStraightCount++;
+        if (piece.right == 0) rightStraightCount++;
+        if (piece.up == 0) upStraightCount++;
+        if (piece.down == 0) downStraightCount++;
     }
     return leftStraightCount >= shape.height &&
            rightStraightCount >= shape.height &&
@@ -38,15 +40,16 @@ bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape)
 
 bool BasicPieceManager::preConditions() const {
     int leftMaleRightFemaleRatio = 0, leftFemaleRightMaleRatio = 0, upMaleDownFemaleRatio = 0, upFemaleDownMaleRatio = 0;
-    for (auto &it : this->pieces) {
-        if (it.left == 1) leftMaleRightFemaleRatio++;
-        if (it.right == -1) leftMaleRightFemaleRatio--;
-        if (it.left == -1) leftFemaleRightMaleRatio++;
-        if (it.right == 1) leftFemaleRightMaleRatio--;
-        if (it.up == 1) upMaleDownFemaleRatio++;
-        if (it.down == -1) upMaleDownFemaleRatio--;
-        if (it.up == -1) upFemaleDownMaleRatio++;
-        if (it.down == 1) upFemaleDownMaleRatio--;
+    for (auto &pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
+        if (piece.left == 1) leftMaleRightFemaleRatio++;
+        if (piece.right == -1) leftMaleRightFemaleRatio--;
+        if (piece.left == -1) leftFemaleRightMaleRatio++;
+        if (piece.right == 1) leftFemaleRightMaleRatio--;
+        if (piece.up == 1) upMaleDownFemaleRatio++;
+        if (piece.down == -1) upMaleDownFemaleRatio--;
+        if (piece.up == -1) upFemaleDownMaleRatio++;
+        if (piece.down == 1) upFemaleDownMaleRatio--;
     }
     return leftMaleRightFemaleRatio == 0 &&
            leftFemaleRightMaleRatio == 0 &&
@@ -92,10 +95,10 @@ void BasicPieceManager::removePieceFromConstrain(Piece_t piece) {
 }
 
 void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
-    for (auto &it : this->pieces) {
-        if (it.representor() == piece && !it.wasUsedInSolution) {
-            it.wasUsedInSolution = true;
-            out << it.index;
+    for (auto &pieceTuple : this->pieces) {
+        if (get<0>(pieceTuple).representor() == piece && !get<1>(pieceTuple)) {
+            get<1>(pieceTuple) = true;
+            out << get<0>(pieceTuple).index;
             return;
         }
     }
