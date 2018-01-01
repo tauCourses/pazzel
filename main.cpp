@@ -12,20 +12,19 @@ int main(int argc, char **argv) {
 
     //factory to get piece manager
     auto pieceManager = PieceManagerFactory::getPieceManager(cmd.isRotateEnable());
-    AbstractPieceManager::PieceRepository prototypePiecesRepository = {};
 
     //parse input file and inject pieces into piece Manager
-    PuzzleParser parser(cmd.inputStream, pieceManager, prototypePiecesRepository);
+    PuzzleParser parser(cmd.inputStream, pieceManager);
     if (parser.hasErrors()) {//handle parser errors
         parser.exportErrors(cmd.outputStream);
         return -1;
     }
-    if (pieceManager->hasErrors(prototypePiecesRepository)) { //handle piece manager errors:
-        pieceManager->exportErrors(prototypePiecesRepository, cmd.outputStream);
+    if (pieceManager->hasErrors()) { //handle piece manager errors:
+        pieceManager->exportErrors( cmd.outputStream);
         return -1;
     }
 
-    PuzzleSolver puzzleSolver(pieceManager, prototypePiecesRepository, cmd.getNumberOfThreads());
+    PuzzleSolver puzzleSolver(pieceManager, cmd.getNumberOfThreads());
     if (puzzleSolver.trySolve()) //return true if succeeded
         puzzleSolver.exportSolution(cmd.outputStream);
     else

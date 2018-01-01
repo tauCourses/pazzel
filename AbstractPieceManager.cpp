@@ -12,16 +12,16 @@ int AbstractPieceManager::getNumOfOccurrences(int id) const {
     return occurrences;
 }
 
-bool AbstractPieceManager::hasErrors(const PieceRepository &pieceRepository) {
+bool AbstractPieceManager::hasErrors() {
     this->noPossibleShape = this->getAllPossiblePuzzleShapes().empty();
     this->pieceSumNotZero = !this->hasASumOfZero();
 
-    return this->noPossibleShape || this->pieceSumNotZero || !this->hasAllCorners(pieceRepository);
+    return this->noPossibleShape || this->pieceSumNotZero || !this->hasAllCorners();
 }
 
-void AbstractPieceManager::exportErrors(const PieceRepository &pieceRepository, ofstream &fout) const {
+void AbstractPieceManager::exportErrors(ofstream &fout) const {
     this->printNoPossibleShape(fout);
-    this->printMissingCorners(pieceRepository, fout);
+    this->printMissingCorners(fout);
     this->printSumNotZero(fout);
 }
 
@@ -71,15 +71,16 @@ AbstractPieceManager::AbstractPieceManager() {
     this->initialMaskOptionTable();
 }
 
-Piece_t AbstractPieceManager::getNextPiece(PieceRepository &pieceRepository, Piece_t constrain, Piece_t last) const {
+Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
+    Piece_t next;
     if (last != nullPiece)
-        addPieceToRepository(pieceRepository, last);
+        this->addPieceToRepository(last);
     while (true) {
-        Piece_t next = AbstractPieceManager::nextPieceWithConstrain[constrain][last];
+        next = AbstractPieceManager::nextPieceWithConstrain[constrain][last];
         if (next == nullPiece)
             return nullPiece;
-        if (this->pieceExistInRepository(pieceRepository, next)) {
-            removePieceFromRepository(pieceRepository, next);
+        if (this->pieceExistInRepository(next)) {
+            this->removePieceFromRepository(next);
             return next;
         }
         last = next;
@@ -99,4 +100,14 @@ bool AbstractPieceManager::preConditions() const { //default implementation, cou
 
 int AbstractPieceManager::getNumberOfPieces() const {
     return (int) this->pieces.size();
+}
+
+void AbstractPieceManager::retrieveData(const unique_ptr<AbstractPieceManager> &basePieceManager) {
+    std::copy(basePieceManager->constrainRepository,
+              basePieceManager->constrainRepository + (int) (numberOfConstrains),
+              this->constrainRepository);
+
+    std::copy(basePieceManager->pieceRepository,
+              basePieceManager->pieceRepository + (int) (numberOfConstrains),
+              this->pieceRepository);
 }

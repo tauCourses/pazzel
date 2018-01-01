@@ -1,10 +1,8 @@
 #include "RotatablePieceManager.h"
-#include "BasicPieceManager.h"
 
 Piece_t RotatablePieceManager::lookupTable[numberOfConstrains];
 
 vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleShapes() const {
-
     vector<AbstractPieceManager::Shape> shapes;
     auto numberOfPieces = static_cast<int>(this->pieces.size());
     for (int i = 1; i * i <= numberOfPieces; i++) {
@@ -19,12 +17,12 @@ vector<AbstractPieceManager::Shape> RotatablePieceManager::getAllPossiblePuzzleS
     return shapes;
 }
 
-void RotatablePieceManager::addPiece(PieceRepository &pieceRepository, unique_ptr<PuzzlePiece> piece) {
+void RotatablePieceManager::addPiece(unique_ptr<PuzzlePiece> piece) {
     this->pieces.emplace_back(piece.get());
-    this->addPieceToRepository(pieceRepository, piece->representor());
+    this->addPieceToRepository(piece->representor());
 }
 
-bool RotatablePieceManager::hasAllCorners(const PieceRepository &pieceRepository) const {
+bool RotatablePieceManager::hasAllCorners() const {
     (void) pieceRepository;
     if (this->pieces.size() == 1) {
         return this->pieces[0].up == 0 || this->pieces[0].down == 0 ||
@@ -59,7 +57,7 @@ bool RotatablePieceManager::hasTwoSideForARaw() const {
     return numOfRawSide >= 2;
 }
 
-void RotatablePieceManager::printMissingCorners(const PieceRepository &pieceRepository, ofstream &fout) const {
+void RotatablePieceManager::printMissingCorners(ofstream &fout) const {
     (void) pieceRepository;
     if (this->pieces.size() == 1) {
         fout << "Piece is not square" << endl;
@@ -107,25 +105,24 @@ int RotatablePieceManager::getPermutationDegree(Piece_t current, Piece_t origin)
     return 0;
 }
 
-void RotatablePieceManager::removePieceFromRepository(PieceRepository &pieceRepository, Piece_t piece) const {
-    if (--pieceRepository.pieceRepository[lookupTable[piece]] == 0)
-        changeConstrainsCount(pieceRepository, piece, -1);
-
+void RotatablePieceManager::removePieceFromRepository(Piece_t piece) {
+    if (--this->pieceRepository[lookupTable[piece]] == 0)
+        changeConstrainsCount(piece, -1);
 }
 
-void RotatablePieceManager::addPieceToRepository(PieceRepository &pieceRepository, Piece_t piece) const {
-    if (pieceRepository.pieceRepository[lookupTable[piece]]++ == 0)
-        changeConstrainsCount(pieceRepository, piece, +1);
+void RotatablePieceManager::addPieceToRepository(Piece_t piece) {
+    if (this->pieceRepository[lookupTable[piece]]++ == 0)
+        changeConstrainsCount(piece, +1);
 }
 
-int RotatablePieceManager::numOfOptionsForConstrain(const PieceRepository &pieceRepository, Piece_t constrain) const {
-    return pieceRepository.constrainRepository[constrain];
+int RotatablePieceManager::numOfOptionsForConstrain(Piece_t constrain) const {
+    return this->constrainRepository[constrain];
 }
 
-void RotatablePieceManager::changeConstrainsCount(PieceRepository &pieceRepository, Piece_t piece, int delta) const {
+void RotatablePieceManager::changeConstrainsCount(Piece_t piece, int delta) {
     Piece_t p1 = piece;
     for (Piece_t maskOption : maskOptions)
-        pieceRepository.constrainRepository[p1 | maskOption] += delta;
+        this->constrainRepository[p1 | maskOption] += delta;
 
     Piece_t p2 = rotatePieceCounterClockWise(p1);
     if (p1 == p2)
@@ -133,7 +130,7 @@ void RotatablePieceManager::changeConstrainsCount(PieceRepository &pieceReposito
 
     // else - add it:
     for (Piece_t maskOption : maskOptions)
-        pieceRepository.constrainRepository[p2 | maskOption] += delta;
+        this->constrainRepository[p2 | maskOption] += delta;
 
     Piece_t p3 = rotatePieceCounterClockWise(p2);
     if (p1 == p3)
@@ -141,8 +138,8 @@ void RotatablePieceManager::changeConstrainsCount(PieceRepository &pieceReposito
 
     Piece_t p4 = rotatePieceCounterClockWise(p3);
     for (Piece_t maskOption : maskOptions) {
-        pieceRepository.constrainRepository[p3 | maskOption] += delta;
-        pieceRepository.constrainRepository[p4 | maskOption] += delta;
+        this->constrainRepository[p3 | maskOption] += delta;
+        this->constrainRepository[p4 | maskOption] += delta;
     }
 }
 
@@ -176,10 +173,14 @@ void RotatablePieceManager::printPiece(Piece_t piece, ofstream &out) {
     cerr << "Error: couldn't find piece: " << int(piece) << endl;
 }
 
-inline bool RotatablePieceManager::pieceExistInRepository(const PieceRepository &pieceRepository, Piece_t piece) const {
-    return pieceRepository.constrainRepository[RotatablePieceManager::lookupTable[piece]] > 0;
+inline bool RotatablePieceManager::pieceExistInRepository(Piece_t piece) const {
+    return this->constrainRepository[RotatablePieceManager::lookupTable[piece]] > 0;
 }
 
 inline Piece_t RotatablePieceManager::rotatePieceCounterClockWise(Piece_t piece) const {
     return (piece << 2) | (piece >> 6); //roll one left
+}
+
+unique_ptr<AbstractPieceManager> RotatablePieceManager::clone() const {
+    return unique_ptr<AbstractPieceManager>(new RotatablePieceManager());
 }

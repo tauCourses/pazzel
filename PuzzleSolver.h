@@ -33,12 +33,13 @@ private:
 
     class ThreadData {
     public:
-        explicit ThreadData(bool randomize, int id, int numberOfPieces);
+        explicit ThreadData(bool randomize, int id,
+                            int numberOfPieces);
 
         vector<vector<Piece_t>> puzzleSolution;
         vector<vector<Piece_t>> puzzleConstrain;
         AbstractPieceManager::Shape shape;
-        AbstractPieceManager::PieceRepository pieceRepository;
+        unique_ptr<AbstractPieceManager> pieceManager;
         bool randomize = false;
         int stepCounter = 0;
         int randomStepsCounter = 0;
@@ -54,8 +55,7 @@ private:
     vector<vector<Piece_t>> puzzleSolution;
     mutex globalDataMutex; //mutex to get access to global data
 
-    const unique_ptr<AbstractPieceManager> &pieceManager;
-    const AbstractPieceManager::PieceRepository &prototypePiecesRepository;
+    const unique_ptr<AbstractPieceManager> &prototypePieceManager;
     int threadsCounter = 1;
     int numberOfThreads;
     int numberOfPieces;
@@ -79,7 +79,7 @@ private:
 
     inline Piece_t getConstrainOpposite(Piece_t currentConstrain) const;
 
-    void initPuzzleShapesVectors() ;
+    void initPuzzleShapesVectors();
 
     bool tryInitNextThreadRun(ThreadData &threadData);
 
@@ -101,11 +101,10 @@ private:
     bool isSolutionFound();
 
     bool isThreadShouldEnd(ThreadData &threadData);
+
 public:
 
-    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager,
-                          const AbstractPieceManager::PieceRepository &prototypePiecesRepository,
-                          int numberOfThreads);
+    explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads);
 
     bool trySolve();
 

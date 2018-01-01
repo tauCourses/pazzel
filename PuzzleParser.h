@@ -50,8 +50,7 @@ private:
     void printElementsAppearMoreThanOnce(ofstream &outf) const;
 
 public:
-    explicit PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager,
-                          AbstractPieceManager::PieceRepository &pieceRepository);
+    explicit PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager);
 
     bool hasErrors() const;
 

@@ -1,7 +1,6 @@
 #include "PuzzleParser.h"
 
-PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager,
-                           AbstractPieceManager::PieceRepository &pieceRepository) : fin(fin) {
+PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager) : fin(fin) {
     string line;
     if (!this->tryReadFirstLine()) {
         return;
@@ -13,7 +12,7 @@ PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager>
         int id = this->getPieceId(line); //check if it's a valid id, return -1 if not
         if (id < 0)
             continue;
-        pieceManager->addPiece(pieceRepository, getNextPiece(id, line));
+        pieceManager->addPiece(getNextPiece(id, line));
     }
     checkForMissingParts(pieceManager);
 }
