@@ -66,8 +66,9 @@ def set_puzzle(puzzle_size):
 def export_puzzle(puzzle, file_name):
     with open(file_name, "w") as f:
         f.write("NumElements=%d\n" % puzzle.size)
-        for x, y in puzzle:
-            piece = puzzle.pieces[x][y]
+        puzzle_pieces = [puzzle.pieces[x][y] for x, y in puzzle]
+        shuffle(puzzle_pieces)
+        for piece in puzzle_pieces:
             f.write(
                 "%d %d %d %d %d\n" % (piece["index"] + 1, piece["left"], piece["up"], piece["right"], piece["down"]))
 

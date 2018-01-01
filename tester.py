@@ -6,6 +6,7 @@ import statistics
 import sys
 import matplotlib as mpl
 import signal
+import time
 
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -69,8 +70,9 @@ def set_puzzle(puzzle_size):
 def export_puzzle(puzzle, file_name):
     with open(file_name, "w") as f:
         f.write("NumElements=%d\n" % puzzle.size)
-        for x, y in puzzle:
-            piece = puzzle.pieces[x][y]
+        puzzle_pieces = [puzzle.pieces[x][y] for x,y in puzzle]
+        shuffle(puzzle_pieces)
+        for piece in puzzle_pieces:
             f.write(
                 "%d %d %d %d %d\n" % (piece["index"] + 1, piece["left"], piece["up"], piece["right"], piece["down"]))
 
@@ -141,6 +143,7 @@ def _run_single(puzzle_size, rotate, threads):
         args.append('-rotate')
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     run_time = timeit.timeit(p.communicate, number=1)
+    time.sleep(0.1)
     check_output_file(puzzle)
     return puzzle, run_time
 
