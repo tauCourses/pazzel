@@ -99,8 +99,8 @@ bool AbstractPieceManager::preConditions() const { //default implementation, cou
     return true;
 }
 
-int AbstractPieceManager::getNumberOfPieces() const {
-    return (int) this->pieces.size();
+unsigned int AbstractPieceManager::getNumberOfPieces() const {
+    return this->pieces.size();
 }
 
 void AbstractPieceManager::retrieveData(const unique_ptr<AbstractPieceManager> &basePieceManager) {
@@ -111,4 +111,9 @@ void AbstractPieceManager::retrieveData(const unique_ptr<AbstractPieceManager> &
     std::copy(basePieceManager->pieceRepository,
               basePieceManager->pieceRepository + (int) (numberOfConstrains),
               this->pieceRepository);
+}
+
+Piece_t AbstractPieceManager::getConstrainOpposite(Piece_t currentConstrain) {
+    return static_cast<uint8_t>((((currentConstrain & 0x1) == (uint8_t) (currentConstrain >> 1)) << 1) |
+                                (currentConstrain & 0x1));
 }

@@ -96,7 +96,7 @@ void BasicPieceManager::removePieceFromConstrain(Piece_t piece) {
 
 void BasicPieceManager::printPiece(Piece_t piece, ofstream &out) {
     for (auto &pieceTuple : this->pieces) {
-        if (get<0>(pieceTuple).representor() == piece && !get<1>(pieceTuple)) {
+        if (!get<1>(pieceTuple) && get<0>(pieceTuple).representor() == piece) {
             get<1>(pieceTuple) = true;
             out << get<0>(pieceTuple).index;
             return;

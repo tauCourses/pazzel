@@ -29,7 +29,7 @@ public:
 
     int getNumOfOccurrences(int id) const;
 
-    int getNumberOfPieces() const;
+    unsigned int getNumberOfPieces() const;
 
     bool hasErrors();
 
@@ -45,6 +45,8 @@ public:
     void retrieveData(const unique_ptr<AbstractPieceManager> &prototypePieceManager);
 
     virtual unique_ptr<AbstractPieceManager> clone() const = 0;
+
+    static Piece_t getConstrainOpposite(Piece_t currentConstrain);
 
 protected:
 

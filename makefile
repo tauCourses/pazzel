@@ -1,4 +1,4 @@
-CPP = g++-5.3.0 -pthread
+CPP = g++-5 -pthread
 
 EXEC = ex3
 CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
@@ -11,6 +11,7 @@ OBJS =  PuzzlePiece.o \
 		RotatablePieceManager.o \
 		PieceManagerFactory.o \
 		PuzzleParser.o \
+		SolverThread.o \
 		PuzzleSolver.o \
 		main.o
 
@@ -31,7 +32,9 @@ PieceManagerFactory.o: PieceManagerFactory.cpp AbstractPieceManager.h RotatableP
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
 PuzzleParser.o: PuzzleParser.cpp AbstractPieceManager.h PuzzlePiece.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp
-PuzzleSolver.o: PuzzleSolver.cpp AbstractPieceManager.h PuzzlePieceConstrain.h
+SolverThread.o: SolverThread.cpp AbstractPieceManager.h PuzzlePieceConstrain.h
+	$(CPP)  $(CPP_COMP_FLAG) -c $*.cpp 
+PuzzleSolver.o: PuzzleSolver.cpp SolverThread.h
 	$(CPP)  $(CPP_COMP_FLAG) -c $*.cpp 
 main.o: main.cpp CommandLineManager.h PieceManagerFactory.h PuzzleParser.h
 	$(CPP) $(CPP_COMP_FLAG) -c $*.cpp

@@ -168,7 +168,7 @@ bool RotatablePieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape sh
 
 void RotatablePieceManager::printPiece(Piece_t piece, ofstream &out) {
     for (auto &pieceTuple : this->pieces) {
-        if (this->isPermutation(get<0>(pieceTuple).representor(), piece) && !get<1>(pieceTuple)) {
+        if (!get<1>(pieceTuple) && this->isPermutation(get<0>(pieceTuple).representor(), piece)) {
             get<1>(pieceTuple) = true;
             out << get<0>(pieceTuple).index;
             int degree = getPermutationDegree(piece, get<0>(pieceTuple).representor());
