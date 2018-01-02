@@ -143,7 +143,7 @@ def _run_single(puzzle_size, rotate, threads):
         args.append('-rotate')
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     run_time = timeit.timeit(p.communicate, number=1)
-    time.sleep(0.1)
+    time.sleep(0.01)
     check_output_file(puzzle)
     return puzzle, run_time
 
@@ -189,6 +189,7 @@ if rotate:
 run_times = []
 puzzles = []
 
+assert total%10==0, "runs number should be multiply of 10"
 try:
     for x in range(10):
         for y in range(int(total / 10)):
