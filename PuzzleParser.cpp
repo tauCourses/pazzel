@@ -1,12 +1,14 @@
 #include "PuzzleParser.h"
 
-PuzzleParser::PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager) : fin(fin) {
+PuzzleParser::PuzzleParser(ifstream &fin) : fin(fin) {}
+
+void PuzzleParser::injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager) {
     string line;
     if (!this->tryReadFirstLine()) {
-        return;
+        this->throwException();
     }
-    while (!fin.eof()) {
-        getline(fin, line);
+    while (!this->fin.eof()) {
+        getline(this->fin, line);
         if (this->isStringEmpty(line))
             continue;
         int id = this->getPieceId(line); //check if it's a valid id, return -1 if not

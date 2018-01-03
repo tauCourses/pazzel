@@ -1,14 +1,12 @@
 #include "PuzzleSolver.h"
 
-#include <random>
-
 PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads)
         : pieceManager(pieceManager), numberOfThreads(numberOfThreads),
           numberOfPieces(pieceManager->getNumberOfPieces()) {}
 
-bool PuzzleSolver::trySolve() {
+void PuzzleSolver::solve() {
     if (!this->pieceManager->preConditions()) //check pre-conditions
-        return false;
+        throw PuzzleException(NO_PROPER_SOLUTION);
 
     this->initPuzzleShapesVectors();
 
@@ -24,7 +22,8 @@ bool PuzzleSolver::trySolve() {
         if (threadRun.joinable())
             threadRun.join();
 
-    return this->sharedData.solutionFound;
+    if(!this->sharedData.solutionFound)
+        throw PuzzleException(NO_PROPER_SOLUTION);
 }
 
 void PuzzleSolver::initPuzzleShapesVectors() {
@@ -98,8 +97,4 @@ void PuzzleSolver::exportSolution(ofstream &out) const {
                 out << endl;
         }
     }
-}
-
-void PuzzleSolver::exportErrors(ofstream &out) const {
-    out << "Cannot solve puzzle: it seems that there is no proper solution" << endl;
 }

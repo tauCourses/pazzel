@@ -5,8 +5,6 @@ SolverThread::SolverThread(SharedData& threadData,const unique_ptr<AbstractPiece
     this->numberOfPieces = globalPieceManager->getNumberOfPieces();
     this->pieceManager = globalPieceManager->clone();
     this->pieceManager->retrieveData(globalPieceManager);
-    this->sharedData.sharedDataMutex.lock();
-    this->sharedData.sharedDataMutex.unlock();
 }
 
 void SolverThread::retrievePieceManager(const unique_ptr<AbstractPieceManager> &globalPieceManager) {

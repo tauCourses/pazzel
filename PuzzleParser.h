@@ -49,12 +49,13 @@ private:
 
     void printElementsAppearMoreThanOnce(ofstream &outf) const;
 
-public:
-    explicit PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager);
-
-    bool hasErrors() const;
+    void throwException() const;
 
     void exportErrors(ofstream &outf) const;
+public:
+    explicit PuzzleParser(ifstream &fin);
+
+    void injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager);
 };
 
 #endif //PUZZLE_PUZZLEPARSER_H
