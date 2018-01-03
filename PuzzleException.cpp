@@ -4,6 +4,4 @@
 
 #include "PuzzleException.h"
 
-PuzzleException::PuzzleException(const char *error) {
-    this->errorMessage = string(error);
-}
+PuzzleException::PuzzleException(string error) : errorMessage(error) {}

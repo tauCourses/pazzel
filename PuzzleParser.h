@@ -40,23 +40,25 @@ private:
     void checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager);
 
     //export errors functions:
-    void printMissingElements(ofstream &outf) const;
+    void printMissingElements(stringstream &exceptionMessage) const;
 
-    void printOutOfRangeElements(ofstream &outf) const;
+    void printOutOfRangeElements(stringstream &exceptionMessage) const;
 
-    void printWrongFormatPieces(ofstream &outf) const;
+    void printWrongFormatPieces(stringstream &exceptionMessage) const;
 
-    void printNotValidIdsElements(ofstream &outf) const;
+    void printNotValidIdsElements(stringstream &exceptionMessage) const;
 
-    void printElementsAppearMoreThanOnce(ofstream &outf) const;
+    void printElementsAppearMoreThanOnce(stringstream &exceptionMessage) const;
+
+    bool hasErrors(const unique_ptr<AbstractPieceManager> &pieceManager);
 
     void throwException() const;
 
-    void exportErrors(ofstream &outf) const;
 public:
     explicit PuzzleParser(ifstream &fin);
 
     void injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager);
+
 };
 
 #endif //PUZZLE_PUZZLEPARSER_H

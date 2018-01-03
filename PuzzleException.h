@@ -9,10 +9,20 @@
 using namespace std;
 
 #define NO_PROPER_SOLUTION "Cannot solve puzzle: it seems that there is no proper solution\n"
-#define INVALID_NUMBER_OF_ELEMENTS "Invalid number of elements\n"
+#define INVALID_NUMBER_OF_ELEMENTS "Invalid number of elements"
+#define MISSING_PUZZLE_ELEMENTS "Missing puzzle element(s) with the following IDs: "
+#define OUT_OF_RANGE_PIECE_INDEX_PART1 "Puzzle of size "
+#define OUT_OF_RANGE_PIECE_INDEX_PART2 " cannot have the following IDs: "
+#define WRONG_PIECE_FORMAT_PART1 "Puzzle ID "
+#define WRONG_PIECE_FORMAT_PART2 " has wrong data: "
+#define INVALID_ID_PUZZLE_ELEMENT "The following element(s) doesn't has a valid id: "
+#define DUPLICATED_PUZZLE_ELEMENT_ID "The following ids appear more than once: "
+
+
 class PuzzleException {
 public:
-    explicit PuzzleException(const char* error);
+    explicit PuzzleException(string error);
+
     string errorMessage;
 };
 

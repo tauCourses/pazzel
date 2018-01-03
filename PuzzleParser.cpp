@@ -4,28 +4,25 @@ PuzzleParser::PuzzleParser(ifstream &fin) : fin(fin) {}
 
 void PuzzleParser::injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager) {
     string line;
-    if (!this->tryReadFirstLine()) {
+    int id;
+    if (!this->tryReadFirstLine())
         throw PuzzleException(INVALID_NUMBER_OF_ELEMENTS);
-    }
+
     while (!this->fin.eof()) {
         getline(this->fin, line);
-        if (this->isStringEmpty(line))
-            continue;
-        int id = this->getPieceId(line); //check if it's a valid id, return -1 if not
-        if (id < 0)
-            continue;
-        pieceManager->addPiece(getNextPiece(id, line));
+        if (!this->isStringEmpty(line))
+            if ((id = this->getPieceId(line)) >= 0) //check if it's a valid id, return -1 if not
+                pieceManager->addPiece(getNextPiece(id, line));
     }
-    if(this->hasErrors())
+    if (this->hasErrors(pieceManager))
         this->throwException();
-    checkForMissingParts(pieceManager);
 }
 
 bool PuzzleParser::tryReadFirstLine() {
     string line;
     getline(fin, line);
     auto number_token = line.substr(line.find_first_of('=') + 1);
-        if (!this->isInteger(number_token)) {
+    if (!this->isInteger(number_token)) {
         this->inValidNumberOfPieces = true;
         return false;
     }
@@ -106,10 +103,10 @@ void PuzzleParser::checkForMissingParts(const unique_ptr<AbstractPieceManager> &
         if (occurrences > 1)
             this->elementsAppearMoreThanOnce.emplace_back(i + 1);
     }
-
 }
 
-bool PuzzleParser::hasErrors() const {
+bool PuzzleParser::hasErrors(const unique_ptr<AbstractPieceManager> &pieceManager) {
+    checkForMissingParts(pieceManager);
     return this->inValidNumberOfPieces ||
            !this->missingPuzzleElements.empty() ||
            !this->wrongPiecesIds.empty() ||
@@ -118,89 +115,60 @@ bool PuzzleParser::hasErrors() const {
            !this->elementsAppearMoreThanOnce.empty();
 }
 
-void PuzzleParser::exportErrors(ofstream &outf) const {
+void PuzzleParser::throwException() const {
+    stringstream exceptionMessage;
     if (this->inValidNumberOfPieces) {
-        outf << "Invalid number of elements" << endl;
-        return;
+        exceptionMessage << INVALID_NUMBER_OF_ELEMENTS << endl;
+    } else {
+        this->printMissingElements(exceptionMessage);
+        this->printOutOfRangeElements(exceptionMessage);
+        this->printWrongFormatPieces(exceptionMessage);
+        this->printNotValidIdsElements(exceptionMessage);
+        this->printElementsAppearMoreThanOnce(exceptionMessage);
     }
-    this->printMissingElements(outf);
-    this->printOutOfRangeElements(outf);
-    this->printWrongFormatPieces(outf);
-    this->printNotValidIdsElements(outf);
-    this->printElementsAppearMoreThanOnce(outf);
+    throw PuzzleException(exceptionMessage.str());
 }
 
-void PuzzleParser::printMissingElements(ofstream &outf) const {
-    if (this->missingPuzzleElements.empty())
-        return;
-    outf << "Missing puzzle element(s) with the following IDs:";
-    bool firstElement = true;
-    for (auto missingElement : this->missingPuzzleElements) {
-        if (firstElement) {
-            outf << " " << missingElement;
-            firstElement = false;
-        } else {
-            outf << ", " << missingElement;
-        }
-    }
-    outf << endl;
+void PuzzleParser::printMissingElements(stringstream &exceptionMessage) const {
+    if (this->missingPuzzleElements.empty()) return;
+
+    exceptionMessage << MISSING_PUZZLE_ELEMENTS;
+    for (int i = 0; i < this->missingPuzzleElements.size(); ++i)
+        exceptionMessage << (i == 0 ? "" : ", ") << this->missingPuzzleElements[i];
+    exceptionMessage << endl;
 }
 
-void PuzzleParser::printOutOfRangeElements(ofstream &outf) const {
-    if (this->wrongPiecesIds.empty())
-        return;
+void PuzzleParser::printOutOfRangeElements(stringstream &exceptionMessage) const {
+    if (this->wrongPiecesIds.empty()) return;
 
-    outf << "Puzzle of size " << this->numberOfPieces << " cannot have the following IDs:";
-    bool firstElement = true;
-
-    for (auto outOfRangeElement : this->wrongPiecesIds) {
-        if (firstElement) {
-            outf << " " << outOfRangeElement;
-            firstElement = false;
-        } else
-            outf << ", " << outOfRangeElement;
-    }
-    outf << endl;
+    exceptionMessage << OUT_OF_RANGE_PIECE_INDEX_PART1 << this->numberOfPieces << OUT_OF_RANGE_PIECE_INDEX_PART2;
+    for (int i = 0; i < this->wrongPiecesIds.size(); ++i)
+        exceptionMessage << (i == 0 ? "" : ", ") << this->wrongPiecesIds[i];
+    exceptionMessage << endl;
 }
 
-void PuzzleParser::printWrongFormatPieces(ofstream &outf) const {
-    if (this->wrongPieceFormatLine.empty())
-        return;
+void PuzzleParser::printWrongFormatPieces(stringstream &exceptionMessage) const {
+    if (this->wrongPieceFormatLine.empty()) return;
 
-    for (auto tuple : this->wrongPieceFormatLine) {
-        outf << "Puzzle ID " << get<0>(tuple);
-        outf << " has wrong data: " << get<1>(tuple) << endl;
-    }
+    for (auto tuple : this->wrongPieceFormatLine)
+        exceptionMessage << WRONG_PIECE_FORMAT_PART1 << get<0>(tuple)
+                         << WRONG_PIECE_FORMAT_PART2 << get<1>(tuple) << endl;
 }
 
-void PuzzleParser::printNotValidIdsElements(ofstream &outf) const {
-    if (this->notIntegerIds.empty())
-        return;
+void PuzzleParser::printNotValidIdsElements(stringstream &exceptionMessage) const {
+    if (this->notIntegerIds.empty()) return;
 
-    outf << "The following element(s) doesn't has a valid id:";
-    bool firstElement = true;
-
-    for (auto &id : this->notIntegerIds) {
-        if (firstElement) {
-            outf << " " << id;
-            firstElement = false;
-        } else
-            outf << ", " << id;
-    }
-    outf << endl;
+    exceptionMessage << INVALID_ID_PUZZLE_ELEMENT;
+    for (int i = 0; i < this->notIntegerIds.size(); ++i)
+        exceptionMessage << (i == 0 ? "" : ", ") << this->notIntegerIds[i];
+    exceptionMessage << endl;
 }
 
-void PuzzleParser::printElementsAppearMoreThanOnce(ofstream &outf) const {
-    if (this->elementsAppearMoreThanOnce.empty())
-        return;
-    outf << "The following ids appear more than once:";
-    bool firstElement = true;
-    for (auto element : this->elementsAppearMoreThanOnce) {
-        if (firstElement) {
-            outf << " " << element;
-            firstElement = false;
-        } else
-            outf << ", " << element;
-    }
-    outf << endl;
+void PuzzleParser::printElementsAppearMoreThanOnce(stringstream &exceptionMessage) const {
+    if (this->elementsAppearMoreThanOnce.empty()) return;
+
+    exceptionMessage << DUPLICATED_PUZZLE_ELEMENT_ID;
+    for (int i = 0; i < this->elementsAppearMoreThanOnce.size(); ++i)
+        exceptionMessage << (i == 0 ? "" : ", ") << this->elementsAppearMoreThanOnce[i];
+    exceptionMessage << endl;
 }

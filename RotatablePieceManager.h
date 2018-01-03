@@ -26,7 +26,7 @@ protected:
 
     bool pieceExistInRepository(Piece_t piece) const override;
 
-    //error hundeling:
+    //error handeling:
     bool hasAllCorners() const override;
 
     bool hasTwoSideForARaw() const;
