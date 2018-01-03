@@ -5,12 +5,10 @@ CommandLineManager::CommandLineManager(int argc, char **argv) : numberOfArgument
     string threadsStr("-threads");
     bool inputStreamParamFound = false;
     bool outputStreamParamFound = false;
-    for(int i=1; i<argc; i++)
-    {
+    for(int i=1; i<argc; i++) {
         if (rotateStr == argv[i])
             this->_rotateEnabled = true;
-        else if (threadsStr == argv[i])
-        {
+        else if (threadsStr == argv[i]) {
             if(!checkForValidNumberOfThreads(argc,argv,i+1))
                 return;
             i++;
@@ -20,13 +18,11 @@ CommandLineManager::CommandLineManager(int argc, char **argv) : numberOfArgument
                 return;
             inputStreamParamFound = true;
         }
-        else if(!outputStreamParamFound)
-        {
+        else if(!outputStreamParamFound) {
             this->outputStream.open(argv[i], ifstream::out);
             outputStreamParamFound = true;
         }
-        else
-        {
+        else {
             this->wrongNumberOfArguments = true;
             return;
         }
@@ -40,7 +36,12 @@ bool CommandLineManager::isRotateEnable() const {
 }
 
 bool CommandLineManager::hasErrors() const {
-    return this->wrongNumberOfArguments || this->unableToOpenInputFile || this->notValidNumberOfThreads;
+    if(this->wrongNumberOfArguments || this->unableToOpenInputFile || this->notValidNumberOfThreads)
+    {
+        this->exportErrors();
+        return true;
+    }
+    return false;
 }
 
 void CommandLineManager::exportErrors() const {

@@ -26,12 +26,12 @@ protected:
 
     bool pieceExistInRepository(Piece_t piece) const override;
 
-    //error hundeling:
+    //error handeling:
     bool hasAllCorners() const override;
 
     bool hasTwoSideForARaw() const;
 
-    void printMissingCorners(ofstream &fout) const override;
+    void printMissingCorners(stringstream &fout) const override;
 
 private:
     static Piece_t lookupTable[numberOfConstrains]; //translate Piece_t to generic Permutation

@@ -6,9 +6,11 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <sstream>
 
 #include "PuzzlePiece.h"
 #include "PuzzlePieceConstrain.h"
+#include "PuzzleException.h"
 
 using namespace std;
 
@@ -29,24 +31,20 @@ public:
 
     int getNumOfOccurrences(int id) const;
 
-    unsigned int getNumberOfPieces() const;
+    unsigned long getNumberOfPieces() const;
 
-    bool hasErrors();
-
-    void exportErrors(ofstream &fout) const;
+    virtual void checkPreConditions();
 
     virtual void printPiece(Piece_t piece, ofstream &out) = 0;
-
-    virtual bool preConditions() const;
-
-    static Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
-    static Piece_t maskOptions[1 << 4];
 
     void retrieveData(const unique_ptr<AbstractPieceManager> &prototypePieceManager);
 
     virtual unique_ptr<AbstractPieceManager> clone() const = 0;
 
     static Piece_t getConstrainOpposite(Piece_t currentConstrain);
+
+    static Piece_t nextPieceWithConstrain[numberOfConstrains][numberOfConstrains]; //constrain*pieces
+    static Piece_t maskOptions[1 << 4];
 
 protected:
 
@@ -71,15 +69,19 @@ protected:
     virtual bool isPuzzleShapePossible(Shape shape) const = 0;
 
     //error handling:
+    bool hasErrors();
+
+    void throwException() const;
+
     bool hasASumOfZero() const;
 
     virtual bool hasAllCorners() const = 0;
 
-    void printNoPossibleShape(ofstream &fout) const;
+    void printNoPossibleShape(stringstream &fout) const;
 
-    virtual void printMissingCorners(ofstream &fout) const = 0;
+    virtual void printMissingCorners(stringstream &fout) const = 0;
 
-    void printSumNotZero(ofstream &fout) const;
+    void printSumNotZero(stringstream &fout) const;
 };
 
 

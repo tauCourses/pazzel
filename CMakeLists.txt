@@ -24,6 +24,6 @@ set(SOURCE_FILES main.cpp
         RotatablePieceManager.cpp
         RotatablePieceManager.h
         SolverThread.cpp
-        SolverThread.h)
+        SolverThread.h PuzzleException.cpp PuzzleException.h)
 
 add_executable(puzzle ${SOURCE_FILES} PuzzleParser.cpp PuzzleParser.h)

@@ -12,27 +12,42 @@ int AbstractPieceManager::getNumOfOccurrences(int id) const {
     return occurrences;
 }
 
-bool AbstractPieceManager::hasErrors() {
+void AbstractPieceManager::checkPreConditions() { //default implementation, could be override
+    if(this->hasErrors())
+        this->throwException();
+}
+
+bool AbstractPieceManager::hasErrors(){
     this->noPossibleShape = this->getAllPossiblePuzzleShapes().empty();
     this->pieceSumNotZero = !this->hasASumOfZero();
 
     return this->noPossibleShape || this->pieceSumNotZero || !this->hasAllCorners();
 }
 
-void AbstractPieceManager::exportErrors(ofstream &fout) const {
-    this->printNoPossibleShape(fout);
-    this->printMissingCorners(fout);
-    this->printSumNotZero(fout);
+bool AbstractPieceManager::hasASumOfZero() const {
+    int sum = 0;
+    for (auto pieceTuple : this->pieces) {
+        auto piece = get<0>(pieceTuple);
+        sum += piece.right + piece.left + piece.down + piece.up;
+    }return sum == 0;
 }
 
-void AbstractPieceManager::printNoPossibleShape(ofstream &fout) const {
+void AbstractPieceManager::throwException() const{
+    stringstream exceptionString;
+    this->printNoPossibleShape(exceptionString);
+    this->printMissingCorners(exceptionString);
+    this->printSumNotZero(exceptionString);
+    throw PuzzleException(exceptionString.str());
+}
+
+void AbstractPieceManager::printNoPossibleShape(stringstream &fout) const {
     if (this->noPossibleShape)
-        fout << "Cannot solve puzzle: wrong number of straight edges" << endl;
+        fout << WRONG_NUMBER_OF_STRAIGHT_EDGES << endl;
 }
 
-void AbstractPieceManager::printSumNotZero(ofstream &fout) const {
+void AbstractPieceManager::printSumNotZero(stringstream &fout) const {
     if (this->pieceSumNotZero)
-        fout << "Cannot solve puzzle: sum of edges is not zero" << endl;
+        fout << SUM_OF_EDGES_IS_NOT_ZERO << endl;
 }
 
 void AbstractPieceManager::initialNextPieceTable() const {
@@ -87,19 +102,7 @@ Piece_t AbstractPieceManager::getNextPiece(Piece_t constrain, Piece_t last) {
     }
 }
 
-bool AbstractPieceManager::hasASumOfZero() const {
-    int sum = 0;
-    for (auto pieceTuple : this->pieces) {
-        auto piece = get<0>(pieceTuple);
-        sum += piece.right + piece.left + piece.down + piece.up;
-    }return sum == 0;
-}
-
-bool AbstractPieceManager::preConditions() const { //default implementation, could be override
-    return true;
-}
-
-unsigned int AbstractPieceManager::getNumberOfPieces() const {
+unsigned long AbstractPieceManager::getNumberOfPieces() const {
     return this->pieces.size();
 }
 

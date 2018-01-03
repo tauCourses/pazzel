@@ -9,6 +9,7 @@
 
 #include "AbstractPieceManager.h"
 #include "PuzzlePiece.h"
+#include "PuzzleException.h"
 
 using namespace std;
 
@@ -18,7 +19,6 @@ private:
 
     //errors types:
     int numberOfPieces;
-    bool inValidNumberOfPieces = false;
     vector<int> missingPuzzleElements;
     vector<int> elementsAppearMoreThanOnce; //elements that have more than one occurrence
     vector<int> wrongPiecesIds;
@@ -39,22 +39,25 @@ private:
     void checkForMissingParts(const unique_ptr<AbstractPieceManager> &pieceManager);
 
     //export errors functions:
-    void printMissingElements(ofstream &outf) const;
+    void printMissingElements(stringstream &exceptionMessage) const;
 
-    void printOutOfRangeElements(ofstream &outf) const;
+    void printOutOfRangeElements(stringstream &exceptionMessage) const;
 
-    void printWrongFormatPieces(ofstream &outf) const;
+    void printWrongFormatPieces(stringstream &exceptionMessage) const;
 
-    void printNotValidIdsElements(ofstream &outf) const;
+    void printNotValidIdsElements(stringstream &exceptionMessage) const;
 
-    void printElementsAppearMoreThanOnce(ofstream &outf) const;
+    void printElementsAppearMoreThanOnce(stringstream &exceptionMessage) const;
+
+    bool hasErrors(const unique_ptr<AbstractPieceManager> &pieceManager);
+
+    void throwException() const;
 
 public:
-    explicit PuzzleParser(ifstream &fin, const unique_ptr<AbstractPieceManager> &pieceManager);
+    explicit PuzzleParser(ifstream &fin);
 
-    bool hasErrors() const;
+    void injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager);
 
-    void exportErrors(ofstream &outf) const;
 };
 
 #endif //PUZZLE_PUZZLEPARSER_H

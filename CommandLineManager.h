@@ -18,6 +18,8 @@ private:
     bool _rotateEnabled = false;
 
     bool tryOpenInputStream(char *fileName);
+    void exportErrors() const;
+    bool checkForValidNumberOfThreads(int argc, char **argv, int index);
 public:
     ifstream inputStream;
     ofstream outputStream;
@@ -28,11 +30,7 @@ public:
 
     bool hasErrors() const;
 
-    void exportErrors() const;
-
     bool isRotateEnable() const;
-
-    bool checkForValidNumberOfThreads(int argc, char **argv, int index);
 
     int getNumberOfThreads();
 };

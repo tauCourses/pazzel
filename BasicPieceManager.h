@@ -13,7 +13,7 @@ public:
 
     void addPiece(unique_ptr<PuzzlePiece> piece) override;
 
-    bool preConditions() const override;
+    void checkPreConditions() override;
 
     BasicPieceManager() = default;
 
@@ -34,7 +34,7 @@ private:
     //error handeling:
     bool hasAllCorners() const override;
 
-    void printMissingCorners(ofstream &fout) const override;
+    void printMissingCorners(stringstream &fout) const override;
 
     void addPieceToConstrain(Piece_t piece);
 

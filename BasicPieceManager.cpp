@@ -38,7 +38,8 @@ bool BasicPieceManager::isPuzzleShapePossible(AbstractPieceManager::Shape shape)
            downStraightCount >= shape.width;
 }
 
-bool BasicPieceManager::preConditions() const {
+void BasicPieceManager::checkPreConditions() {
+    AbstractPieceManager::checkPreConditions();
     int leftMaleRightFemaleRatio = 0, leftFemaleRightMaleRatio = 0, upMaleDownFemaleRatio = 0, upFemaleDownMaleRatio = 0;
     for (auto &pieceTuple : this->pieces) {
         auto piece = get<0>(pieceTuple);
@@ -51,10 +52,9 @@ bool BasicPieceManager::preConditions() const {
         if (piece.up == -1) upFemaleDownMaleRatio++;
         if (piece.down == 1) upFemaleDownMaleRatio--;
     }
-    return leftMaleRightFemaleRatio == 0 &&
-           leftFemaleRightMaleRatio == 0 &&
-           upMaleDownFemaleRatio == 0 &&
-           upFemaleDownMaleRatio == 0;
+    if(leftMaleRightFemaleRatio != 0 || leftFemaleRightMaleRatio != 0 || upMaleDownFemaleRatio != 0 ||
+           upFemaleDownMaleRatio != 0)
+        throw PuzzleException(NO_PROPER_SOLUTION);
 }
 
 bool BasicPieceManager::hasAllCorners() const {
@@ -64,7 +64,7 @@ bool BasicPieceManager::hasAllCorners() const {
            this->constrainRepository[hasDownStraight & hasRightStraight] != 0;
 }
 
-void BasicPieceManager::printMissingCorners(ofstream &fout) const {
+void BasicPieceManager::printMissingCorners(stringstream &fout) const {
     if (hasAllCorners())
         return;
     const char *message = "Cannot solve puzzle: missing corner element: ";

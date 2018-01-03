@@ -6,8 +6,10 @@
 #include <fstream>
 #include <thread>
 #include <mutex>
+#include <random>
 
 #include "SolverThread.h"
+#include "PuzzleException.h"
 
 using namespace std;
 
@@ -40,7 +42,7 @@ private:
 public:
     explicit PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads);
 
-    bool trySolve();
+    void solve();
 
     void exportSolution(ofstream &out) const;
 
