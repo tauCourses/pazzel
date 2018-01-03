@@ -9,6 +9,7 @@
 using namespace std;
 
 #define NO_PROPER_SOLUTION "Cannot solve puzzle: it seems that there is no proper solution\n"
+#define INVALID_NUMBER_OF_ELEMENTS "Invalid number of elements\n"
 class PuzzleException {
 public:
     explicit PuzzleException(const char* error);

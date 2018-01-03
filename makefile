@@ -1,4 +1,4 @@
-CPP = g++-5.3.0 -pthread
+CPP = g++-5 -pthread
 
 EXEC = ex3
 CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \

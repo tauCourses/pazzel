@@ -9,6 +9,7 @@
 
 #include "AbstractPieceManager.h"
 #include "PuzzlePiece.h"
+#include "PuzzleException.h"
 
 using namespace std;
 

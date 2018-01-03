@@ -31,7 +31,7 @@ public:
 
     unsigned int getNumberOfPieces() const;
 
-    bool hasErrors();
+    bool hasErrors() const;
 
     void exportErrors(ofstream &fout) const;
 

@@ -95,8 +95,9 @@ bool AbstractPieceManager::hasASumOfZero() const {
     }return sum == 0;
 }
 
-bool AbstractPieceManager::preConditions() const { //default implementation, could be override
-    return true;
+void AbstractPieceManager::preConditions() const { //default implementation, could be override
+    if(this->hasErrors())
+        this->throwException();
 }
 
 unsigned int AbstractPieceManager::getNumberOfPieces() const {

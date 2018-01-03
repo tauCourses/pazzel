@@ -5,7 +5,7 @@ PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager,
           numberOfPieces(pieceManager->getNumberOfPieces()) {}
 
 void PuzzleSolver::solve() {
-    if (!this->pieceManager->preConditions()) //check pre-conditions
+    this->pieceManager->preConditions(); //check pre-conditions
         throw PuzzleException(NO_PROPER_SOLUTION);
 
     this->initPuzzleShapesVectors();

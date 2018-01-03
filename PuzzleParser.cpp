@@ -5,7 +5,7 @@ PuzzleParser::PuzzleParser(ifstream &fin) : fin(fin) {}
 void PuzzleParser::injectPieces(const unique_ptr<AbstractPieceManager> &pieceManager) {
     string line;
     if (!this->tryReadFirstLine()) {
-        this->throwException();
+        throw PuzzleException(INVALID_NUMBER_OF_ELEMENTS);
     }
     while (!this->fin.eof()) {
         getline(this->fin, line);
@@ -16,6 +16,8 @@ void PuzzleParser::injectPieces(const unique_ptr<AbstractPieceManager> &pieceMan
             continue;
         pieceManager->addPiece(getNextPiece(id, line));
     }
+    if(this->hasErrors())
+        this->throwException();
     checkForMissingParts(pieceManager);
 }
 
