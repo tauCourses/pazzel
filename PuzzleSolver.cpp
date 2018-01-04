@@ -1,8 +1,7 @@
 #include "PuzzleSolver.h"
 
 PuzzleSolver::PuzzleSolver(const unique_ptr<AbstractPieceManager> &pieceManager, int numberOfThreads)
-        : pieceManager(pieceManager), numberOfThreads(numberOfThreads),
-          numberOfPieces(pieceManager->getNumberOfPieces()) {}
+        : pieceManager(pieceManager), numberOfThreads(numberOfThreads) {}
 
 void PuzzleSolver::solve() {
     this->pieceManager->checkPreConditions(); //check pre-conditions
@@ -13,7 +12,10 @@ void PuzzleSolver::solve() {
     for (int i = 0; i < this->numberOfThreads - 1; ++i)  //one thread is the main thread
         randomThreadsVector.emplace_back(std::thread(&PuzzleSolver::runThread, this, ThreadType::RANDOM));
 
-    runThread(ThreadType::SERIAL);
+    if(this->numberOfThreads == 1)
+        runSingleThread(); //a unique approach for one thread - involve random and serial runs
+    else
+        runThread(ThreadType::SERIAL);
     this->sharedData.sharedDataMutex.lock();
     this->sharedData.terminateThreads = true;
     this->sharedData.sharedDataMutex.unlock();
@@ -48,6 +50,24 @@ void PuzzleSolver::runThread(ThreadType type) {
     }
 }
 
+void PuzzleSolver::runSingleThread() {
+    this->puzzleSolverMutex.lock(); //no need, because just one thread. But for future safety remains...
+    SolverThread solverThread(this->sharedData, this->pieceManager, ThreadType::RANDOM);
+    this->puzzleSolverMutex.unlock();
+    for(int i=0; i<RANDOM_TRIES_BEFORE_SERIAL; i++) //try random for few times
+    {
+        if(!tryInitNextThreadRun(solverThread))
+            return;
+        if (solverThread.trySolve()) {
+            this->puzzleSolverMutex.lock();
+            solverThread.exportThreadSolution(this->puzzleSolution);
+            this->puzzleSolverMutex.unlock();
+            return;
+        }
+    }
+    runThread(ThreadType::SERIAL); //scan serial all the options, return if no solution found.
+}
+
 bool PuzzleSolver::tryInitNextThreadRun(SolverThread& solverThread){
     this->sharedData.sharedDataMutex.lock();
     if (this->sharedData.terminateThreads) {
@@ -63,7 +83,7 @@ bool PuzzleSolver::tryInitNextThreadRun(SolverThread& solverThread){
     return true;
 }
 
-bool PuzzleSolver::tryInitSerialRun(SolverThread& solverThread) {//globalDataMutex has to be locked!
+bool PuzzleSolver::tryInitSerialRun(SolverThread& solverThread) {
     this->puzzleSolverMutex.lock();
     if(this->shapesForSerialScanning.empty())
     {
@@ -76,7 +96,7 @@ bool PuzzleSolver::tryInitSerialRun(SolverThread& solverThread) {//globalDataMut
     return true;
 }
 
-void PuzzleSolver::initRandomizeRun(SolverThread& solverThread) {//global Data Mutex has to be locked!
+void PuzzleSolver::initRandomizeRun(SolverThread& solverThread) {
     unsigned long random_integer = (rand() % this->allPossiblePuzzleShapes.size());
     this->puzzleSolverMutex.lock();
     solverThread.shape = this->allPossiblePuzzleShapes.at(random_integer);

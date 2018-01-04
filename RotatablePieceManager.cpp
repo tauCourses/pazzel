@@ -63,13 +63,13 @@ bool RotatablePieceManager::hasTwoSideForARaw() const {
 void RotatablePieceManager::printMissingCorners(stringstream &fout) const {
     (void) pieceRepository;
     if (this->pieces.size() == 1) {
-        fout << "Piece is not square" << endl;
+        fout << NOT_SQUARE_PIECE << endl;
         return;
     }
     if (this->numberOfCorners() >= 4 || this->hasTwoSideForARaw())
         return;
 
-    fout << "There are not enough corners" << endl;
+    fout << NOT_ENOUGH_CORNERS << endl;
 }
 
 RotatablePieceManager::RotatablePieceManager() {

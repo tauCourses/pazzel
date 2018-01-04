@@ -11,6 +11,8 @@
 #include "SolverThread.h"
 #include "PuzzleException.h"
 
+#define RANDOM_TRIES_BEFORE_SERIAL 10
+
 using namespace std;
 
 class PuzzleSolver {
@@ -27,9 +29,10 @@ private:
     SolverThread::SharedData sharedData;
 
     int numberOfThreads;
-    int numberOfPieces;
 
     void runThread(ThreadType type);
+
+    void runSingleThread(); //a unique approach for single thread solution
 
     void initPuzzleShapesVectors();
 
@@ -45,9 +48,6 @@ public:
     void solve();
 
     void exportSolution(ofstream &out) const;
-
-    void exportErrors(ofstream &out) const;
-
 };
 
 

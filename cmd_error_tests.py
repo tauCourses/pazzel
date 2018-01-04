@@ -21,3 +21,5 @@ for test in error_tests:
     out, err = p.communicate()
     if err.decode('ascii') != error_messgaes[test[1]]:
         print('for %s accepted:\n%s\nBut got:\n%s' % (test[0],error_messgaes[test[1]],err.decode('ascii')))
+    else:
+        print('pass')

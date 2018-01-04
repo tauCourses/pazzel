@@ -67,11 +67,14 @@ bool BasicPieceManager::hasAllCorners() const {
 void BasicPieceManager::printMissingCorners(stringstream &fout) const {
     if (hasAllCorners())
         return;
-    const char *message = "Cannot solve puzzle: missing corner element: ";
-    if (this->constrainRepository[hasUpperStraight & hasLeftStraight] == 0) fout << message << "TL" << endl;
-    if (this->constrainRepository[hasUpperStraight & hasRightStraight] == 0) fout << message << "TR" << endl;
-    if (this->constrainRepository[hasDownStraight & hasLeftStraight] == 0) fout << message << "BL" << endl;
-    if (this->constrainRepository[hasDownStraight & hasRightStraight] == 0) fout << message << "BR" << endl;
+    if (this->constrainRepository[hasUpperStraight & hasLeftStraight] == 0)
+        fout << MISSING_CORNER << "TL" << endl;
+    if (this->constrainRepository[hasUpperStraight & hasRightStraight] == 0)
+        fout << MISSING_CORNER << "TR" << endl;
+    if (this->constrainRepository[hasDownStraight & hasLeftStraight] == 0)
+        fout << MISSING_CORNER << "BL" << endl;
+    if (this->constrainRepository[hasDownStraight & hasRightStraight] == 0)
+        fout << MISSING_CORNER << "BR" << endl;
 }
 
 void BasicPieceManager::addPieceToRepository(Piece_t piece) {
